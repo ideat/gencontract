@@ -2,7 +2,7 @@ package com.mindware;
 
 import javax.servlet.annotation.WebServlet;
 
-import com.mindware.View.*;
+import com.mindware.view.*;
 import com.vaadin.annotations.Theme;
 import com.vaadin.annotations.Title;
 import com.vaadin.annotations.VaadinServletConfiguration;
@@ -11,7 +11,6 @@ import com.vaadin.icons.VaadinIcons;
 import com.vaadin.navigator.PushStateNavigation;
 import com.vaadin.navigator.ViewChangeListener;
 import com.vaadin.server.ClientConnector.DetachListener;
-import com.vaadin.server.FontAwesome;
 import com.vaadin.server.Page;
 import com.vaadin.server.ThemeResource;
 import com.vaadin.server.VaadinRequest;
@@ -26,7 +25,6 @@ import com.vaadin.ui.VerticalLayout;
 import elemental.json.JsonArray;
 import kaesdingeling.hybridmenu.HybridMenu;
 import kaesdingeling.hybridmenu.builder.HybridMenuBuilder;
-import kaesdingeling.hybridmenu.builder.NotificationBuilder;
 import kaesdingeling.hybridmenu.builder.left.LeftMenuButtonBuilder;
 import kaesdingeling.hybridmenu.builder.left.LeftMenuSubMenuBuilder;
 import kaesdingeling.hybridmenu.builder.top.TopMenuButtonBuilder;
@@ -37,7 +35,6 @@ import kaesdingeling.hybridmenu.data.DesignItem;
 import kaesdingeling.hybridmenu.data.MenuConfig;
 import kaesdingeling.hybridmenu.data.enums.EMenuComponents;
 import kaesdingeling.hybridmenu.data.enums.EMenuStyle;
-import kaesdingeling.hybridmenu.data.enums.ENotificationPriority;
 import kaesdingeling.hybridmenu.data.leftmenu.MenuButton;
 import kaesdingeling.hybridmenu.data.leftmenu.MenuSubMenu;
 import kaesdingeling.hybridmenu.data.top.TopMenuButton;
@@ -47,7 +44,7 @@ import kaesdingeling.hybridmenu.data.top.TopMenuSubContent;
 import com.mindware.page.SettingsPage;
 import com.mindware.page.ThemeBuilderPage;
 
-@Theme("demo")
+@Theme("mytheme")
 @Title("Generador contratos")
 @PushStateNavigation
 @SuppressWarnings({ "serial", "deprecation" })
@@ -60,27 +57,32 @@ public class MyUI extends UI implements DetachListener {
     
     private NotificationCenter notiCenter = null;
     private HybridMenu hybridMenu = null;
-
+	private LoginForm loginForm = null;
     @Override
     protected void init(VaadinRequest request) {
     	UI.getCurrent().setPollInterval(5000);
-    	
-    	MenuConfig menuConfig = new MenuConfig();
-    	menuConfig.setDesignItem(DesignItem.getDarkDesign());
-    	
-    	notiCenter = new NotificationCenter(5000);
-    	
-    	hybridMenu = HybridMenuBuilder.get()
-    			.setContent(new VerticalLayout())
-    			.setMenuComponent(EMenuComponents.LEFT_WITH_TOP)
-    			.setConfig(menuConfig)
+        loginForm = new LoginForm();
+    	setContent(loginForm);
+//		callMenu();
+    }
+
+	public void callMenu() {
+		MenuConfig menuConfig = new MenuConfig();
+		menuConfig.setDesignItem(DesignItem.getWhiteBlueDesign());
+
+		notiCenter = new NotificationCenter(5000);
+
+		hybridMenu = HybridMenuBuilder.get()
+                .setContent(new VerticalLayout())
+                .setMenuComponent(EMenuComponents.LEFT_WITH_TOP)
+                .setConfig(menuConfig)
 //    			.withNotificationCenter(notiCenter)
-    			.build();
-    	
-    	UI.getCurrent().getNavigator().addView(UserForm.class.getSimpleName(), UserForm.class);
-    	UI.getCurrent().getNavigator().addView(ImportDataForm.class.getSimpleName(), ImportDataForm.class);
-    	UI.getCurrent().getNavigator().addView(ListContractForm.class.getSimpleName(), ListContractForm.class);
-    	UI.getCurrent().getNavigator().addView(RegisterNewDataForm.class.getSimpleName(), RegisterNewDataForm.class);
+                .build();
+
+		UI.getCurrent().getNavigator().addView(UserForm.class.getSimpleName(), UserForm.class);
+		UI.getCurrent().getNavigator().addView(ImportDataForm.class.getSimpleName(), ImportDataForm.class);
+		UI.getCurrent().getNavigator().addView(ListContractForm.class.getSimpleName(), ListContractForm.class);
+		UI.getCurrent().getNavigator().addView(RegisterNewDataForm.class.getSimpleName(), RegisterNewDataForm.class);
 		UI.getCurrent().getNavigator().addView(ManageBranchOfficeForm.class.getSimpleName(), ManageBranchOfficeForm.class);
 		UI.getCurrent().getNavigator().addView(TemplateContractsForm.class.getSimpleName(), TemplateContractsForm.class);
 		UI.getCurrent().getNavigator().addView(VariablesContractsForm.class.getSimpleName(), VariablesContractsForm.class);
@@ -101,33 +103,32 @@ public class MyUI extends UI implements DetachListener {
 			}else
 				buildTopOnlyMenu(hybridMenu);
 
-    	getNavigator().addViewChangeListener(new ViewChangeListener() {
-			@Override
-			public boolean beforeViewChange(ViewChangeEvent event) {
-				if (event.getOldView() != null && event.getOldView().getClass().getSimpleName().equals(ThemeBuilderPage.class.getSimpleName())) {
-					hybridMenu.switchTheme(DesignItem.getDarkDesign());
-				}
-				return true;
-			}
-		});
-    	
+		getNavigator().addViewChangeListener(new ViewChangeListener() {
+            @Override
+            public boolean beforeViewChange(ViewChangeEvent event) {
+                if (event.getOldView() != null && event.getOldView().getClass().getSimpleName().equals(ThemeBuilderPage.class.getSimpleName())) {
+                    hybridMenu.switchTheme(DesignItem.getDarkDesign());
+                }
+                return true;
+            }
+        });
 
 
-    	setContent(hybridMenu);
-    	VaadinSession.getCurrent().setAttribute(HybridMenu.class, hybridMenu);
-    	
-    	JavaScript.getCurrent().addFunction("aboutToClose", new JavaScriptFunction() {
-			private static final long serialVersionUID = 1L;
-			@Override
+		setContent(hybridMenu);
+		VaadinSession.getCurrent().setAttribute(HybridMenu.class, hybridMenu);
+
+		JavaScript.getCurrent().addFunction("aboutToClose", new JavaScriptFunction() {
+            private static final long serialVersionUID = 1L;
+            @Override
             public void call(JsonArray arguments) {
                 detach();
             }
         });
 
-        Page.getCurrent().getJavaScript().execute("window.onbeforeunload = function (e) { var e = e || window.event; aboutToClose(); return; };");
-    }
-    
-    private void printState(ServerConnector connector, boolean serverDebug) {
+		Page.getCurrent().getJavaScript().execute("window.onbeforeunload = function (e) { var e = e || window.event; aboutToClose(); return; };");
+	}
+
+	private void printState(ServerConnector connector, boolean serverDebug) {
     	System.out.println(connector.getClass().getSimpleName());
 }
 

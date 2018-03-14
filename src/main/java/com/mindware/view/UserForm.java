@@ -1,6 +1,5 @@
-package com.mindware.View;
+package com.mindware.view;
 
-import com.vaadin.navigator.ViewChangeListener;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.navigator.View;
 import com.vaadin.ui.Label;

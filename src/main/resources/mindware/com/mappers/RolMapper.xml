@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace = "com.mindware.mappers.RolMapper">
+
+    <resultMap type="rol" id="RolResult">
+        <id 	property="rolId" column="rol_id"/>
+        <result property="rolName" column="rol_name"/>
+        <result property="description" column="description"/>
+       <!--
+        <collection property="opcionesMenu" column="rol_id" ofType="OpcionesMenu" resultMap="OpcionesMenuResult"/>
+        -->
+    </resultMap>
+<!--
+    <resultMap type="opcionesmenu" id="OpcionesMenuResult">
+        <id 	property="opcionesMenuId" column="opciones_menu_id"/>
+        <result property="rolId" column="rol_id"/>
+        <result property="opcionesId" column="opciones_id" />
+
+    </resultMap>
+-->
+
+
+    <select id="findAllRol" resultMap="RolResult">
+        select * from rol
+        order by rol_name
+    </select>
+<!--
+    <select id="findAllRolOpcionsMenu" resultMap="RolResult" parameterType="int">
+        select *
+        from rol r
+        inner join opciones_menu o ON r.rol_id = o.rol_id
+        where r.rol_id = #{rolId}
+
+    </select>
+-->
+
+    <insert id="insertRol"  parameterType="rol" keyProperty="rolId" >
+        <selectKey keyProperty="rolId" resultType="int" order="BEFORE">
+            select nextval('rol_id_seq')
+        </selectKey>
+        insert into rol (
+        rol_id,
+        rol_name,
+        description)
+        values (
+        #{rolId},
+        #{rolName},
+        #{description})
+    </insert>
+
+    <update id="updateRol" parameterType="rol">
+        update rol
+        set
+        description = #{description},
+        rol_name = #{rolName}
+        where rol_id = #{rolId}
+
+    </update>
+
+
+
+</mapper>

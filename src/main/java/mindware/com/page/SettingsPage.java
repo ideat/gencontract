@@ -1,4 +1,4 @@
-package com.mindware.page;
+package mindware.com.page;
 
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;

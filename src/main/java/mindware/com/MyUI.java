@@ -1,8 +1,8 @@
-package com.mindware;
+package mindware.com;
 
 import javax.servlet.annotation.WebServlet;
 
-import com.mindware.view.*;
+import mindware.com.view.*;
 import com.vaadin.annotations.Theme;
 import com.vaadin.annotations.Title;
 import com.vaadin.annotations.VaadinServletConfiguration;
@@ -41,8 +41,9 @@ import kaesdingeling.hybridmenu.data.top.TopMenuButton;
 import kaesdingeling.hybridmenu.data.top.TopMenuLabel;
 import kaesdingeling.hybridmenu.data.top.TopMenuSubContent;
 
-import com.mindware.page.SettingsPage;
-import com.mindware.page.ThemeBuilderPage;
+import mindware.com.page.SettingsPage;
+import mindware.com.page.ThemeBuilderPage;
+import mindware.com.view.*;
 
 @Theme("mytheme")
 @Title("Generador contratos")

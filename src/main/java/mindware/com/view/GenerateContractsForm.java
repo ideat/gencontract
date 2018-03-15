@@ -1,4 +1,4 @@
-package com.mindware.view;
+package mindware.com.view;
 
 import com.vaadin.navigator.View;
 import com.vaadin.ui.CustomComponent;

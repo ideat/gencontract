@@ -1,13 +1,11 @@
-package com.mindware.view;
+package mindware.com.view;
 
-import com.mindware.MyUI;
+import mindware.com.MyUI;
 
 import com.vaadin.data.HasValue;
-import com.vaadin.event.FieldEvents;
 import com.vaadin.event.ShortcutListener;
 import com.vaadin.event.ShortcutAction.KeyCode;
 import com.vaadin.icons.VaadinIcons;
-import com.vaadin.server.FontAwesome;
 import com.vaadin.ui.*;
 import com.vaadin.ui.themes.ValoTheme;
 

@@ -1,6 +1,6 @@
-package com.mindware.mappers;
+package mindware.com.mappers;
 
-import com.mindware.model.Rol;
+import mindware.com.model.Rol;
 
 import java.util.List;
 

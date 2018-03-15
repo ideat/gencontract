@@ -82,7 +82,7 @@
 		<dependency>
 			<groupId>com.ibm.informix</groupId>
 			<artifactId>jdbc</artifactId>
-			<version>4.10.6.20151104</version>
+			<version>4.10.10</version>
 		</dependency>
 		<!-- jdbc postgresql version 9.2 y posteriores -->
 		<dependency>

@@ -1,7 +1,7 @@
-package com.mindware.page;
+package mindware.com.page;
 
 import com.google.gson.Gson;
-import com.mindware.MyUI;
+import mindware.com.MyUI;
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;

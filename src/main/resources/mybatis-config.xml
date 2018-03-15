@@ -4,12 +4,13 @@
         "http://mybatis.org/dtd/mybatis-3-config.dtd">
 <configuration>
 
-    <!--<properties resource="application.properties"/> -->
+    <properties resource="application.properties"/>
 
     <typeAliases>
         <package name="com.mindware.model"/>
+        <package name="mindware.com.netbank.model"/>
     </typeAliases>
-    <environments default="development">
+    <environments default="netbank">
         <environment id="development">
             <transactionManager type="JDBC"/>
             <dataSource type="POOLED">
@@ -23,17 +24,22 @@
         <environment id="netbank">
             <transactionManager type="JDBC"/>
             <dataSource type="POOLED">
-                <property name="driver" value="com.informix.jdbc.IfxDriver"/>
-                <property name="url" value="jdbc:informix-sqli://192.168.80.131:1530/tbase:INFORMIXSERVER=online"/>
-                <property name="username" value="informix"/>
-                <property name="password" value="informix"/>
+                <property name="driver" value="${driver}"/>
+                <property name="url" value="${url}"/>
+                <property name="username" value="${username}"/>
+                <property name="password" value="${password}"/>
+              <!--  <property name="poolPingQuery" value="SELECT NOW()" />
+                <property name="poolPingEnabled" value="true" />
+                -->
             </dataSource>
         </environment>
 
 
     </environments>
     <mappers>
-        <package name="com.mindware.mappers"/>
-       <!-- <mapper resource="com/mindware/mappers/EmpleadoMapper.xml"/> -->
+         <package name="com.mindware.mappers"/>
+         <package name="mindware.com.netbank.mappers"/>
+
+        <!-- <mapper resource="com/mindware/mappers/EmpleadoMapper.xml"/> -->
     </mappers>
 </configuration>

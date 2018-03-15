@@ -1,4 +1,4 @@
-package com.mindware.model;
+package mindware.com.model;
 
 public class Rol {
     private Integer rolId;

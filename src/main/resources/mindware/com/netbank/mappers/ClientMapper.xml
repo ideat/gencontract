@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace = "mindware.com.netbank.mappers.ClientMapper">
+
+    <resultMap type="client" id="ClientResult">
+        <id 	property="clientId" column="gbagecage"/>
+        <result property="name" column="gbagenomb"/>
+        <result property="address" column="gbagedir"/>
+        <result property="gender" column="gbagesexo"/>
+        <result property="civilStatus" column="gbageeciv"/>
+        <!--
+         <collection property="opcionesMenu" column="rol_id" ofType="OpcionesMenu" resultMap="OpcionesMenuResult"/>
+         -->
+    </resultMap>
+
+
+    <select id="findClientNetbankById" resultMap="ClientResult" parameterType="int">
+        select gbagecage, gbagenomb,gbagendid, gbageeciv,
+        gbagesexo, (gbagedir1 || " " ||gbagedir2) gbagedir
+        from gbage
+        inner join prmpr on (prmprncage = gbagecage)
+        where gbagecage = #{clientId}
+
+    </select>
+
+
+</mapper>

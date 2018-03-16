@@ -109,6 +109,15 @@ $v-selection-item-border-radius: 0;
     box-sizing: border-box !important;
     color: #FFFFFF ;
   }
+
+  .v-panel-content > div {
+    background: transparent;
+  }
+
+  .v-panel-content {
+    background-color:#ACACAC;
+  }
+
   .v-panel-content-desktop > div {
     //background: transparent;
     //background-color: #4F9EE5;

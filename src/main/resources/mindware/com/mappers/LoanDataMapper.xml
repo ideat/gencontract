@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace = "mindware.com.mappers.LoanDataMapper">
+
+    <resultMap type="clientloan" id="ClientLoanResult">
+        <id 	property="clientId" column="client_id"/>
+        <result property="branchOfficeId" column="branch_office_id"/>
+        <result property="loanNumber" column="loan_number"/>
+        <result property="currency" column="currency"/>
+        <result property="loanMount" column="loan_mount"/>
+        <result property="loanTerm" column="loan_term"/>
+        <result property="interestRate"  column="interes_rate"/>
+        <result property="treRate" column="tre_rate"/>
+        <result property="teacRate" column="teac_rate"/>
+        <result property="feePayment" column="fee_payment"/>
+        <result property="paymentFrecuency" column="payment_frecuency"/>
+        <result property="creditLifeInsurance" column="credit_life_insurance"/>
+        <result property="totalPayment" column="total_payment"/>
+        <result property="loanDestination" column="loand_destination"/>
+        <result property="agency" column="agency"/>
+        <result property="official" column="official"/>
+        <result property="debtorName" column="debtor_name"/>
+        <result property="identityCardDebtor" column="identityCardDebtor"/>
+        <result property="addressDebtor" column="address_debtor"/>
+        <result property="civilStatusDebtor" column="civil_status_debtor"/>
+        <result property="genderDebor" column="gender_debtor"/>
+        <result property="clientLoanId" column="client_loan_id"/>
+        <result property="fixedPaymentDay" column="fixed_payment_day"/>
+        <result property="coDebtors" column="co_debtors"/>
+        <result property="warranty" column="warranty"/>
+        <result property="extraData" column="extra_data"/>
+
+    </resultMap>
+
+
+    <select id="findClientNetbankById" resultMap="ClientLoanResult" parameterType="int">
+
+
+    </select>
+
+
+</mapper>

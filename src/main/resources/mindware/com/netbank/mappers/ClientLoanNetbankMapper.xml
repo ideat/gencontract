@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace = "mindware.com.netbank.mappers.ClientLoanNetbankMapper">
+
+    <resultMap type="clientloannetbank" id="ClientLoanNetbankResult">
+        <id 	property="prmprcage" column="prmprcage"/>
+        <result property="gbagendid" column="gbagendid"/>
+        <result property="gbagenomb" column="gbagenomb"/>
+        <result property="gbageeciv" column="gbageeciv"/>
+        <result property="gbagesexo" column="gbagesexo"/>
+        <result property="gbagedir" column="gbagedir"/>
+        <result property="prmprnpre"  column="prmprnpre"/>
+        <result property="prmprcmon" column="prmprcmon"/>
+        <result property="prmprmdes" column="prmprmdes"/>
+        <result property="prmprplzo" column="prmprplzo"/>
+        <result property="prmprppgk" column="prmprppgk"/>
+        <result property="prtsatbas" column="prtsatbas"/>
+        <result property="prmprdiap" column="prmprdiap"/>
+
+    </resultMap>
+
+
+    <select id="findClientLoanNetbankByCreCod" resultMap="ClientLoanNetbankResult" parameterType="int">
+        select prmprcage, gbagendid,gbagenomb, gbageeciv, gbagesexo,  (gbagedir1 || " " || gbagedir2) as gbagedir,
+        prmprnpre, prmprcmon, prmprmdes, prmprplzo, prmprppgk, prtsatbas, prmprdiap
+        from gbage
+        inner join prmpr on (prmprcage = gbagecage)
+        inner join prtsa on (prmprnpre = prtsanpre)
+        where prmprnpre = #{prmprnpre}
+
+    </select>
+
+
+</mapper>

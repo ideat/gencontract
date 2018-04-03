@@ -1,5 +1,7 @@
 package mindware.com.mappers;
 
-public interface LoanDataMapper {
+import mindware.com.model.LoanData;
 
+public interface LoanDataMapper {
+    void insertLoanData(LoanData loanData);
 }

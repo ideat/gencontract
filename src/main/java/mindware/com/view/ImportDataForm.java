@@ -1,13 +1,23 @@
 package mindware.com.view;
 
+import com.vaadin.ui.renderers.TextRenderer;
+import mindware.com.model.LoanData;
 import mindware.com.netbank.model.ClientLoanNetbank;
+import mindware.com.netbank.model.WarrantyNetbank;
 import mindware.com.netbank.service.ClientLoanNetBankService;
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.navigator.View;
 import com.vaadin.ui.*;
 import com.vaadin.ui.themes.ValoTheme;
+import mindware.com.netbank.service.WarrantyNetBankService;
+import mindware.com.service.LoanDataService;
+import mindware.com.utilities.JsonUtil;
+
+
+import java.util.List;
 
 public class ImportDataForm extends CustomComponent implements View {
+    private Button btnSearch;
     private Button btnImport;
     private TextField txtLoanNumberSearch;
     private TextField txtLoanNumber;
@@ -42,7 +52,10 @@ public class ImportDataForm extends CustomComponent implements View {
     private VerticalLayout verticalLayoutCoDebtor;
     private VerticalLayout verticalLayoutWarranty;
     private VerticalLayout verticalLayoutGuarantors;
+    private  Grid<WarrantyNetbank> gridWarranty;
 
+    private ClientLoanNetbank clientLoanNetbank;
+    private List<WarrantyNetbank> warrantyNetbankList;
 
     public ImportDataForm(){
         setCompositionRoot(buildGridLayout());
@@ -50,11 +63,61 @@ public class ImportDataForm extends CustomComponent implements View {
     }
 
     private void postBuild(){
-        btnImport.addClickListener(clickEvent -> {
+        JsonUtil jsonUtil = new JsonUtil();
+
+
+        btnSearch.addClickListener(clickEvent -> {
             ClientLoanNetBankService clientLoanNetBankService = new ClientLoanNetBankService();
-            ClientLoanNetbank clientLoanNetbank = clientLoanNetBankService.findClientNetbankById(Integer.parseInt(txtLoanNumberSearch.getValue().toString()));
+            clientLoanNetbank = clientLoanNetBankService.findClientNetbankById(Integer.parseInt(txtLoanNumberSearch.getValue().toString()));
+            WarrantyNetBankService warrantyNetBankService = new WarrantyNetBankService();
+            warrantyNetbankList = warrantyNetBankService.findWarrantyNetbankByCreCod(Integer.parseInt(txtLoanNumberSearch.getValue().toString()));
             loadNetBankData(clientLoanNetbank);
+            loadWarrantyNetBank(warrantyNetbankList);
+
         });
+
+        btnImport.addClickListener(clickEvent -> {
+            String jsonArrayWarranty= jsonUtil.listWarrantyNetBankToJsonFormat(warrantyNetbankList);
+            LoanDataService loanDataService = new LoanDataService();
+            LoanData loanData = new LoanData();
+            loanData.setLoanNumber(Integer.parseInt(txtLoanNumber.getValue()));
+            loanData.setCurrency(txtCurrency.getValue());
+            loanData.setLoanMount(Double.parseDouble(txtLoanMount.getValue()));
+            loanData.setLoanTerm(Integer.parseInt(txtLoanTerm.getValue()));
+            loanData.setInterestRate(Double.parseDouble(txtInterestRate.getValue()));
+            loanData.setCreditLifeInsurance(Double.parseDouble(txtCreditLifeInsurance.getValue()));
+            loanData.setFixedPaymentDay(Integer.parseInt(txtFixedPaymentDay.getValue()));
+            loanData.setPaymentFrecuency(txtPaymentFrecuency.getValue());
+            loanData.setOfficial(txtOfficial.getValue());
+            loanData.setAgency(txtAgency.getValue());
+
+
+
+
+
+        });
+
+        btnSaveSupplementaryData.addClickListener(clickEvent -> {
+
+        });
+    }
+
+    private void loadWarrantyNetBank(List<WarrantyNetbank> warrantyNetbankList){
+        gridWarranty.setItems(warrantyNetbankList);
+        gridWarranty.addColumn(WarrantyNetbank::getPrgarnpre).setCaption("Nro prestamo");
+        gridWarranty.addColumn(WarrantyNetbank::getGbtgadesc).setCaption("Tipo garantia");
+        gridWarranty.addColumn(WarrantyNetbank::getPrgarcmon).setCaption("Moneda");
+        gridWarranty.addColumn(WarrantyNetbank::getPrgargfin).setCaption("Grav. Fav. Entidad");
+        gridWarranty.addColumn(WarrantyNetbank::getPrgarfvto,new TextRenderer("-")).setCaption("Fecha venc");
+        gridWarranty.addColumn(WarrantyNetbank::getPrgarnpar,new TextRenderer("-")).setCaption("Nro. Part. DDRR");
+        gridWarranty.addColumn(WarrantyNetbank::getPrgarfpar,new TextRenderer("-")).setCaption("Fecha partida DDRR");
+        gridWarranty.addColumn(WarrantyNetbank::getPrgarnhip, new TextRenderer("-")).setCaption("Nro hip.");
+        gridWarranty.addColumn(WarrantyNetbank::getPrgarfhip, new TextRenderer("-")).setCaption("Fecha hip.");
+        gridWarranty.addColumn(WarrantyNetbank::getPrgardesc, new TextRenderer("-")).setCaption("Descripcion");
+        gridWarranty.addColumn(WarrantyNetbank::getPrgarsufl, new TextRenderer("-")).setCaption("Suf. liquida");
+
+
+
     }
 
     private void loadNetBankData(ClientLoanNetbank clientLoanNetbank){
@@ -134,7 +197,7 @@ public class ImportDataForm extends CustomComponent implements View {
 
     private GridLayout buildGridLayout(){
         gridLayout = new GridLayout();
-        gridLayout.setColumns(5);
+        gridLayout.setColumns(10);
         gridLayout.setRows(9);
         gridLayout.setSpacing(true);
         gridLayout.setSizeFull();
@@ -144,15 +207,23 @@ public class ImportDataForm extends CustomComponent implements View {
         txtLoanNumberSearch.setPlaceholder("Ingrese credito");
         gridLayout.addComponent(txtLoanNumberSearch,0,0);
 
-        gridLayout.addComponent(buildClientPanel(),0,1,4,3);
-        gridLayout.addComponent(buildLoanPanel(),0,4,4,6);
-        gridLayout.addComponent(buildTabSupplementaryData(),0,7,4,8);
+        btnSearch =new Button("Buscar");
+        btnSearch.setStyleName(ValoTheme.BUTTON_PRIMARY);
+        btnSearch.setIcon(VaadinIcons.SEARCH);
+        gridLayout.addComponent(btnSearch,1,0);
+        gridLayout.setComponentAlignment(btnSearch,Alignment.BOTTOM_LEFT);
 
-        btnImport=new Button("Buscar");
-        btnImport.setStyleName(ValoTheme.BUTTON_PRIMARY);
-        btnImport.setIcon(VaadinIcons.SEARCH);
-        gridLayout.addComponent(btnImport,1,0);
+        btnImport = new Button("Importar");
+        btnImport.setStyleName(ValoTheme.BUTTON_FRIENDLY);
+        btnImport.setIcon(VaadinIcons.DATABASE);
+        gridLayout.addComponent(btnImport,2,0);
         gridLayout.setComponentAlignment(btnImport,Alignment.BOTTOM_LEFT);
+
+        gridLayout.addComponent(buildClientPanel(),0,1,9,3);
+        gridLayout.addComponent(buildLoanPanel(),0,4,9,6);
+        gridLayout.addComponent(buildTabSupplementaryData(),0,7,9,8);
+
+
         return gridLayout;
     }
 
@@ -219,8 +290,6 @@ public class ImportDataForm extends CustomComponent implements View {
         txtAgency.setReadOnly(true);
         gridLayoutLoan.addComponent(txtAgency,3,1);
 
-
-
         panelLoan.setContent(gridLayoutLoan);
 
 
@@ -279,6 +348,7 @@ public class ImportDataForm extends CustomComponent implements View {
         tabSupplementaryData = new TabSheet();
         tabSupplementaryData.setStyleName(ValoTheme.TABSHEET_FRAMED);
         tabSupplementaryData.addTab(buildGriLayoutSupplentaryData(),"Datos complementarios");
+        tabSupplementaryData.addTab(buildVerticalLayoutWarranty(),"Garantias");
 
 
         return tabSupplementaryData;
@@ -323,6 +393,21 @@ public class ImportDataForm extends CustomComponent implements View {
         gridLayoutSupplementaryData.addComponent(btnSaveSupplementaryData,0,2);
 
         return gridLayoutSupplementaryData;
+    }
+
+    private VerticalLayout buildVerticalLayoutWarranty(){
+        verticalLayoutWarranty = new VerticalLayout();
+        verticalLayoutWarranty.setWidth("100%");
+        verticalLayoutWarranty.setHeight("160px");
+        verticalLayoutWarranty.setSpacing(true);
+        gridWarranty = new Grid<WarrantyNetbank>();
+        gridWarranty.setSizeFull();
+        gridWarranty.setStyleName(ValoTheme.TABLE_COMPACT);
+
+
+        verticalLayoutWarranty.addComponent(gridWarranty);
+
+        return verticalLayoutWarranty;
     }
 
 }

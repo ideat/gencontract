@@ -5,10 +5,11 @@
 
 <mapper namespace = "mindware.com.mappers.LoanDataMapper">
 
-    <resultMap type="clientloan" id="ClientLoanResult">
-        <id 	property="clientId" column="client_id"/>
+    <resultMap type="loandata" id="LoanDataResult">
+        <id property="loandDataId" column="loan_data_id"/>
         <result property="branchOfficeId" column="branch_office_id"/>
         <result property="loanNumber" column="loan_number"/>
+        <result property="loanDate" column="loan_date"/>
         <result property="currency" column="currency"/>
         <result property="loanMount" column="loan_mount"/>
         <result property="loanTerm" column="loan_term"/>
@@ -19,27 +20,92 @@
         <result property="paymentFrecuency" column="payment_frecuency"/>
         <result property="creditLifeInsurance" column="credit_life_insurance"/>
         <result property="totalPayment" column="total_payment"/>
-        <result property="loanDestination" column="loand_destination"/>
+        <result property="loanDestination" column="loan_destination"/>
         <result property="agency" column="agency"/>
         <result property="official" column="official"/>
         <result property="debtorName" column="debtor_name"/>
-        <result property="identityCardDebtor" column="identityCardDebtor"/>
+        <result property="identityCardDebtor" column="identity_card_debtor"/>
         <result property="addressDebtor" column="address_debtor"/>
         <result property="civilStatusDebtor" column="civil_status_debtor"/>
         <result property="genderDebor" column="gender_debtor"/>
         <result property="clientLoanId" column="client_loan_id"/>
         <result property="fixedPaymentDay" column="fixed_payment_day"/>
-        <result property="coDebtors" column="co_debtors"/>
-        <result property="warranty" column="warranty"/>
-        <result property="extraData" column="extra_data"/>
+        <result property="coDebtors" column="co_debtors" javaType="com.google.gson.JsonElement"/>
+        <result	property="guarantors" column="guarantors" javaType="com.google.gson.JsonElement"/>
+        <result property="warranty" column="warranty" javaType="com.google.gson.JsonElement"/>
+        <result property="extraData" column="extra_data" javaType="com.google.gson.JsonElement"/>
 
     </resultMap>
 
 
-    <select id="findClientNetbankById" resultMap="ClientLoanResult" parameterType="int">
+    <select id="findClientNetbankById" resultMap="LoanDataResult" parameterType="int">
 
 
     </select>
+
+    <insert id="insertLoanData"  parameterType="loandata" keyProperty="loanDataId" >
+        <selectKey keyProperty="loanDataId" resultType="int" order="BEFORE">
+            select nextval('loand_data_id_seq')
+        </selectKey>
+        insert into loand_data (
+        loand_data_id,
+        branch_office_id,
+        loan_number,
+        loan_date,
+        currency,
+        loan_mount,
+        loan_term,
+        interes_rate,
+        tre_rate,
+        teac_rate,
+        fee_payment,
+        payment_frecuency,
+        credit_life_insurance,
+        total_payment,
+        loan_destination,
+        agency,
+        official,
+        debtor_name,
+        identity_card_debtor,
+        address_debtor,
+        civil_status_debtor,
+        gender_debtor,
+        client_loand_id,
+        fixed_payment_day,
+        cod_debtors,
+        guarantors,
+        warranty,
+        extra_data)
+        values (
+        #{loandDataId},
+        #{branchOfficeId},
+        #{loanNumber},
+        #{loanDate},
+        #{currency},
+        #{loanMount},
+        #{loanTerm},
+        #{interesRate},
+        #{treRate},
+        #{teacRate},
+        #{feePayment},
+        #{paymentFrecuency},
+        #{creditLifeInsurance},
+        #{totalPayment},
+        #{loanDestination},
+        #{agency},
+        #{offcial},
+        #{debtorName},
+        #{identityCardDebtor},
+        #{addressDebtor},
+        #{civilStatusDebtor},
+        #{genderDebtor},
+        #{clientLoanId},
+        #{fixedPaymentDay},
+        #{coDebtors}::json,
+        #{guarantors}::json,
+        #{warranty}::json,
+        #{extraData}::json)
+    </insert>
 
 
 </mapper>

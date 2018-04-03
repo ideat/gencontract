@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace = "mindware.com.netbank.mappers.WarrantyNetBankMapper">
+
+    <resultMap type="warrantynetbank" id="WarrantyNetBankResult">
+        <id 	property="prgarnpre" column="prgarnpre"/>
+        <result property="gbtgadesc" column="gbtgadesc"/>
+        <result property="prgarcmon" column="prgarcmon"/>
+        <result property="prgargfin" column="prgargfin"/>
+        <result property="prgarfvto" column="prgarfvto"/>
+        <result property="prgarnpar" column="prgarnpar"/>
+        <result property="prgarfpar"  column="prgarfpar"/>
+        <result property="prgarnhip" column="prgarnhip"/>
+        <result property="prgarfhip" column="prgarfhip"/>
+        <result property="prgardesc" column="prgardesc"/>
+        <result property="prgarsufl" column="prgarsufl"/>
+
+    </resultMap>
+
+
+    <select id="findWarrantyNetbankByCreCod" resultMap="WarrantyNetBankResult" parameterType="int">
+        select prgarnpre, gbtgadesc,
+        case
+          when prgarcmon = 1 then "Bs"
+          WHEN prgarcmon = 2 then "$us"
+        end as prgarcmon,
+        prgargfin, prgarfvto, prgarnpar
+        ,prgarfpar, prgarnhip, prgarfhip, prgardesc,prgarsufl
+        from prgar
+        inner join gbtga on (prgartgar = gbtgactga)
+        where prgarnpre = #{prgarnpre}
+
+    </select>
+
+
+</mapper>

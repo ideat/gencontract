@@ -1,8 +1,11 @@
 package mindware.com.model;
 
+import com.google.gson.JsonArray;
+
 import java.util.Date;
 
 public class LoanData {
+    private Integer loanDataId;
     private Integer branchOfficeId;
     private Integer loanNumber;
     private Date loanDate;//*
@@ -25,11 +28,19 @@ public class LoanData {
     private String civilStatusDebtor;
     private String genderDebtor;
     private Integer clientLoanId;
-    private String fixedPaymentDay;
-    private String coDebtors;
-    private String guarantors;
-    private String warranty;
-    private String extraData;
+    private Integer fixedPaymentDay;
+    private JsonArray coDebtors;
+    private JsonArray guarantors;
+    private JsonArray warranty;
+    private JsonArray extraData;
+
+    public Integer getLoanDataId() {
+        return loanDataId;
+    }
+
+    public void setLoanDataId(Integer loanDataId) {
+        this.loanDataId = loanDataId;
+    }
 
     public Integer getBranchOfficeId() {
         return branchOfficeId;
@@ -207,43 +218,45 @@ public class LoanData {
         this.clientLoanId = clientLoanId;
     }
 
-    public String getFixedPaymentDay() {
+    public Integer getFixedPaymentDay() {
         return fixedPaymentDay;
     }
 
-    public void setFixedPaymentDay(String fixedPaymentDay) {
+    public void setFixedPaymentDay(Integer fixedPaymentDay) {
         this.fixedPaymentDay = fixedPaymentDay;
     }
 
-    public String getCoDebtors() {
+    public JsonArray getCoDebtors() {
         return coDebtors;
     }
 
-    public void setCoDebtors(String coDebtors) {
+    public void setCoDebtors(JsonArray coDebtors) {
         this.coDebtors = coDebtors;
     }
 
-    public String getGuarantors() {
+    public JsonArray getGuarantors() {
         return guarantors;
     }
 
-    public void setGuarantors(String guarantors) {
+    public void setGuarantors(JsonArray guarantors) {
         this.guarantors = guarantors;
     }
 
-    public String getWarranty() {
+    public JsonArray getWarranty() {
         return warranty;
     }
 
-    public void setWarranty(String warranty) {
+    public void setWarranty(JsonArray warranty) {
         this.warranty = warranty;
     }
 
-    public String getExtraData() {
+    public JsonArray getExtraData() {
         return extraData;
     }
 
-    public void setExtraData(String extraData) {
+    public void setExtraData(JsonArray extraData) {
         this.extraData = extraData;
     }
 }
+
+

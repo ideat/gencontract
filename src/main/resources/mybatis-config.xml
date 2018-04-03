@@ -7,10 +7,13 @@
     <properties resource="application.properties"/>
 
     <typeAliases>
-        <package name="com.mindware.model"/>
+        <package name="mindware.com.model"/>
         <package name="mindware.com.netbank.model"/>
     </typeAliases>
-    <environments default="netbank">
+    <typeHandlers>
+        <typeHandler handler="mindware.com.typeHandler.JsonElementTypeHandler"/>
+    </typeHandlers>
+    <environments default="development">
         <environment id="development">
             <transactionManager type="JDBC"/>
             <dataSource type="POOLED">
@@ -37,7 +40,7 @@
 
     </environments>
     <mappers>
-         <package name="com.mindware.mappers"/>
+         <package name="mindware.com.mappers"/>
          <package name="mindware.com.netbank.mappers"/>
 
         <!-- <mapper resource="com/mindware/mappers/EmpleadoMapper.xml"/> -->

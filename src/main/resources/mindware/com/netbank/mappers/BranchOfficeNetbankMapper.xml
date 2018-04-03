@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace = "mindware.com.netbank.mappers.BranchOfficeNetbankMapper">
+
+    <resultMap type="branchofficenetbank" id="BranchOfficeNetBankResult">
+        <id 	property="gbofinofi" column="gbofinofi"/>
+        <result property="gbofidesc" column="gbofidesc"/>
+        <result property="gbofimcen" column="gbofimcen"/>
+        <result property="gbdptdesc" column="gbdptdesc"/>
+        <result property="gbprvdesc" column="gbprvdesc"/>
+    </resultMap>
+
+
+    <select id="findAllBranchOfficeNetbank" resultMap="BranchOfficeNetBankResult" >
+        SELECT gbofi.gbofinofi	--Codigo Agencia
+        , gbofi.gbofidesc		--Nombre Agencia
+        , gbofi.gbofimcen		--Es Central?
+        , gbdpt.gbdptdesc	 	--Departamento
+        , gbprv.gbprvdesc	 	--Provincia
+        FROM gbofi
+        LEFT JOIN gbdpt ON gbofi.gbofidpto = gbdpt.gbdptdpto
+        LEFT JOIN gbprv ON gbofi.gboficprv = gbprv.gbprvcprv
+
+    </select>
+
+
+</mapper>

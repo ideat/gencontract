@@ -1,13 +1,14 @@
 package mindware.com.model;
 
-import com.google.gson.JsonArray;
+import com.fasterxml.jackson.core.TreeNode;
+
 
 public class BranchOffice {
     private int branchOfficeId;
     private String branchName;
     private String cityName;
     private String provinceName;
-    private JsonArray signatories;
+    private String signatories;
 
     public int getBranchOfficeId() {
         return branchOfficeId;
@@ -41,11 +42,11 @@ public class BranchOffice {
         this.cityName = cityName;
     }
 
-    public JsonArray getSignatories() {
+    public String getSignatories() {
         return signatories;
     }
 
-    public void setSignatories(JsonArray signatories) {
+    public void setSignatories(String signatories) {
         this.signatories = signatories;
     }
 }

@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace = "mindware.com.netbank.mappers.CodebtorGuarantorNetbankMapper">
+
+    <resultMap type="codebtorguarantornetbank" id="CodeptorGuarantorNetBankResult">
+        <id 	property="prdeucage" column="prdeucage"/>
+        <result property="prdeunpre" column="prdeunpre"/>
+        <result property="prdeutres" column="prdeutres"/>
+        <result property="gbagenomb" column="gbagenomb"/>
+        <result property="gbagendid" column="gbagendid"/>
+        <result property="gbagedir" column="gbagedir"/>
+        <result property="gbageddo" column="gbageddo"/>
+        <result property="gbageeciv" column="gbageeciv"/>
+        <result property="gbagesexo" column="gbagesexo"/>
+
+    </resultMap>
+
+
+    <select id="findCodeptorByNumberLoan" resultMap="CodeptorGuarantorNetBankResult" >
+        SELECT prdeucage, prdeunpre, prdeutres, prdeufpro
+        , gbagenomb, gbagendid,
+        case
+        	when	gbagedir1 is null then ''
+        	else gbagedir1
+        end || ' ' ||
+        case
+          when  gbagedir2 is null then ''
+          else gbagedir2
+        end as gbagedir
+        , case
+            when gbageddo1 is null then ''
+            else gbageddo1
+          end || ' ' ||
+          case
+            when gbageddo2 is null then ''
+            else gbageddo2
+          end as gbageddo,
+         gbageeciv, gbagesexo
+        FROM prdeu
+        inner join gbage on (prdeucage = gbagecage)
+        where prdeunpre = #{prdeunpre}
+        and prdeutres = 1
+    </select>
+
+    <select id="findGuarantorByNumberLoan" resultMap="CodeptorGuarantorNetBankResult" >
+        SELECT prdeucage, prdeunpre, prdeutres, prdeufpro
+        , gbagenomb, gbagendid,
+        case
+        	when	gbagedir1 is null then ''
+        	else gbagedir1
+        end || ' ' ||
+        case
+          when  gbagedir2 is null then ''
+          else gbagedir2
+        end as gbagedir
+        , case
+            when gbageddo1 is null then ''
+            else gbageddo1
+          end || ' ' ||
+          case
+            when gbageddo2 is null then ''
+            else gbageddo2
+          end as gbageddo
+        , case
+            when gbageeciv = 1 then 'SOLTERO/A'
+            when gbageeciv = 2 then 'CASADO/A'
+            when gbageeciv = 3 then 'DIVORCIADO/A'
+            when gbageeciv = 4 then 'VIUDO/A'
+            else 'DESCONOCIDO'
+          end  as gbageeciv
+         , case
+            when gbagesexo = 1 then 'MASCULINO'
+            when gbagesexo = 2 then 'FEMENINO'
+            else 'DESCONOCIDO'
+           end as gbagesexo
+        FROM prdeu
+        inner join gbage on (prdeucage = gbagecage)
+        where prdeunpre = #{prdeunpre}
+        and prdeutres = 2
+    </select>
+
+</mapper>

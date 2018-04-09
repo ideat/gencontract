@@ -30,10 +30,10 @@
         <result property="genderDebor" column="gender_debtor"/>
         <result property="clientLoanId" column="client_loan_id"/>
         <result property="fixedPaymentDay" column="fixed_payment_day"/>
-        <result property="coDebtors" column="co_debtors" javaType="com.google.gson.JsonElement"/>
-        <result	property="guarantors" column="guarantors" javaType="com.google.gson.JsonElement"/>
-        <result property="warranty" column="warranty" javaType="com.google.gson.JsonElement"/>
-        <result property="extraData" column="extra_data" javaType="com.google.gson.JsonElement"/>
+        <result property="coDebtors" column="co_debtors"/>
+        <result	property="guarantors" column="guarantors"/>
+        <result property="warranty" column="warranty"/>
+        <result property="extraData" column="extra_data"/>
 
     </resultMap>
 

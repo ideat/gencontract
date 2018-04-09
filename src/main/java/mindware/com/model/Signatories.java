@@ -1,11 +1,30 @@
 package mindware.com.model;
 
 public class Signatories {
+    private Integer signatorieId;
     private String nameSignatorie;
     private String identifyCardSignatorie;
     private String position;
     private String status;
 
+
+    public Signatories(int signatorieId, String nameSignatorie, String identifyCardSignatorie, String position, String status ){
+        this.nameSignatorie = nameSignatorie;
+        this.identifyCardSignatorie = identifyCardSignatorie;
+        this.position = position;
+        this.status = status;
+        this.signatorieId = signatorieId;
+    }
+
+    public Signatories(){}
+
+    public Integer getSignatorieId() {
+        return signatorieId;
+    }
+
+    public void setSignatorieId(Integer signatorieId) {
+        this.signatorieId = signatorieId;
+    }
 
     public String getNameSignatorie() {
         return nameSignatorie;

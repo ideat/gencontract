@@ -9,9 +9,11 @@
     <typeAliases>
         <package name="mindware.com.model"/>
         <package name="mindware.com.netbank.model"/>
+        <package name="mindware.com.typeHandler"/>
     </typeAliases>
     <typeHandlers>
-        <typeHandler handler="mindware.com.typeHandler.JsonElementTypeHandler"/>
+        <typeHandler handler="mindware.com.typeHandler.TreeNodeTypeHandler"/>
+        <typeHandler handler="mindware.com.typeHandler.JsonNodeValueTypeHandler"/>
     </typeHandlers>
     <environments default="development">
         <environment id="development">

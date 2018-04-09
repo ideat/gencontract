@@ -10,12 +10,20 @@
         <result property="branchName" column="branch_name"/>
         <result property="cityName" column="city_name"/>
         <result property="provinceName" column="province_name"/>
-        <result property="signatories" column="signatories" javaType="com.google.gson.JsonElement"/>
+        <result property="signatories" column="signatories" />
     </resultMap>
 
     <select id="findAllBranchOffice" resultMap="BranchOfficeResult">
-        select branch_office_id, branch_name, city_name,province_name
+        select branch_office_id, branch_name, city_name,province_name,signatories
         from branch_office
+        order by branch_office_id
+
+    </select>
+
+    <select id="findSignatorieByBranchOffice" resultMap="BranchOfficeResult">
+        select signatories
+        from branch_office
+        where branch_office_id = #{branchOfficeId}
 
     </select>
 
@@ -40,9 +48,8 @@
     <update id="updateSignatoriesBranchOffice" parameterType="branchoffice">
         update branch_office
         set
-        signatories = #{signatories}
+        signatories = (#{signatories})::json
         where branch_office_id = #{branchOfficeId}
-
     </update>
 
 

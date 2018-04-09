@@ -1,5 +1,6 @@
 package mindware.com.model;
 
+import com.fasterxml.jackson.core.TreeNode;
 import com.google.gson.JsonArray;
 
 import java.util.Date;
@@ -29,10 +30,10 @@ public class LoanData {
     private String genderDebtor;
     private Integer clientLoanId;
     private Integer fixedPaymentDay;
-    private JsonArray coDebtors;
-    private JsonArray guarantors;
-    private JsonArray warranty;
-    private JsonArray extraData;
+    private String coDebtors;
+    private String guarantors;
+    private String warranty;
+    private String extraData;
 
     public Integer getLoanDataId() {
         return loanDataId;
@@ -226,35 +227,35 @@ public class LoanData {
         this.fixedPaymentDay = fixedPaymentDay;
     }
 
-    public JsonArray getCoDebtors() {
+    public String getCoDebtors() {
         return coDebtors;
     }
 
-    public void setCoDebtors(JsonArray coDebtors) {
+    public void setCoDebtors(String coDebtors) {
         this.coDebtors = coDebtors;
     }
 
-    public JsonArray getGuarantors() {
+    public String getGuarantors() {
         return guarantors;
     }
 
-    public void setGuarantors(JsonArray guarantors) {
+    public void setGuarantors(String guarantors) {
         this.guarantors = guarantors;
     }
 
-    public JsonArray getWarranty() {
+    public String getWarranty() {
         return warranty;
     }
 
-    public void setWarranty(JsonArray warranty) {
+    public void setWarranty(String warranty) {
         this.warranty = warranty;
     }
 
-    public JsonArray getExtraData() {
+    public String getExtraData() {
         return extraData;
     }
 
-    public void setExtraData(JsonArray extraData) {
+    public void setExtraData(String extraData) {
         this.extraData = extraData;
     }
 }

@@ -24,11 +24,23 @@
 
 
     <select id="findClientLoanNetbankByCreCod" resultMap="ClientLoanNetbankResult" parameterType="int">
-        select prmprcage, gbagendid,gbagenomb, gbageeciv, gbagesexo,  (gbagedir1 || " " || gbagedir2) as gbagedir,
-        prmprnpre, prmprcmon, prmprmdes, prmprplzo, prmprppgk, prtsatbas, prmprdiap
+        select prmprcage, gbagendid,gbagenomb, gbageeciv, gbagesexo,
+        case
+        	when gbagedir1 is null then ''
+        	else gbagedir1
+        end || ' ' ||
+        case
+          when  gbagedir2 is null then ''
+          else gbagedir2
+        end as gbagedir,
+        prmprnpre, prmprcmon, prmprmdes, prmprplzo, prmprppgk, prmprdiap
+        , case
+            when prtsatbas is null then 0
+            else prtsatbas
+          end as prtsatbas
         from gbage
         inner join prmpr on (prmprcage = gbagecage)
-        inner join prtsa on (prmprnpre = prtsanpre)
+        left join prtsa on (prmprnpre = prtsanpre)
         where prmprnpre = #{prmprnpre}
 
     </select>

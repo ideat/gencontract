@@ -14,6 +14,7 @@ public class ClientLoanNetbank {
     private String prmprppgk;
     private Double prtsatbas;
     private Integer prmprdiap;
+    private Integer prmpragen;
 
     public Integer getPrmprdiap() {
         return prmprdiap;
@@ -117,6 +118,14 @@ public class ClientLoanNetbank {
 
     public void setPrmprppgk(String prmprppgk) {
         this.prmprppgk = prmprppgk;
+    }
+
+    public Integer getPrmpragen() {
+        return prmpragen;
+    }
+
+    public void setPrmpragen(Integer prmpragen) {
+        this.prmpragen = prmpragen;
     }
 }
 

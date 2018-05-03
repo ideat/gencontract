@@ -6,14 +6,14 @@
 <mapper namespace = "mindware.com.mappers.LoanDataMapper">
 
     <resultMap type="loandata" id="LoanDataResult">
-        <id property="loandDataId" column="loan_data_id"/>
+        <id property="loanDataId" column="loan_data_id"/>
         <result property="branchOfficeId" column="branch_office_id"/>
         <result property="loanNumber" column="loan_number"/>
         <result property="loanDate" column="loan_date"/>
         <result property="currency" column="currency"/>
         <result property="loanMount" column="loan_mount"/>
         <result property="loanTerm" column="loan_term"/>
-        <result property="interestRate"  column="interes_rate"/>
+        <result property="interestRate"  column="interest_rate"/>
         <result property="treRate" column="tre_rate"/>
         <result property="teacRate" column="teac_rate"/>
         <result property="feePayment" column="fee_payment"/>
@@ -27,7 +27,7 @@
         <result property="identityCardDebtor" column="identity_card_debtor"/>
         <result property="addressDebtor" column="address_debtor"/>
         <result property="civilStatusDebtor" column="civil_status_debtor"/>
-        <result property="genderDebor" column="gender_debtor"/>
+        <result property="genderDebtor" column="gender_debtor"/>
         <result property="clientLoanId" column="client_loan_id"/>
         <result property="fixedPaymentDay" column="fixed_payment_day"/>
         <result property="coDebtors" column="co_debtors"/>
@@ -38,24 +38,33 @@
     </resultMap>
 
 
-    <select id="findClientNetbankById" resultMap="LoanDataResult" parameterType="int">
+    <select id="findLoanDataByLoanNumber" resultMap="LoanDataResult" parameterType="int">
+        select *
+        from loan_data
+        where loan_number = #{loanNumber}
 
+    </select>
+
+    <select id="findLoanDataByDebtorName" resultMap="LoanDataResult" parameterType="string">
+        select *
+        from loan_data
+        where debtor_name like #{debtorName}
 
     </select>
 
     <insert id="insertLoanData"  parameterType="loandata" keyProperty="loanDataId" >
         <selectKey keyProperty="loanDataId" resultType="int" order="BEFORE">
-            select nextval('loand_data_id_seq')
+            select nextval('loan_data_id_seq')
         </selectKey>
-        insert into loand_data (
-        loand_data_id,
+        insert into loan_data (
+        loan_data_id,
         branch_office_id,
         loan_number,
         loan_date,
         currency,
         loan_mount,
         loan_term,
-        interes_rate,
+        interest_rate,
         tre_rate,
         teac_rate,
         fee_payment,
@@ -70,21 +79,21 @@
         address_debtor,
         civil_status_debtor,
         gender_debtor,
-        client_loand_id,
+        client_loan_id,
         fixed_payment_day,
-        cod_debtors,
+        co_debtors,
         guarantors,
         warranty,
         extra_data)
         values (
-        #{loandDataId},
+        #{loanDataId},
         #{branchOfficeId},
         #{loanNumber},
         #{loanDate},
         #{currency},
         #{loanMount},
         #{loanTerm},
-        #{interesRate},
+        #{interestRate},
         #{treRate},
         #{teacRate},
         #{feePayment},
@@ -93,7 +102,7 @@
         #{totalPayment},
         #{loanDestination},
         #{agency},
-        #{offcial},
+        #{official},
         #{debtorName},
         #{identityCardDebtor},
         #{addressDebtor},

@@ -2,6 +2,11 @@ package mindware.com;
 
 import javax.servlet.annotation.WebServlet;
 
+import mindware.com.model.MenuOption;
+import mindware.com.model.Option;
+import mindware.com.model.Rol;
+import mindware.com.service.RolService;
+import mindware.com.service.UserService;
 import mindware.com.view.*;
 import com.vaadin.annotations.Theme;
 import com.vaadin.annotations.Title;
@@ -43,7 +48,9 @@ import kaesdingeling.hybridmenu.data.top.TopMenuSubContent;
 
 import mindware.com.page.SettingsPage;
 import mindware.com.page.ThemeBuilderPage;
-import mindware.com.view.*;
+
+import java.util.Arrays;
+import java.util.List;
 
 @Theme("mytheme")
 @Title("Generador contratos")
@@ -67,7 +74,7 @@ public class MyUI extends UI implements DetachListener {
 //		callMenu();
     }
 
-	public void callMenu() {
+	public void callMenu(String login, Integer userId, Integer rolId) {
 		MenuConfig menuConfig = new MenuConfig();
 		menuConfig.setDesignItem(DesignItem.getWhiteBlueDesign());
 
@@ -81,11 +88,12 @@ public class MyUI extends UI implements DetachListener {
                 .build();
 
 		UI.getCurrent().getNavigator().addView(UserForm.class.getSimpleName(), UserForm.class);
+        UI.getCurrent().getNavigator().addView(UserPasswordForm.class.getSimpleName(), new UserPasswordForm(userId));
 		UI.getCurrent().getNavigator().addView(ImportDataForm.class.getSimpleName(), ImportDataForm.class);
-		UI.getCurrent().getNavigator().addView(ListContractForm.class.getSimpleName(), ListContractForm.class);
+		UI.getCurrent().getNavigator().addView(TemplateContractForm.class.getSimpleName(), TemplateContractForm.class);
 		UI.getCurrent().getNavigator().addView(RegisterNewDataForm.class.getSimpleName(), RegisterNewDataForm.class);
 		UI.getCurrent().getNavigator().addView(ManageBranchOfficeForm.class.getSimpleName(), ManageBranchOfficeForm.class);
-		UI.getCurrent().getNavigator().addView(TemplateContractsForm.class.getSimpleName(), TemplateContractsForm.class);
+		UI.getCurrent().getNavigator().addView(ListContractsForm.class.getSimpleName(), ListContractsForm.class);
 		UI.getCurrent().getNavigator().addView(VariablesContractsForm.class.getSimpleName(), VariablesContractsForm.class);
 		UI.getCurrent().getNavigator().addView(RolForm.class.getSimpleName(), RolForm.class);
 		UI.getCurrent().getNavigator().addView(GenerateContractsForm.class.getSimpleName(), GenerateContractsForm.class);
@@ -96,13 +104,13 @@ public class MyUI extends UI implements DetachListener {
 
 
 		if(hybridMenu.getMenuComponents().equals(EMenuComponents.ONLY_LEFT))
-    	buildLeftMenu(hybridMenu);
+    	buildLeftMenu(hybridMenu,rolId);
 		else
 			if(hybridMenu.getMenuComponents().equals(EMenuComponents.LEFT_WITH_TOP)) {
-				buildLeftMenu(hybridMenu);
-				buildTopOnlyMenu(hybridMenu);
+				buildLeftMenu(hybridMenu, rolId);
+				buildTopOnlyMenu(hybridMenu,userId);
 			}else
-				buildTopOnlyMenu(hybridMenu);
+				buildTopOnlyMenu(hybridMenu,userId);
 
 		getNavigator().addViewChangeListener(new ViewChangeListener() {
             @Override
@@ -133,30 +141,7 @@ public class MyUI extends UI implements DetachListener {
     	System.out.println(connector.getClass().getSimpleName());
 }
 
-	private void buildTopOnlyMenu(HybridMenu hybridMenu) {
-//		TopMenuButtonBuilder.get()
-//				.setCaption("Usuario")
-//				.setIcon(VaadinIcons.USER)
-//				.setAlignment(Alignment.MIDDLE_RIGHT)
-//				.setNavigateTo(UserForm.class)
-//				.build(hybridMenu);
-
-//		TopMenuButtonBuilder.get()
-//				.setCaption("Usuario")
-//				.setIcon(VaadinIcons.USER)
-//				.setAlignment(Alignment.MIDDLE_RIGHT)
-//				.setHideCaption(false)
-//				.setNavigateTo(MemberPage.class)
-//				.build(hybridMenu);
-
-//		TopMenuButtonBuilder.get()
-//				.setCaption("Member")
-//				.setIcon(VaadinIcons.USER)
-//				.setAlignment(Alignment.MIDDLE_RIGHT)
-//				.setHideCaption(false)
-//				.addStyleName(EMenuStyle.ICON_RIGHT)
-//				.setNavigateTo(MemberPage.class)
-//				.build(hybridMenu);
+	private void buildTopOnlyMenu(HybridMenu hybridMenu, Integer userId) {
 
 		TopMenuSubContent userAccountMenu = TopMenuSubContentBuilder.get()
 				.setButtonCaption("Usuario")
@@ -166,9 +151,10 @@ public class MyUI extends UI implements DetachListener {
 				.setAlignment(Alignment.MIDDLE_RIGHT)
 				.build(hybridMenu);
 
-//		userAccountMenu.addLabel("");
-//		userAccountMenu.addHr();
-		userAccountMenu.addButton("Cambiar password");
+		userAccountMenu.addButton("Cambiar password").addClickListener(clickEvent -> {
+
+            UI.getCurrent().getNavigator().navigateTo(UserPasswordForm.class.getSimpleName());
+        });
 
 
 		TopMenuButtonBuilder.get()
@@ -247,143 +233,148 @@ public class MyUI extends UI implements DetachListener {
 
 	}
 
-	private void buildLeftMenu(HybridMenu hybridMenu) {
-		MenuButton importDataButton = LeftMenuButtonBuilder.get()
-				.withCaption("Importar datos")
-				.withIcon(VaadinIcons.STORAGE)
-				.withNavigateTo(ImportDataForm.class)
-				.build();
 
-		hybridMenu.addLeftMenuButton(importDataButton);
-		
-//		MenuButton themeBuilderButton = LeftMenuButtonBuilder.get()
-//				.withCaption("Theme Builder")
-//				.withIcon(FontAwesome.WRENCH)
-//				.withNavigateTo(ThemeBuilderPage.class)
-//				.build();
-//
-//		hybridMenu.addLeftMenuButton(themeBuilderButton);
 
-		MenuButton registerDataButton = LeftMenuButtonBuilder.get()
-				.withCaption("Registrar nuevos datos")
-				.withIcon(VaadinIcons.ADD_DOCK)
-				.withNavigateTo(RegisterNewDataForm.class)
-				.build();
-
-		hybridMenu.addLeftMenuButton(registerDataButton);
+	private void buildLeftMenu(HybridMenu hybridMenu,  Integer rolId) {
+        RolService rolService = new RolService();
+        Rol rol = rolService.findAllRolMenuOptionByRolId(rolId);
+        List<MenuOption> menuOptionList = rol.getMenuOption();
+        String[] listOptions = new String[menuOptionList.size()];
+        int i=0;
+        for(MenuOption menuOption:menuOptionList){
+            listOptions[i] = menuOption.getOptionId().toString();
+            i+=1;
+        }
 
 
 
-		MenuSubMenu contractManageList = LeftMenuSubMenuBuilder.get()
-				.setCaption("Contratos")
-				.setIcon(VaadinIcons.BRIEFCASE)
+        if (Arrays.asList(listOptions).contains("1")) {
+            MenuButton importDataButton = LeftMenuButtonBuilder.get()
+                    .withCaption("Importar datos")
+                    .withIcon(VaadinIcons.STORAGE)
+                    .withNavigateTo(ImportDataForm.class)
+                    .build();
+
+            hybridMenu.addLeftMenuButton(importDataButton);
+        }
+        if (Arrays.asList(listOptions).contains("2")) {
+            MenuButton registerDataButton = LeftMenuButtonBuilder.get()
+                    .withCaption("Registrar nuevos datos")
+                    .withIcon(VaadinIcons.ADD_DOCK)
+                    .withNavigateTo(RegisterNewDataForm.class)
+                    .build();
+
+            hybridMenu.addLeftMenuButton(registerDataButton);
+        }
+
+        if (Arrays.asList(listOptions).contains("3") || Arrays.asList(listOptions).contains("4") || Arrays.asList(listOptions).contains("5")) {
+            MenuSubMenu contractManageList = LeftMenuSubMenuBuilder.get()
+                    .setCaption("Contratos")
+                    .setIcon(VaadinIcons.BRIEFCASE)
 //				.setConfig(hybridMenu.getConfig())
-				.build(hybridMenu);
+                    .build(hybridMenu);
+            if (Arrays.asList(listOptions).contains("3")) {
+                contractManageList.addLeftMenuButton(LeftMenuButtonBuilder.get()
+                        .withCaption("Plantilla contratos")
+                        .withIcon(VaadinIcons.FILE_TEXT)
+                        .withNavigateTo(TemplateContractForm.class)
+                        .build());
+            }
+            if (Arrays.asList(listOptions).contains("4")) {
+                contractManageList.addLeftMenuButton(LeftMenuButtonBuilder.get()
+                        .withCaption("Generar contratos")
+                        .withIcon(VaadinIcons.FILE_PROCESS)
+                        .withNavigateTo(GenerateContractsForm.class)
+                        .build());
+            }
+            if (Arrays.asList(listOptions).contains("5")) {
+                contractManageList.addLeftMenuButton(LeftMenuButtonBuilder.get()
+                        .withCaption("Lista contratos")
+                        .withIcon(VaadinIcons.FILE_TABLE)
+                        .withNavigateTo(ListContractsForm.class)
+                        .build());
+            }
+        }
+        if (Arrays.asList(listOptions).contains("6")) {
+            MenuButton ManageBranchButton = LeftMenuButtonBuilder.get()
+                    .withCaption("Datos Sucursales")
+                    .withIcon(VaadinIcons.OFFICE)
+                    .withNavigateTo(ManageBranchOfficeForm.class)
+                    .build();
+            hybridMenu.addLeftMenuButton(ManageBranchButton);
+        }
+        if (Arrays.asList(listOptions).contains("7")) {
+            MenuButton VariablesContractsButton = LeftMenuButtonBuilder.get()
+                    .withCaption("Variables de contratos")
+                    .withIcon(VaadinIcons.PALETE)
+                    .withNavigateTo(VariablesContractsForm.class)
+                    .build();
+            hybridMenu.addLeftMenuButton(VariablesContractsButton);
+        }
+        if (Arrays.asList(listOptions).contains("8")) {
+            MenuButton UserButton = LeftMenuButtonBuilder.get()
+                    .withCaption("Usuarios")
+                    .withIcon(VaadinIcons.USERS)
+                    .withNavigateTo(UserForm.class)
+                    .build();
+            hybridMenu.addLeftMenuButton(UserButton);
+        }
+        if (Arrays.asList(listOptions).contains("9")) {
+            MenuButton RolButton = LeftMenuButtonBuilder.get()
+                    .withCaption("Roles")
+                    .withIcon(VaadinIcons.FILE_CODE)
+                    .withNavigateTo(RolForm.class)
+                    .build();
+            hybridMenu.addLeftMenuButton(RolButton);
+        }
+        if (Arrays.asList(listOptions).contains("10")) {
+            MenuButton ParameterButton = LeftMenuButtonBuilder.get()
+                    .withCaption("Parametros")
+                    .withIcon(VaadinIcons.PANEL)
+                    .withNavigateTo(ParametersForm.class)
+                    .build();
+            hybridMenu.addLeftMenuButton(ParameterButton);
+        }
+        if (Arrays.asList(listOptions).contains("11")) {
+            MenuSubMenu demoSettings = LeftMenuSubMenuBuilder.get()
+                    .setCaption("Preferencia")
+                    .setIcon(VaadinIcons.COGS)
+                    .setConfig(hybridMenu.getConfig())
+                    .build(hybridMenu);
 
-		contractManageList.addLeftMenuButton(LeftMenuButtonBuilder.get()
-				.withCaption("Lista contratos")
-				.withIcon(VaadinIcons.FILE_TEXT)
-				.withNavigateTo(ListContractForm.class)
-				.build());
+            LeftMenuButtonBuilder.get()
+                    .withCaption("Tema de color Blanco")
+                    .withIcon(VaadinIcons.PALETE)
+                    .withClickListener(e -> hybridMenu.switchTheme(DesignItem.getWhiteDesign()))
+                    .build(demoSettings);
 
-		contractManageList.addLeftMenuButton(LeftMenuButtonBuilder.get()
-				.withCaption("Generar contratos")
-				.withIcon(VaadinIcons.FILE_PROCESS)
-				.withNavigateTo(GenerateContractsForm.class)
-				.build());
+            LeftMenuButtonBuilder.get()
+                    .withCaption("Tema de color Azul")
+                    .withIcon(VaadinIcons.PALETE)
+                    .withClickListener(e -> hybridMenu.switchTheme(DesignItem.getWhiteBlueDesign()))
+                    .build(demoSettings);
 
-		MenuButton ManageBranchButton = LeftMenuButtonBuilder.get()
-				.withCaption("Datos Sucursales")
-				.withIcon(VaadinIcons.OFFICE)
-				.withNavigateTo(ManageBranchOfficeForm.class)
-				.build();
-		hybridMenu.addLeftMenuButton(ManageBranchButton);
+            LeftMenuButtonBuilder.get()
+                    .withCaption("Tema color Obscuro")
+                    .withIcon(VaadinIcons.PALETE)
+                    .withClickListener(e -> hybridMenu.switchTheme(DesignItem.getDarkDesign()))
+                    .build(demoSettings);
 
-		MenuButton TempleateContractsButton = LeftMenuButtonBuilder.get()
-				.withCaption("Plantillas de contratos")
-				.withIcon(VaadinIcons.DIPLOMA)
-				.withNavigateTo(TemplateContractsForm.class)
-				.build();
-		hybridMenu.addLeftMenuButton(TempleateContractsButton);
-
-		MenuButton VariablesContractsButton = LeftMenuButtonBuilder.get()
-				.withCaption("Variables de contratos")
-				.withIcon(VaadinIcons.PALETE)
-				.withNavigateTo(VariablesContractsForm.class)
-				.build();
-		hybridMenu.addLeftMenuButton(VariablesContractsButton);
-
-		MenuButton UserButton = LeftMenuButtonBuilder.get()
-				.withCaption("Usuarios")
-				.withIcon(VaadinIcons.USERS)
-				.withNavigateTo(UserForm.class)
-				.build();
-		hybridMenu.addLeftMenuButton(UserButton);
-
-		MenuButton RolButton = LeftMenuButtonBuilder.get()
-				.withCaption("Roles")
-				.withIcon(VaadinIcons.FILE_CODE)
-				.withNavigateTo(RolForm.class)
-				.build();
-		hybridMenu.addLeftMenuButton(RolButton);
-
-		MenuButton ParameterButton = LeftMenuButtonBuilder.get()
-				.withCaption("Parametros")
-				.withIcon(VaadinIcons.PANEL)
-				.withNavigateTo(ParametersForm.class)
-				.build();
-		hybridMenu.addLeftMenuButton(ParameterButton);
-
-
-//		MenuSubMenu memberListTwo = LeftMenuSubMenuBuilder.get()
-//				.setCaption("member")
-//				.setIcon(VaadinIcons.USERS)
-//				.setConfig(hybridMenu.getConfig())
-//				.build(contractManageList);
-//
-//		memberListTwo.addLeftMenuButton(LeftMenuButtonBuilder.get()
-//				.withCaption("Settings")
-//				.withIcon(VaadinIcons.COGS)
-//				.withNavigateTo(SettingsPage.class)
-//				.build());
-//
-//		memberListTwo.addLeftMenuButton(LeftMenuButtonBuilder.get()
-//				.withCaption("Member")
-//				.withIcon(VaadinIcons.USER)
-//				.withNavigateTo(MemberPage.class)
-//				.build());
-
-
-
-		MenuSubMenu demoSettings = LeftMenuSubMenuBuilder.get()
-			.setCaption("Preferencia")
-			.setIcon(VaadinIcons.COGS)
-			.setConfig(hybridMenu.getConfig())
-			.build(hybridMenu);
-
-		LeftMenuButtonBuilder.get()
-			.withCaption("Tema de color Blanco")
-			.withIcon(VaadinIcons.PALETE)
-			.withClickListener(e -> hybridMenu.switchTheme(DesignItem.getWhiteDesign()))
-			.build(demoSettings);
-		
-		LeftMenuButtonBuilder.get()
-			.withCaption("Tema de color Azul")
-			.withIcon(VaadinIcons.PALETE)
-			.withClickListener(e -> hybridMenu.switchTheme(DesignItem.getWhiteBlueDesign()))
-			.build(demoSettings);
-
-		LeftMenuButtonBuilder.get()
-			.withCaption("Tema color Obscuro")
-			.withIcon(VaadinIcons.PALETE)
-			.withClickListener(e -> hybridMenu.switchTheme(DesignItem.getDarkDesign()))
-			.build(demoSettings);
-
-		LeftMenuButtonBuilder.get()
-			.withCaption("Alternar vista minima")
-			.withIcon(VaadinIcons.EXPAND_SQUARE)
-			.withClickListener(e -> hybridMenu.setLeftMenuMinimal(!hybridMenu.isLeftMenuMinimal()))
-			.build(demoSettings);
+            LeftMenuButtonBuilder.get()
+                    .withCaption("Alternar vista minima")
+                    .withIcon(VaadinIcons.EXPAND_SQUARE)
+                    .withClickListener(e -> hybridMenu.setLeftMenuMinimal(!hybridMenu.isLeftMenuMinimal()))
+                    .build(demoSettings);
+        }
+        MenuButton ExitButton = LeftMenuButtonBuilder.get()
+                .withCaption("Salir")
+                .withIcon(VaadinIcons.EXIT)
+                .withClickListener(clickEvent -> {
+                    Page.getCurrent().setLocation( "/gencontract" );
+                    VaadinSession.getCurrent().close();
+                })
+                .build();
+        hybridMenu.addLeftMenuButton(ExitButton);
 	}
 	
 	public HybridMenu getHybridMenu() {

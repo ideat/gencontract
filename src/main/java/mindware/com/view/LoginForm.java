@@ -1,5 +1,6 @@
 package mindware.com.view;
 
+import com.vaadin.navigator.View;
 import mindware.com.MyUI;
 
 import com.vaadin.data.HasValue;
@@ -8,6 +9,9 @@ import com.vaadin.event.ShortcutAction.KeyCode;
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.ui.*;
 import com.vaadin.ui.themes.ValoTheme;
+import mindware.com.model.User;
+import mindware.com.security.Encript;
+import mindware.com.service.UserService;
 
 /**
  * Created by freddy on 05-04-17.
@@ -24,8 +28,9 @@ public class LoginForm extends CustomComponent {
     private Label lblMensaje;
 
     private VerticalLayout verticalLayout;
-
     private FormLayout formLayout;
+
+    private User user;
 
     public LoginForm() {
         setHeight("100%");
@@ -58,33 +63,31 @@ public class LoginForm extends CustomComponent {
     }
 
     private void logeo() {
-        if (validarCredenciales(txtLogin.getValue().toString(), txtPassword.getValue().toString())) {
-            ((MyUI) UI.getCurrent()).callMenu();
+        if (validateCredentials(txtLogin.getValue().toString(), txtPassword.getValue().toString())) {
+            ((MyUI) UI.getCurrent()).callMenu(user.getLogin(),user.getUserId(),user.getRolId());
         } else {
             lblMensaje.setVisible(true);
             lblMensaje.setValue("Credenciales invalidas");
         }
     }
 
-    private boolean validarCredenciales(String login, String password) {
-//        UsuarioService usuarioService = new UsuarioService();
-//        usuario = usuarioService.findUsuarioByLogin(login);
-//
-//        if (usuario==null) {
-//            return false;
-//        } else {
-//            String encriptado = new Encript().encriptString(password);
-//            if (usuario.getEstado().equals("baja"))
-//                return false;
-//            else {
-//                if (usuario.getPassword().equals(encriptado)) {
-//                    return true;
-//                } else {
-//                    return false;
-//                }
-//            }
-//        }
-        return true;
+    private boolean validateCredentials(String login, String password) {
+        UserService userService = new UserService();
+        user = userService.findUserByLogin(login);
+        if (user==null) {
+            return false;
+        } else {
+            String encripted = new Encript().encriptString(password);
+            if (user.getState().equals("BAJA"))
+                return false;
+            else {
+                if (user.getPassword().equals(encripted)) {
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+        }
 
     }
 

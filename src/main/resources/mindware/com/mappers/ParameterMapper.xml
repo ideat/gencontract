@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace = "mindware.com.mappers.ParameterMapper">
+
+    <resultMap type="parameter" id="ParameterResult">
+        <id 	property="parameterId" column="parameter_id"/>
+        <result property="typeParameter" column="type_parameter"/>
+        <result property="descriptionParameter" column="description_parameter"/>
+        <result property="valueParameter" column="value_parameter"/>
+    </resultMap>
+
+    <select id="findParameterByType" resultMap="ParameterResult" parameterType="string">
+        select *
+        from parameter
+        where type_parameter = #{typeParameter}
+        order by parameter_id
+
+    </select>
+
+    <insert id="insertParameter"  parameterType="parameter" keyProperty="parameterId" >
+        <selectKey keyProperty="parameterId" resultType="int" order="BEFORE">
+            select nextval('parameter_id_seq')
+        </selectKey>
+        insert into parameter (
+        parameter_id,
+        type_parameter,
+        description_parameter,
+        value_parameter)
+        values (
+        #{parameterId},
+        #{typeParameter},
+        #{descriptionParameter},
+        #{valueParameter}
+        )
+
+    </insert>
+
+    <update id="updateParameter" parameterType="parameter">
+        update parameter
+        set
+        type_parameter = #{typeParameter},
+        description_parameter = #{descriptionParameter},
+        value_parameter = #{valueParameter}
+        where parameter_id = #{parameterId}
+    </update>
+
+
+
+</mapper>

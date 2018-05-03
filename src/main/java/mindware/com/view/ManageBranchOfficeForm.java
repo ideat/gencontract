@@ -91,7 +91,6 @@ public class ManageBranchOfficeForm extends CustomComponent implements View {
                     branchOfficeService.insertListBranchOffice(branchOffices);
             }
 
-
             loadBranchOffice(branchOfficeService.findAllBranchOffice());
 
         });

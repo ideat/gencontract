@@ -9,33 +9,30 @@
         <id 	property="rolId" column="rol_id"/>
         <result property="rolName" column="rol_name"/>
         <result property="description" column="description"/>
-       <!--
-        <collection property="opcionesMenu" column="rol_id" ofType="OpcionesMenu" resultMap="OpcionesMenuResult"/>
-        -->
-    </resultMap>
-<!--
-    <resultMap type="opcionesmenu" id="OpcionesMenuResult">
-        <id 	property="opcionesMenuId" column="opciones_menu_id"/>
-        <result property="rolId" column="rol_id"/>
-        <result property="opcionesId" column="opciones_id" />
+        <collection property="menuOption" column="rol_id" ofType="MenuOption" resultMap="MenuOptionResult"/>
 
     </resultMap>
--->
+
+    <resultMap type="menuoption" id="MenuOptionResult">
+        <id 	property="menuOptionId" column="menu_option_id"/>
+        <result property="optionId" column="option_id"/>
+        <result property="rolId" column="rol_id"/>
+    </resultMap>
 
 
     <select id="findAllRol" resultMap="RolResult">
         select * from rol
         order by rol_name
     </select>
-<!--
-    <select id="findAllRolOpcionsMenu" resultMap="RolResult" parameterType="int">
+
+    <select id="findAllRolMenuOptionByRolId" resultMap="RolResult" parameterType="int">
         select *
         from rol r
-        inner join opciones_menu o ON r.rol_id = o.rol_id
+        inner join menu_option m ON r.rol_id = m.rol_id
         where r.rol_id = #{rolId}
 
     </select>
--->
+
 
     <insert id="insertRol"  parameterType="rol" keyProperty="rolId" >
         <selectKey keyProperty="rolId" resultType="int" order="BEFORE">

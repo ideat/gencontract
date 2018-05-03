@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace = "mindware.com.mappers.MenuOptionMapper">
+
+    <resultMap type="menuoption" id="MenuOptionResult">
+        <id 	property="menuOptionId" column="menu_option_id"/>
+        <result property="optionId" column="option_id"/>
+        <result property="rolId" column="rol_id"/>
+        <association property="option"  column="option_id" javaType="option" resultMap="OptionResult" />
+    </resultMap>
+
+    <resultMap type="option" id="OptionResult">
+        <id 	property="optionId" column="option_id"/>
+        <result property="nameOption" column="name_option"/>
+
+    </resultMap>
+
+
+    <select id="findMenuOptionByRolId" resultMap="MenuOptionResult" parameterType="int">
+        select *
+        from menu_option mo
+        inner join option o on (mo.option_id = o.option_id)
+        where rol_id = #{rolId}
+        order by o.option_id
+    </select>
+
+
+    <insert id="insertMenuOption"  parameterType="menuoption" keyProperty="menuOptionId" >
+        <selectKey keyProperty="menuOptionId" resultType="int" order="BEFORE">
+            select nextval('menu_option_id_seq')
+        </selectKey>
+        insert into menu_option (
+        menu_option_id,
+        option_id,
+        rol_id)
+        values (
+        #{menuOptionId},
+        #{optionId},
+        #{rolId})
+    </insert>
+
+    <update id="deleteMenuOption" parameterType="int">
+        delete from menu_option
+        where rol_id = #{rolId}
+    </update>
+
+</mapper>

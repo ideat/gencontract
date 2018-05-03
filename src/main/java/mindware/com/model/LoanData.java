@@ -35,6 +35,7 @@ public class LoanData {
     private String warranty;
     private String extraData;
 
+
     public Integer getLoanDataId() {
         return loanDataId;
     }

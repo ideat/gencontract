@@ -257,7 +257,6 @@ public class GenerateContractsForm extends CustomComponent implements View {
                 }
             }
             System.out.println(p.getText());
-
         }
 
     }
@@ -282,10 +281,9 @@ public class GenerateContractsForm extends CustomComponent implements View {
     private Map<String, String> getFieldValuesLoanData(Integer loanNumber){
         Map<String,String> stringMapVariables = new HashMap<>();
         ParameterService parameterService = new ParameterService();
-        List<Parameter> listVariableContract = parameterService.findParameterByType("variable");
-        LoanData loanData = new LoanData();
+        List<Parameter> listVariableContract = parameterService.findParameterByType("variable_contract");
         LoanDataService loanDataService = new LoanDataService();
-        loanData = loanDataService.findLoanDataByLoanNumber(loanNumber);
+        LoanData loanData = loanDataService.findLoanDataByLoanNumber(loanNumber);
 
         for(Parameter parameter:listVariableContract){
             if (parameter.getValueParameter().equals("loanNumber"))

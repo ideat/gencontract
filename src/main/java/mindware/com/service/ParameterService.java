@@ -40,6 +40,14 @@ public class ParameterService {
         }
     }
 
-
+    public int findParameterByNameAndType(String typeParameter, String valueParameter) {
+        SqlSession sqlSession = MyBatisSqlSessionFactory.getSqlSession("development");
+        try {
+            ParameterMapper parameterMapper = sqlSession.getMapper(ParameterMapper.class);
+            return parameterMapper.findParameterByNameAndType(typeParameter,valueParameter);
+        }finally {
+            sqlSession.close();
+        }
+    }
 
 }

@@ -107,7 +107,7 @@ $v-selection-item-border-radius: 0;
     font-size: 14px !important;
     font-weight: 400 !important;
     box-sizing: border-box !important;
-    color: #FFFFFF ;
+    color: #04111c ;
   }
 
   .v-panel-content > div {
@@ -130,5 +130,9 @@ $v-selection-item-border-radius: 0;
 
   .layout-with-border {
     border: 1px solid white;
+  }
+
+  .backgroundimage {
+    background: url("/images/background.jpg") !important;
   }
 }

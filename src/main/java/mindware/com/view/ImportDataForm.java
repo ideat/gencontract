@@ -20,9 +20,8 @@ import mindware.com.netbank.service.WarrantyNetBankService;
 import mindware.com.service.LoanDataService;
 import mindware.com.utilities.Util;
 
-
-
 import java.io.IOException;
+import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -235,6 +234,7 @@ public class ImportDataForm extends CustomComponent implements View {
         Date date =  loanData.getLoanDate();
         dateLoanDate.setValue(date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate());
         txtTotalPayment.setValue(loanData.getTotalPayment().toString());
+        dateLoanDate.setValue(new Util().stringToLocalDate(loanData.getLoanDate().toString(),"dd-MM-yyyy"));
 
         gridCoDebtor.removeAllColumns();
         gridGuarantor.removeAllColumns();
@@ -470,7 +470,7 @@ public class ImportDataForm extends CustomComponent implements View {
         txtInterestRate.setValue(clientLoanNetbank.getPrtsatbas().toString());
         txtFixedPaymentDay.setValue(clientLoanNetbank.getPrmprdiap().toString());
         txtPaymentFrecuency.setValue(clientLoanNetbank.getPrmprppgk().toString());
-
+        dateLoanDate.setValue(new Util().stringToLocalDate(clientLoanNetbank.getPrmprfreg().toString(),"dd-MM-yyyy"));
         txtCreditLifeInsurance.setValue("0");
         txtOfficial.setValue("");
         txtAgency.setValue(clientLoanNetbank.getPrmpragen().toString());
@@ -694,7 +694,7 @@ public class ImportDataForm extends CustomComponent implements View {
         gridLayoutSupplementaryData.setColumns(7);
         gridLayoutSupplementaryData.setSpacing(true);
 
-        dateLoanDate = new DateField("Fecha desembolso:");
+        dateLoanDate = new DateField("Fecha registro:");
         dateLoanDate.setStyleName(ValoTheme.DATEFIELD_TINY);
         dateLoanDate.setDateFormat("dd-MM-yyyy");
         gridLayoutSupplementaryData.addComponent(dateLoanDate,0,0);

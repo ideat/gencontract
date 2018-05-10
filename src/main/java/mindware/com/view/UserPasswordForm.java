@@ -31,7 +31,7 @@ public class UserPasswordForm extends CustomComponent implements View {
                            udpatePassword(userId);
                            Notification.show("Password",
                                    "Password actualizado",
-                                   Notification.Type.ERROR_MESSAGE);
+                                   Notification.Type.HUMANIZED_MESSAGE);
                        } else {
                            Notification.show("Password",
                                    "Nuevo password no coincide",

@@ -1,5 +1,7 @@
 package mindware.com.netbank.model;
 
+import java.util.Date;
+
 public class ClientLoanNetbank {
     private Integer prmprcage;
     private String gbagendid;
@@ -15,6 +17,7 @@ public class ClientLoanNetbank {
     private Double prtsatbas;
     private Integer prmprdiap;
     private Integer prmpragen;
+    private Date prmprfreg;
 
     public Integer getPrmprdiap() {
         return prmprdiap;
@@ -126,6 +129,14 @@ public class ClientLoanNetbank {
 
     public void setPrmpragen(Integer prmpragen) {
         this.prmpragen = prmpragen;
+    }
+
+    public Date getPrmprfreg() {
+        return prmprfreg;
+    }
+
+    public void setPrmprfreg(Date prmprfreg) {
+        this.prmprfreg = prmprfreg;
     }
 }
 

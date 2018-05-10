@@ -76,7 +76,7 @@ public class MyUI extends UI implements DetachListener {
 
 	public void callMenu(String login, Integer userId, Integer rolId) {
 		MenuConfig menuConfig = new MenuConfig();
-		menuConfig.setDesignItem(DesignItem.getWhiteBlueDesign());
+		menuConfig.setDesignItem(DesignItem.getDarkDesign());
 
 		notiCenter = new NotificationCenter(5000);
 
@@ -95,6 +95,7 @@ public class MyUI extends UI implements DetachListener {
 		UI.getCurrent().getNavigator().addView(ManageBranchOfficeForm.class.getSimpleName(), ManageBranchOfficeForm.class);
 		UI.getCurrent().getNavigator().addView(ListContractsForm.class.getSimpleName(), ListContractsForm.class);
 		UI.getCurrent().getNavigator().addView(VariablesContractsForm.class.getSimpleName(), VariablesContractsForm.class);
+        UI.getCurrent().getNavigator().addView(CustomVariableForm.class.getSimpleName(), CustomVariableForm.class);
 		UI.getCurrent().getNavigator().addView(RolForm.class.getSimpleName(), RolForm.class);
 		UI.getCurrent().getNavigator().addView(GenerateContractsForm.class.getSimpleName(), GenerateContractsForm.class);
 		UI.getCurrent().getNavigator().addView(ParametersForm.class.getSimpleName(), ParametersForm.class);
@@ -366,6 +367,16 @@ public class MyUI extends UI implements DetachListener {
                     .withClickListener(e -> hybridMenu.setLeftMenuMinimal(!hybridMenu.isLeftMenuMinimal()))
                     .build(demoSettings);
         }
+
+        if (Arrays.asList(listOptions).contains("12")) {
+            MenuButton CustomVariableButton = LeftMenuButtonBuilder.get()
+                    .withCaption("Variables personalizadas")
+                    .withIcon(VaadinIcons.ABACUS)
+                    .withNavigateTo(CustomVariableForm.class)
+                    .build();
+            hybridMenu.addLeftMenuButton(CustomVariableButton);
+        }
+
         MenuButton ExitButton = LeftMenuButtonBuilder.get()
                 .withCaption("Salir")
                 .withIcon(VaadinIcons.EXIT)

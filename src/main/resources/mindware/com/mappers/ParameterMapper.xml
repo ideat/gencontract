@@ -20,6 +20,14 @@
 
     </select>
 
+    <select id="findParameterByNameAndType" resultType="int" parameterType="map">
+        select count(*)
+        from parameter
+        where type_parameter = #{typeParameter}
+        and value_parameter = #{valueParameter}
+
+    </select>
+
     <insert id="insertParameter"  parameterType="parameter" keyProperty="parameterId" >
         <selectKey keyProperty="parameterId" resultType="int" order="BEFORE">
             select nextval('parameter_id_seq')

@@ -20,12 +20,12 @@
         <result property="prmprppgk" column="prmprppgk"/>
         <result property="prtsatbas" column="prtsatbas"/>
         <result property="prmprdiap" column="prmprdiap"/>
-
+        <result property="prmprfreg" column="prmprfreg"/>
     </resultMap>
 
 
     <select id="findClientLoanNetbankByCreCod" resultMap="ClientLoanNetbankResult" parameterType="int">
-        select prmprcage, prmpragen, gbagendid,gbagenomb, gbageeciv, gbagesexo,
+        select prmprcage, prmpragen, prmprfreg, gbagendid,gbagenomb, gbageeciv, gbagesexo,
         case
         	when gbagedir1 is null then ''
         	else gbagedir1

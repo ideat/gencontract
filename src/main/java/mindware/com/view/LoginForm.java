@@ -1,6 +1,6 @@
 package mindware.com.view;
 
-import com.vaadin.navigator.View;
+
 import mindware.com.MyUI;
 
 import com.vaadin.data.HasValue;
@@ -35,7 +35,7 @@ public class LoginForm extends CustomComponent {
     public LoginForm() {
         setHeight("100%");
         setCompositionRoot(buildMainLayout());
-
+        setStyleName("backgroundimage");
         postBuild();
     }
 
@@ -108,6 +108,7 @@ public class LoginForm extends CustomComponent {
 
     private VerticalLayout buildVerticalLayout(){
         verticalLayout = new VerticalLayout();
+//        verticalLayout.setSizeFull();
 
 
         Panel panel = new Panel("<font size=4 color=#357EC7> Bienvenido - Ingrese sus credenciales<font>");
@@ -129,7 +130,7 @@ public class LoginForm extends CustomComponent {
         formLayout = new FormLayout();
 
         lblMensaje = new Label();
-        lblMensaje.setStyleName(ValoTheme.LABEL_BOLD,true);
+        lblMensaje.setStyleName(ValoTheme.LABEL_BOLD);
         lblMensaje.setStyleName(ValoTheme.LABEL_FAILURE,true);
         lblMensaje.setVisible(false);
 

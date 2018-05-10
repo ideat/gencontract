@@ -7,6 +7,7 @@ import java.util.List;
 
 public interface ParameterMapper {
     void insertParameter(Parameter parameter);
-    List<Parameter> findParameterByType(@Param("typeParameter") String typeParameter);
     void updateParameter(Parameter parameter);
+    List<Parameter> findParameterByType(@Param("typeParameter") String typeParameter);
+    int findParameterByNameAndType(@Param("typeParameter") String typeParameter, @Param("valueParameter") String valueParameter);
 }

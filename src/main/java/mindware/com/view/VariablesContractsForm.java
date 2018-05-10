@@ -49,7 +49,7 @@ public class VariablesContractsForm extends CustomComponent implements View {
                 Parameter parameter = new Parameter();
                 parameter.setValueParameter(txtVariable.getValue());
                 parameter.setDescriptionParameter(txtDescription.getValue());
-                parameter.setTypeParameter("variable");
+                parameter.setTypeParameter("variable_contract");
                 parameter.setParameterId(Integer.parseInt(txtVariableId.getValue()));
                 updateParameter(parameter);
             }
@@ -121,7 +121,7 @@ public class VariablesContractsForm extends CustomComponent implements View {
 
     private void fillGridVariable(){
         ParameterService parameterService = new ParameterService();
-        List<Parameter> parameterList = parameterService.findParameterByType("variable");
+        List<Parameter> parameterList = parameterService.findParameterByType("variable_contract");
 
         gridVariable.removeAllColumns();
         gridVariable.setItems(parameterList);
@@ -144,7 +144,7 @@ public class VariablesContractsForm extends CustomComponent implements View {
 
     private Parameter prepareInsertParameter(){
         Parameter parameter = new Parameter();
-        parameter.setTypeParameter("variable");
+        parameter.setTypeParameter("variable_contract");
         parameter.setDescriptionParameter(txtDescription.getValue());
         parameter.setValueParameter(txtVariable.getValue());
         return parameter;
@@ -167,7 +167,6 @@ public class VariablesContractsForm extends CustomComponent implements View {
         gridMainLayout.setRows(5);
         gridMainLayout.setColumns(6);
         gridMainLayout.setSpacing(true);
-        gridMainLayout.setSizeFull();
 
         txtVariableId = new TextField("ID:");
         txtVariableId.setStyleName(ValoTheme.TEXTFIELD_TINY);
@@ -206,11 +205,11 @@ public class VariablesContractsForm extends CustomComponent implements View {
         panelGridVariable = new Panel();
         panelGridVariable.setStyleName(ValoTheme.PANEL_WELL);
         panelGridVariable.setSizeFull();
-        gridMainLayout.addComponent(panelGridVariable,0,2,4,4);
+        gridMainLayout.addComponent(panelGridVariable,0,2,5,4);
 
         gridVariable = new Grid();
         gridVariable.setStyleName(ValoTheme.TABLE_COMPACT);
-        gridVariable.setSizeFull();
+        gridVariable.setWidth("100%");
         panelGridVariable.setContent(gridVariable);
 //        gridMainLayout.addComponent(gridVariable,0,2,4,4);
 

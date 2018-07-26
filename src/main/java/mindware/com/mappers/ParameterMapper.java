@@ -9,5 +9,6 @@ public interface ParameterMapper {
     void insertParameter(Parameter parameter);
     void updateParameter(Parameter parameter);
     List<Parameter> findParameterByType(@Param("typeParameter") String typeParameter);
+    List<Parameter> findParameterByTypeAndValue(@Param("typeParameter") String typeParameter,@Param("valueParameter") String valueParameter);
     int findParameterByNameAndType(@Param("typeParameter") String typeParameter, @Param("valueParameter") String valueParameter);
 }

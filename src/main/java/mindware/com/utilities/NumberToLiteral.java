@@ -13,21 +13,37 @@ public class NumberToLiteral {
     public NumberToLiteral(){}
 
 
-    public String Convert(String number, boolean upperCase, String currency) {
+    public String Convert(String number, boolean upperCase, String currency, String typeNumber) {
         String literal = "";
         String decimalPart;
         //si el numero utiliza (.) en lugar de (,) -> se reemplaza
         number = number.replace(".", ",");
         //si el numero no tiene parte decimal, se le agrega ,00
-        if(number.indexOf(",")==-1){
-            number = number + ",00";
-        }
+        if (typeNumber.equals("float"))
+            if(number.indexOf(",")==-1){
+                number = number + ",00";
+            }
         //se valida formato de entrada -> 0,00 y 999 999 999,00
-        if (Pattern.matches("\\d{1,9},\\d{1,2}", number)) {
+        String patter="";
+        if (typeNumber.equals("float"))
+            patter = "\\d{1,9},\\d{1,2}";
+        else {
+            patter = "\\d{1,9}";
+        }
+        if (Pattern.matches(patter, number)) {
             //se divide el numero 0000000,00 -> entero y decimal
-            String Num[] = number.split(",");
-            //de da formato al numero decimal
-            decimalPart = Num[1] + "/100 " + currency;
+            String Num[]=null;
+
+            if (typeNumber.equals("float")) {
+                 Num = number.split(",");
+                //de da formato al numero decimal
+                decimalPart = Num[1] + "/100 " + currency;
+            }else{
+                Num = number.split(",");
+                Num[0] = number;
+                decimalPart="";
+            }
+
             //se convierte el numero a literal
             if (Integer.parseInt(Num[0]) == 0) {//si el valor es cero
                 literal = "cero ";
@@ -44,6 +60,7 @@ public class NumberToLiteral {
             }
             //devuelve el resultado en mayusculas o minusculas
             if (upperCase) {
+
                 return (literal + decimalPart).toUpperCase();
             } else {
                 return (literal + decimalPart);

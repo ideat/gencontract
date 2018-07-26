@@ -50,4 +50,14 @@ public class ParameterService {
         }
     }
 
+    public List<Parameter> findParameterByTypeAndValue(String typeParameter, String valueParameter) {
+        SqlSession sqlSession = MyBatisSqlSessionFactory.getSqlSession("development");
+        try {
+            ParameterMapper parameterMapper = sqlSession.getMapper(ParameterMapper.class);
+            return parameterMapper.findParameterByTypeAndValue(typeParameter,valueParameter);
+        }finally {
+            sqlSession.close();
+        }
+    }
+
 }

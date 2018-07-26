@@ -11,6 +11,15 @@ public class CoDebtorGuarantor {
     private String type;
     private Integer codeMebership;
     private Integer id;
+    private String insured;
+
+    public String getInsured() {
+        return insured;
+    }
+
+    public void setInsured(String insured) {
+        this.insured = insured;
+    }
 
     public String getName() {
         return name;

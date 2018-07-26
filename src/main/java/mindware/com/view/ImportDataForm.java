@@ -3,6 +3,7 @@ package mindware.com.view;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.vaadin.ui.renderers.TextRenderer;
+import de.steinwedel.messagebox.MessageBox;
 import mindware.com.model.CoDebtorGuarantor;
 
 import mindware.com.model.LoanData;
@@ -74,6 +75,8 @@ public class ImportDataForm extends CustomComponent implements View {
     private List<WarrantyNetbank> warrantyNetbankList;
     private List<CodebtorGuarantorNetbank> codebtorNetbankList;
     private List<CodebtorGuarantorNetbank> guarantorNetbankList;
+    private Integer loanDataId;
+    private boolean local;
 
     public ImportDataForm(){
         setCompositionRoot(buildGridLayout());
@@ -87,23 +90,32 @@ public class ImportDataForm extends CustomComponent implements View {
             if (!txtLoanNumberSearch.isEmpty()) {
                 LoanData loanData = loanDataService.findLoanDataByLoanNumber(Integer.parseInt(txtLoanNumberSearch.getValue()));
                 if (loanData != null){
-                    loadLoanDataLocal(loanData);
+                    MessageBox.createQuestion()
+                            .withCaption("Advertencia")
+                            .withMessage("Credito ya fue importado, desea volver a cargar desde el servidor? ")
+                            .withYesButton(()->{
+                                clearFieldData();
+                                ClientLoanNetBankService clientLoanNetBankService = new ClientLoanNetBankService();
+                                clientLoanNetbank = clientLoanNetBankService.findClientNetbankById(Integer.parseInt(txtLoanNumberSearch.getValue().toString()));
+                                dataFromNetBank();
+                                loanDataId = loanData.getLoanDataId();
+                                btnImport.setEnabled(true);
+                            })
+                            .withNoButton( ()->{
+                                loadLoanDataLocal(loanData);
+                                btnImport.setEnabled(false);
+
+                            })
+                            .open();
+
+
                 } else {
                     clearFieldData();
                     ClientLoanNetBankService clientLoanNetBankService = new ClientLoanNetBankService();
                     clientLoanNetbank = clientLoanNetBankService.findClientNetbankById(Integer.parseInt(txtLoanNumberSearch.getValue().toString()));
                     if (clientLoanNetbank != null) {
-                        WarrantyNetBankService warrantyNetBankService = new WarrantyNetBankService();
-                        warrantyNetbankList = warrantyNetBankService.findWarrantyNetbankByCreCod(Integer.parseInt(txtLoanNumberSearch.getValue().toString()));
-                        CodebtorGuarantorNetbankService codebtorGuarantorNetbankService = new CodebtorGuarantorNetbankService();
-                        codebtorNetbankList = codebtorGuarantorNetbankService.findCodeptorByNumberLoan(Integer.parseInt(txtLoanNumberSearch.getValue().toString()));
-                        guarantorNetbankList = codebtorGuarantorNetbankService.findGuarantorByNumberLoan(Integer.parseInt(txtLoanNumberSearch.getValue().toString()));
-
-                        loadCodebtorGuarantorNetbank(codebtorNetbankList, (Grid<CodebtorGuarantorNetbank>) gridCoDebtor);
-                        loadCodebtorGuarantorNetbank(guarantorNetbankList, (Grid<CodebtorGuarantorNetbank>) gridGuarantor);
-
-                        loadNetBankData(clientLoanNetbank);
-                        loadWarrantyNetBank(warrantyNetbankList, (Grid<WarrantyNetbank>) gridWarranty);
+                        dataFromNetBank();
+                        btnImport.setEnabled(true);
                     } else {
                         Notification.show("Datos credito",
                                 "Credito no encontrado",
@@ -123,7 +135,7 @@ public class ImportDataForm extends CustomComponent implements View {
 
         btnImport.addClickListener(clickEvent -> {
             LoanDataService loanDataService = new LoanDataService();
-            if (loanDataService.findLoanDataByLoanNumber(Integer.parseInt(txtLoanNumberSearch.getValue()))==null ) {
+//            if (loanDataService.findLoanDataByLoanNumber(Integer.parseInt(txttxtLoanNumberSearchLoanNumberSearch.getValue()))==null ) {
                 if (validateLoanData()) {
                     Util util = new Util();
                     LoanData loanData = new LoanData();
@@ -133,7 +145,7 @@ public class ImportDataForm extends CustomComponent implements View {
                     loanData.setAddressDebtor(txtAddressDebtor.getValue().toString().trim());
                     loanData.setCivilStatusDebtor(txtCivilStatusDebtor.getValue().trim());
                     loanData.setGenderDebtor(txtGenderDebtor.getValue().trim());
-                    loanData.setLoanNumber(Integer.parseInt(txtLoanNumber.getValue().trim()));
+                    loanData.setLoanNumber(Integer.parseInt(txtLoanNumber.getValue()));
                     loanData.setCurrency(txtCurrency.getValue().trim());
                     loanData.setLoanMount(Double.parseDouble(txtLoanMount.getValue().trim()));
                     loanData.setLoanTerm(Integer.parseInt(txtLoanTerm.getValue().trim()));
@@ -154,8 +166,9 @@ public class ImportDataForm extends CustomComponent implements View {
 
                     ObjectMapper mapper = new ObjectMapper();
                     String jsonCodebtor = null;
+
                     try {
-                        jsonCodebtor = mapper.writeValueAsString(getCoDebtorsGuarantors("codebor", codebtorNetbankList));
+                        jsonCodebtor = mapper.writeValueAsString(getCoDebtorsGuarantors("codebtor", codebtorNetbankList));
                     } catch (JsonProcessingException e) {
                         e.printStackTrace();
                     }
@@ -178,26 +191,49 @@ public class ImportDataForm extends CustomComponent implements View {
                     loanData.setCoDebtors(jsonCodebtor);
                     loanData.setWarranty(jsonWarranty);
 
+                    if (loanDataService.findLoanDataByLoanNumber(Integer.parseInt(txtLoanNumberSearch.getValue()))==null ) {
+                        loanDataService.insertLoanData(loanData);
+                        Notification.show("Importacion datos",
+                                "Datos del credito importados!",
+                                Notification.Type.HUMANIZED_MESSAGE);
+                    }else {
+                        loanData.setLoanDataId(loanDataId);
+                        loanDataService.updateLoanData(loanData);
+                        Notification.show("Importacion datos",
+                                "Datos del credito actualizados!",
+                                Notification.Type.HUMANIZED_MESSAGE);
+                    }
 
-                    loanDataService.insertLoanData(loanData);
-                    Notification.show("Importacion datos",
-                            "Datos del credito importados!",
-                            Notification.Type.HUMANIZED_MESSAGE);
                 } else {
                     Notification.show("ERROR",
                             "Datos incompeltos, complete la informacion",
                             Notification.Type.WARNING_MESSAGE);
                 }
-            } else {
-                Notification.show("Datos credito",
-                        "Credito ya importado",
-                        Notification.Type.ERROR_MESSAGE);
-                txtLoanNumberSearch.focus();
-            }
+//            } else {
+//                Notification.show("Datos credito",
+//                        "Credito ya importado",
+//                        Notification.Type.ERROR_MESSAGE);
+//                txtLoanNumberSearch.focus();
+//            }
 
         });
 
     }
+
+    private void dataFromNetBank() {
+        WarrantyNetBankService warrantyNetBankService = new WarrantyNetBankService();
+        warrantyNetbankList = warrantyNetBankService.findWarrantyNetbankByCreCod(Integer.parseInt(txtLoanNumberSearch.getValue().toString()));
+        CodebtorGuarantorNetbankService codebtorGuarantorNetbankService = new CodebtorGuarantorNetbankService();
+        codebtorNetbankList = codebtorGuarantorNetbankService.findCodeptorByNumberLoan(Integer.parseInt(txtLoanNumberSearch.getValue().toString()));
+        guarantorNetbankList = codebtorGuarantorNetbankService.findGuarantorByNumberLoan(Integer.parseInt(txtLoanNumberSearch.getValue().toString()));
+
+        loadCodebtorGuarantorNetbank(codebtorNetbankList, (Grid<CodebtorGuarantorNetbank>) gridCoDebtor);
+        loadCodebtorGuarantorNetbank(guarantorNetbankList, (Grid<CodebtorGuarantorNetbank>) gridGuarantor);
+
+        loadNetBankData(clientLoanNetbank);
+        loadWarrantyNetBank(warrantyNetbankList, (Grid<WarrantyNetbank>) gridWarranty);
+    }
+
 
     private boolean validateLoanData(){
         if (dateLoanDate.isEmpty()) return false;
@@ -211,6 +247,8 @@ public class ImportDataForm extends CustomComponent implements View {
     }
 
     private void loadLoanDataLocal(LoanData loanData){
+        loanDataId = loanData.getLoanDataId();
+        txtLoanNumber.setValue(txtLoanNumberSearch.getValue());
         txtClientLoanId.setValue(loanData.getClientLoanId().toString());
         txtIdentifyCardDebtor.setValue(loanData.getIdentityCardDebtor());
         txtDebtorName.setValue(loanData.getDebtorName());
@@ -247,10 +285,12 @@ public class ImportDataForm extends CustomComponent implements View {
     private void loadDataCoDebtors(String coDebtorGuarantor, Grid<CoDebtorGuarantor> gridCoDebtorGurantor) {
         if (!coDebtorGuarantor.equals("[]")){
             ObjectMapper mapper = new ObjectMapper();
-            List<CoDebtorGuarantor> coDebtorList = new ArrayList<>();
+            List<CoDebtorGuarantor> coDebtorLocalList = new ArrayList<>();
+
             try {
-                coDebtorList = Arrays.asList(mapper.readValue(coDebtorGuarantor,CoDebtorGuarantor[].class));
-               fillGridCoDebtorGuarantor(coDebtorList,gridCoDebtorGurantor);
+                coDebtorLocalList = Arrays.asList(mapper.readValue(coDebtorGuarantor,CoDebtorGuarantor[].class));
+
+               fillGridCoDebtorGuarantor(coDebtorLocalList,gridCoDebtorGurantor);
 
             } catch (IOException e) {
                 e.printStackTrace();
@@ -309,10 +349,10 @@ public class ImportDataForm extends CustomComponent implements View {
     private List<Warranty> getWarranty(List<WarrantyNetbank> warrantyNetbanks){
         List<Warranty> warrantyList = new ArrayList<>();
         Util util = new Util();
-        int i=1;
+
         for(WarrantyNetbank warrantyNetbank:warrantyNetbanks){
             Warranty warranty = new Warranty();
-            warranty.setId(i);
+            warranty.setId(warrantyNetbank.getPrgarcorr());
             warranty.setLoanNumber(warrantyNetbank.getPrgarnpre());
             warranty.setTypeGuarantee(warrantyNetbank.getGbtgadesc().trim());
             warranty.setCurrency(warrantyNetbank.getPrgarcmon().trim());
@@ -325,10 +365,12 @@ public class ImportDataForm extends CustomComponent implements View {
             warranty.setMortageNumber(warrantyNetbank.getPrgarnhip());
             if(warrantyNetbank.getPrgarfhip() != null)
                 warranty.setDateMortage(util.stringToDate(warrantyNetbank.getPrgarfhip(),"yyyy-MM-dd"));
-            warranty.setDescription(warrantyNetbank.getPrgardesc().trim());
-            warranty.setEnoughGuarante(warrantyNetbank.getPrgarsufl().trim());
+            if (warrantyNetbank.getPrgardesc()!= null)
+                warranty.setDescription(warrantyNetbank.getPrgardesc().trim());
+            if (warrantyNetbank.getPrgarsufl()!= null)
+                warranty.setEnoughGuarante(warrantyNetbank.getPrgarsufl().trim());
             warrantyList.add(warranty);
-            i=+1;
+
         }
 
         return warrantyList;
@@ -336,6 +378,7 @@ public class ImportDataForm extends CustomComponent implements View {
 
     private List<CoDebtorGuarantor> getCoDebtorsGuarantors(String type, List<CodebtorGuarantorNetbank> codebtorGuarantorNetbanks){
         List<CoDebtorGuarantor> coDebtorList = new ArrayList<>();
+        int i = 1;
         for(CodebtorGuarantorNetbank codebtorGuarantorNetbank: codebtorGuarantorNetbanks){
             CoDebtorGuarantor coDebtorGuarantor = new CoDebtorGuarantor();
             coDebtorGuarantor.setCodeMebership(codebtorGuarantorNetbank.getPrdeucage());
@@ -347,6 +390,11 @@ public class ImportDataForm extends CustomComponent implements View {
             coDebtorGuarantor.setAddressHome(codebtorGuarantorNetbank.getGbagedir().trim());
             coDebtorGuarantor.setCivilStatus(codebtorGuarantorNetbank.getGbageeciv().trim());
             coDebtorGuarantor.setGender(codebtorGuarantorNetbank.getGbagesexo().trim());
+            coDebtorGuarantor.setInsured(type.equals("codebtor")?"asegurado":"noAsegurado");
+            coDebtorGuarantor.setId(i);
+
+
+            i++;
 
             coDebtorList.add(coDebtorGuarantor);
 

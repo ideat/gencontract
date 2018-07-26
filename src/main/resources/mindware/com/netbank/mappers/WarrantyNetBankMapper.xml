@@ -7,6 +7,7 @@
 
     <resultMap type="warrantynetbank" id="WarrantyNetBankResult">
         <id 	property="prgarnpre" column="prgarnpre"/>
+        <result property="prgarcorr" column="prgarcorr"/>
         <result property="gbtgadesc" column="gbtgadesc"/>
         <result property="prgarcmon" column="prgarcmon"/>
         <result property="prgargfin" column="prgargfin"/>
@@ -22,7 +23,7 @@
 
 
     <select id="findWarrantyNetbankByCreCod" resultMap="WarrantyNetBankResult" parameterType="int">
-        select prgarnpre, gbtgadesc,
+        select prgarnpre, prgarcorr, gbtgadesc,
         case
           when prgarcmon = 1 then "Bs"
           WHEN prgarcmon = 2 then "$us"

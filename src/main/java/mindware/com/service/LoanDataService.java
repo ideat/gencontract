@@ -19,6 +19,31 @@ public class LoanDataService {
             sqlSession.close();
         }
     }
+
+    public void updateLoanData(LoanData loanData){
+        SqlSession sqlSession = MyBatisSqlSessionFactory.getSqlSession("development");
+        try {
+            LoanDataMapper loanDataMapper = sqlSession.getMapper(LoanDataMapper.class);
+            loanDataMapper.updateLoanData(loanData);
+            sqlSession.commit();
+        }
+        finally {
+            sqlSession.close();
+        }
+    }
+
+    public void updateCodebtor(LoanData loanData){
+        SqlSession sqlSession = MyBatisSqlSessionFactory.getSqlSession("development");
+        try {
+            LoanDataMapper loanDataMapper = sqlSession.getMapper(LoanDataMapper.class);
+            loanDataMapper.updateCodebtor(loanData);
+            sqlSession.commit();
+        }
+        finally {
+            sqlSession.close();
+        }
+    }
+
     public LoanData findLoanDataByLoanNumber(int loanNumber){
         SqlSession sqlSession = MyBatisSqlSessionFactory.getSqlSession("development");
         try {

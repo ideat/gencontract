@@ -1,8 +1,7 @@
 package mindware.com.netbank.model;
 
-import java.util.Date;
-
 public class WarrantyNetbank {
+    private Integer prgarcorr;
     private Integer prgarnpre;
     private String gbtgadesc;
     private String prgarcmon;
@@ -14,6 +13,14 @@ public class WarrantyNetbank {
     private String prgarfhip;//*
     private String prgardesc;
     private String prgarsufl;
+
+    public Integer getPrgarcorr() {
+        return prgarcorr;
+    }
+
+    public void setPrgarcorr(Integer prgarcorr) {
+        this.prgarcorr = prgarcorr;
+    }
 
     public Integer getPrgarnpre() {
         return prgarnpre;

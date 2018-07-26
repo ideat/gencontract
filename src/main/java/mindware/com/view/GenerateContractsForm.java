@@ -1,24 +1,27 @@
 package mindware.com.view;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gwt.event.dom.client.KeyCodes;
+import com.vaadin.event.FieldEvents;
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.navigator.View;
-import com.vaadin.server.FileDownloader;
-import com.vaadin.server.FileResource;
-import com.vaadin.server.Resource;
+import com.vaadin.server.*;
 import com.vaadin.ui.*;
 import com.vaadin.ui.themes.ValoTheme;
 import de.steinwedel.messagebox.MessageBox;
-import mindware.com.model.Contract;
-import mindware.com.model.LoanData;
-import mindware.com.model.Parameter;
+import mindware.com.model.*;
 import mindware.com.service.ContractService;
 import mindware.com.service.LoanDataService;
 import mindware.com.service.ParameterService;
+import mindware.com.utilities.NumberToLiteral;
+
 import mindware.com.utilities.Util;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.openxml4j.opc.OPCPackage;
 import org.apache.poi.xwpf.usermodel.*;
 
 import java.io.*;
+import java.net.URI;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -43,23 +46,32 @@ public class GenerateContractsForm extends CustomComponent implements View {
     private Button btnGenerateContract;
     private Button btnDownloadContract;
     private Button btnSearch;
+    private Button btnInsured;
     private Integer numberLoan;
     private String pathGenerate="";
+    private URI uri;
+    private String origin = "";
+    private LoanData loanData;
 
+    private final static char CR  = (char) 0x0D;
+    private final static char LF  = (char) 0x0A;
+    private final static String CRLF  = "" + CR + LF;
     public GenerateContractsForm(){
 
         setCompositionRoot(buildMainGridLayout());
         fillGridTemplateContract();
         postBuild();
+        uri=  Page.getCurrent().getLocation();
     }
 
     private void postBuild(){
         btnSearch.addClickListener(clickEvent -> {
+
             if (validateSearchCriteria()){
                 fillGridLoanData(cmbSearchBy.getValue().toString(), txtTextSearch.getValue() );
             }else{
                 Notification.show("Buscar",
-                        "Sleccione e ingrese criterios de busqueda",
+                        "Seleccione e ingrese criterios de busqueda",
                         Notification.Type.ERROR_MESSAGE);
             }
         });
@@ -69,30 +81,46 @@ public class GenerateContractsForm extends CustomComponent implements View {
             if (validateData()){
                 String path = this.getClass().getClassLoader().getResource("/contract/template").getPath() + txtFileNameContract.getValue();
                 pathGenerate = this.getClass().getClassLoader().getResource("/contract/generated").getPath() + numberLoan.toString()+".docx";
-                if (verifyExistLoanContract(pathGenerate)) {
-                    MessageBox
-                            .createQuestion()
-                            .withCaption("Contrato")
-                            .withMessage("Prestamo ya tiene contrato, desea reemplazarlo?")
-                            .withYesButton(() -> {
-                                createContract(path, pathGenerate);
-                                Notification.show("Contrato",
-                                        "Contrato creado",
-                                        Notification.Type.HUMANIZED_MESSAGE);
-                                insertUpdateContract(pathGenerate,"update");
-                            })
-                            .withNoButton(() -> {  })
-                            .open();
-                } else {
-                    createContract(path, pathGenerate);
+                if (verifyExistFileContract(path)) {
+                    if (verifyExistFileContract(pathGenerate)) {
+
+                        MessageBox
+                                .createQuestion()
+                                .withCaption("Contrato")
+                                .withMessage("Prestamo ya tiene contrato, desea reemplazarlo?")
+                                .withYesButton(() -> {
+                                    createContract(path, pathGenerate);
+                                    Notification.show("Contrato",
+                                            "Contrato creado",
+                                            Notification.Type.HUMANIZED_MESSAGE);
+                                    insertUpdateContract(pathGenerate, "update");
+                                })
+                                .withNoButton(() -> {
+                                })
+                                .open();
+                    } else {
+                        if (txtContractId.isEmpty()) {
+                            createContract(path, pathGenerate);
+                            Notification.show("Contrato",
+                                    "Contrato creado",
+                                    Notification.Type.HUMANIZED_MESSAGE);
+                            insertUpdateContract(pathGenerate, "insert");
+                        }else{
+                            createContract(path, pathGenerate);
+                            Notification.show("Contrato",
+                                    "Contrato regenerado",
+                                    Notification.Type.HUMANIZED_MESSAGE);
+                            insertUpdateContract(pathGenerate, "update");
+                        }
+                    }
+                }else{
                     Notification.show("Contrato",
-                            "Contrato creado",
-                            Notification.Type.HUMANIZED_MESSAGE);
-                    insertUpdateContract(pathGenerate,"insert");
+                            "No existe la plantilla de contrato selecionada",
+                            Notification.Type.ERROR_MESSAGE);
                 }
             }else {
                 Notification.show("Contrato",
-                        "Ingrese la fecha de elaboracion del contrato",
+                        "Ingrese la fecha de elaboracion del contrato y/o seleccione el credito y modelo de contrato",
                         Notification.Type.ERROR_MESSAGE);
                 dateContractGenerate.focus();
             }
@@ -101,6 +129,11 @@ public class GenerateContractsForm extends CustomComponent implements View {
         gridLoanData.addItemClickListener(itemClick -> {
             txtLoanDataId.setValue(itemClick.getItem().getLoanDataId().toString());
             numberLoan = itemClick.getItem().getLoanNumber();
+            loanData = itemClick.getItem();
+            List<Contract> contractList = new ContractService().findCotractByLoanNumber(numberLoan);
+            if (contractList.size()>0)
+                txtContractId.setValue(contractList.get(0).getContractId().toString());
+
         });
 
         gridContractTemplate.addItemClickListener(itemClick -> {
@@ -109,22 +142,97 @@ public class GenerateContractsForm extends CustomComponent implements View {
 
         btnDownloadContract.addClickListener(clickEvent -> {
             if (!pathGenerate.equals("") ) {
-                downloadContract(pathGenerate);
+                downloadContract(pathGenerate, numberLoan.toString()+".docx");
             } else {
                 Notification.show("ERROR",
                         "No se genero un contrato, genere uno y pruebe nuevamente",
                         Notification.Type.ERROR_MESSAGE);
             }
         });
+
+        btnInsured.addClickListener(clickEvent -> {
+            ListInsuredWindowCodebtor listInsuredWindowCodebtor = new ListInsuredWindowCodebtor(loanData);
+            listInsuredWindowCodebtor.setModal(true);
+            listInsuredWindowCodebtor.setWidth("700.0px");
+            listInsuredWindowCodebtor.setHeight("450.0px");
+            listInsuredWindowCodebtor.center();
+            UI.getCurrent().addWindow(listInsuredWindowCodebtor);
+            listInsuredWindowCodebtor.addCloseListener(new Window.CloseListener() {
+                @Override
+                public void windowClose(Window.CloseEvent e) {
+//                    if (!agenciaWindowForm.descripcionAgencia.isEmpty()) {
+//                        txtAgenciaId.setReadOnly(false);
+//                        txtAgenciaId.setValue(agenciaWindowForm.agencia.getAgenciaId().toString());
+//                        txtAgenciaId.setDescription(agenciaWindowForm.descripcionAgencia);
+//                        txtAgenciaId.setReadOnly(true);
+//                        ciudad = "";
+//                        ciudad = agenciaWindowForm.agencia.getCiudad();
+//                    }
+                }
+            });
+        });
+
     }
 
-    private void downloadContract(String file){
 
-        final Resource res = new FileResource(new File(file));
+
+    private void downloadContract(String file, String fileName){
+
+        FileResource res = new FileResource(new File(file));
+        res.setCacheTime(0);
+        res.getStream().setCacheTime(0);
         FileDownloader fd = new FileDownloader(res);
         fd.extend(btnDownloadContract);
+        
+//
+//        try {
+//            byte[] data = Files.readAllBytes(Paths.get(file));
+//
+//            downloadExportFile(data,fileName);
+//
+//
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
 
     }
+
+
+    public void downloadExportFile(byte[] toDownload, String fileName) {
+        StreamResource.StreamSource source = new StreamResource.StreamSource() {
+            @Override
+            public InputStream getStream() {
+                return new ByteArrayInputStream(toDownload);
+            }
+        };
+        // by default getStream always returns new DownloadStream. Which is weird because it makes setting stream parameters impossible.
+        // It seems to be working before in earlier versions of Vaadin. We'll override it.
+        StreamResource resource = new StreamResource(source, fileName) {
+            DownloadStream downloadStream;
+            @Override
+            public DownloadStream getStream() {
+                if (downloadStream==null)
+                    downloadStream = super.getStream();
+                return downloadStream;
+            }
+        };
+        resource.getStream().setParameter("Content-Disposition","attachment"); // or else browser will try to open resource instead of download it
+        resource.getStream().setParameter("Content-Type","application/octet-stream");
+        resource.getStream().setCacheTime(0);
+        ResourceReference ref = new ResourceReference(resource,this, "download");
+
+
+        FileDownloader fd = new FileDownloader(resource);
+        fd.extend(btnDownloadContract);
+
+//        this.setResource("download", resource); // now it's available for download
+//
+//
+//        Page.getCurrent().open(ref.getURL(), null);
+
+
+    }
+
 
     private void createContract(String path, String pathGenerate) {
         OutputStream contract = null;
@@ -160,31 +268,31 @@ public class GenerateContractsForm extends CustomComponent implements View {
         }
     }
 
-    private boolean verifyExistLoanContract(String fileContract){
+    private boolean verifyExistFileContract(String fileContract){
 
         return new File(fileContract).exists();
+
     }
 
     private void replace(String inFile, Map<String, String> data, OutputStream out) throws Exception, IOException {
         XWPFDocument doc = new XWPFDocument(OPCPackage.open(inFile));
         for (XWPFParagraph p : doc.getParagraphs()) {
-            replace2(p, data);
+            replace2(p, data, "body",doc);
+
         }
         for (XWPFTable tbl : doc.getTables()) {
             for (XWPFTableRow row : tbl.getRows()) {
                 for (XWPFTableCell cell : row.getTableCells()) {
                     for (XWPFParagraph p : cell.getParagraphs()) {
-                        replace2(p, data);
+                        replace2(p, data,"signature_guarantors",doc);
                     }
                 }
             }
         }
-
-
         doc.write(out);
     }
 
-    private void replace2(XWPFParagraph p, Map<String, String> data) {
+    private void replace2(XWPFParagraph p, Map<String, String> data, String partDocument, XWPFDocument doc) {
         String pText = p.getText(); // complete paragraph as string
         if (pText.contains("${")) { // if paragraph does not include our pattern, ignore
             TreeMap<Integer, XWPFRun> posRuns = getPosToRuns(p);
@@ -252,13 +360,31 @@ public class GenerateContractsForm extends CustomComponent implements View {
                             txt = txt.replaceFirst("\\}", "");
                             found3 = true;
                         }
-                        r.setText(txt, k);
+                        if (partDocument.equals("body")) {
+
+                            if (txt.contains("\n")) {
+
+                                    String[] strings = txt.split("\n");
+                                    int i = 0;
+                                    for (String string : strings) {
+                                        r.setText(string, i);
+                                        r.addCarriageReturn();
+                                        i++;
+                                        p.insertNewRun(i);
+                                    }
+
+                            } else {
+                                r.setText(txt, k);
+                            }
+                        }else {
+                            r.setText(txt, k);
+                        }
+
                     }
                 }
             }
             System.out.println(p.getText());
         }
-
     }
 
     private TreeMap<Integer, XWPFRun> getPosToRuns(XWPFParagraph paragraph) {
@@ -277,7 +403,6 @@ public class GenerateContractsForm extends CustomComponent implements View {
         return map;
     }
 
-
     private Map<String, String> getFieldValuesLoanData(Integer loanNumber){
         Map<String,String> stringMapVariables = new HashMap<>();
         ParameterService parameterService = new ParameterService();
@@ -293,9 +418,11 @@ public class GenerateContractsForm extends CustomComponent implements View {
             if(parameter.getValueParameter().equals("currency"))
                 stringMapVariables.put(parameter.getValueParameter(),loanData.getCurrency());
             if(parameter.getValueParameter().equals("loanMount"))
-                stringMapVariables.put(parameter.getValueParameter(),loanData.getLoanMount().toString());
-            if(parameter.getValueParameter().equals("loanTerm"))
-                stringMapVariables.put(parameter.getValueParameter(),loanData.getLoanTerm().toString());
+                stringMapVariables.put(parameter.getValueParameter(),String.format("%,.2f",  loanData.getLoanMount()));
+            if(parameter.getValueParameter().equals("loanTerm")) {
+                Integer plazo = loanData.getLoanTerm()/30;
+                stringMapVariables.put(parameter.getValueParameter(), plazo.toString());
+            }
             if(parameter.getValueParameter().equals("interestRate"))
                 stringMapVariables.put(parameter.getValueParameter(),loanData.getInterestRate().toString());
             if(parameter.getValueParameter().equals("treRate"))
@@ -324,21 +451,258 @@ public class GenerateContractsForm extends CustomComponent implements View {
                 stringMapVariables.put(parameter.getValueParameter(),loanData.getAddressDebtor());
             if(parameter.getValueParameter().equals("civilStatusDebtor"))
                 stringMapVariables.put(parameter.getValueParameter(),loanData.getCivilStatusDebtor());
-            if(parameter.getValueParameter().equals("genderDebtor"))
-                stringMapVariables.put(parameter.getValueParameter(),loanData.getGenderDebtor());
+            if(parameter.getValueParameter().equals("creditLifeInsurance"))
+                stringMapVariables.put(parameter.getValueParameter(),loanData.getCreditLifeInsurance().toString());
+            if(parameter.getValueParameter().equals("teacRate"))
+                stringMapVariables.put(parameter.getValueParameter(),loanData.getTeacRate().toString());
+            if (parameter.getValueParameter().equals("interestRate"))
+                stringMapVariables.put(parameter.getValueParameter(),loanData.getInterestRate().toString());
+            if(parameter.getValueParameter().equals("genderDebtor")) {
+                if (loanData.getGenderDebtor().equals("FEMENINO"))
+                    stringMapVariables.put(parameter.getValueParameter(), "LA DEUDORA");
+                else
+                    stringMapVariables.put(parameter.getValueParameter(), "EL DEUDOR");
+            }
             if(parameter.getValueParameter().equals("fixedPaymentDay"))
                 stringMapVariables.put(parameter.getValueParameter(),loanData.getFixedPaymentDay().toString());
+            if(parameter.getValueParameter().equals("dateContract"))
+                stringMapVariables.put(parameter.getValueParameter(),dateContractGenerate.getValue().toString());
+            if (parameter.getValueParameter().equals("paymentFrecuency")){
+                String frecuencia ="";
+                if (loanData.getPaymentFrecuency().equals("30"))
+                    frecuencia= "MENSUALES";
+                else
+                    if (loanData.getPaymentFrecuency().equals("60"))
+                    frecuencia = "BIMESTRALES";
+                else
+                    if (loanData.getPaymentFrecuency().equals("90"))
+                    frecuencia = "TRIMESTRALES";
+                else
+                    if (loanData.getPaymentFrecuency().equals("120"))
+                        frecuencia = "CUATRIMESTRALES";
+                else
+                    if (loanData.getPaymentFrecuency().equals("150"))
+                        frecuencia = "QUINTIMESTRALES";
+                else
+                    if (loanData.getPaymentFrecuency().equals("180"))
+                        frecuencia = "SEMESTRALES";
+                else
+                    if (loanData.getPaymentFrecuency().equals("360"))
+                        frecuencia = "ANUALES";
+
+                stringMapVariables.put(parameter.getValueParameter(),frecuencia);
+            }
         }
 
+        listVariableContract.removeAll(listVariableContract);
+        listVariableContract = parameterService.findParameterByType("custom_variable_contract");
+
+        for(Parameter parameter:listVariableContract){
+            if (parameter.getValueParameter().equals("literal_monto_prestamo")){
+                stringMapVariables.put(parameter.getValueParameter(),new NumberToLiteral()
+                        .Convert(String.format("%.2f",loanData.getLoanMount()),true,"","float"));
+            }else
+            if (parameter.getValueParameter().equals("literal_total_pagar")){
+                stringMapVariables.put(parameter.getValueParameter(),new NumberToLiteral()
+                        .Convert(String.format("%.2f",loanData.getTotalPayment()),true,"","float"));
+            }else
+            if (parameter.getValueParameter().equals("literal_plazo")){
+                Integer plazo = loanData.getLoanTerm()/30;
+                stringMapVariables.put(parameter.getValueParameter(),new NumberToLiteral()
+                        .Convert(plazo.toString(),true,"","integer"));
+            } else
+            if (parameter.getValueParameter().equals("literal_interes")){
+                stringMapVariables.put(parameter.getValueParameter(),new NumberToLiteral()
+                        .Convert(loanData.getInterestRate().toString(),true,"","float"));
+            }else
+                stringMapVariables.put(parameter.getValueParameter(),parameter.getDescriptionParameter());
+        }
+        if (!loanData.getGuarantors().equals("[]")) {
+            stringMapVariables = replaceCicleVariables(stringMapVariables, loanData.getGuarantors(), "#garante%");
+            stringMapVariables = replaceSignantGuarantorCodebtor(stringMapVariables,loanData.getGuarantors(),"garante");
+        }else{
+
+        }
+        stringMapVariables= replaceCicleVariables(stringMapVariables,loanData.getCoDebtors(),"#codeudor%");
+        stringMapVariables= replaceCicleInsured(stringMapVariables,loanData.getCoDebtors());
+
+        stringMapVariables = replaceSignantGuarantorCodebtor(stringMapVariables,loanData.getCoDebtors(),"codeudor");
+        stringMapVariables = replaceSignatureEntity(stringMapVariables,loanData.getBranchOffice().getSignatories(),"responsable");
 
         return stringMapVariables;
     }
+
+    private Map<String,String> replaceSignatureEntity(Map<String,String> data, String json, String type){
+        ObjectMapper mapper = new ObjectMapper();
+        List<Signatories> signatoriesList = new ArrayList<>();
+        Map<String,String> map = new HashMap<>();
+        ParameterService parameterService = new ParameterService();
+        List<Parameter> parameterList = new ArrayList<>();
+        try {
+            signatoriesList = Arrays.asList(mapper.readValue(json,Signatories[].class));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        int i=1;
+        for(Signatories signatories:signatoriesList){
+            map.put("${nameSignatorie}",signatories.getNameSignatorie());
+            map.put("${position}",signatories.getPosition());
+            map.put("${identifyCardSignatorie}",signatories.getIdentifyCardSignatorie());
+            parameterList = parameterService.findParameterByTypeAndValue("custom_variable_contract",type+i+"%");
+            for (Parameter parameter:parameterList){
+                origin = parameter.getDescriptionParameter();
+                map.forEach((k, v) -> {
+                    origin = origin.replaceAll(Pattern.quote(k), v);
+                });
+                if (data.containsKey(parameter.getValueParameter()))
+                    data.put(parameter.getValueParameter(),origin);
+                else
+                    data.put(parameter.getValueParameter(),"");
+            }
+            i++;
+        }
+        return data;
+    }
+
+    private Map<String,String> replaceSignantGuarantorCodebtor(Map<String,String> data, String json, String type) {
+        ObjectMapper mapper = new ObjectMapper();
+        List<CoDebtorGuarantor> coDebtorGuarantorList = new ArrayList<>();
+        Map<String,String> map = new HashMap<>();
+        ParameterService parameterService = new ParameterService();
+
+        try {
+            coDebtorGuarantorList = Arrays.asList(mapper.readValue(json,CoDebtorGuarantor[].class));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        if (coDebtorGuarantorList.size()>0){
+            List<Parameter> parameterList = new ArrayList<>();
+            int i=1;
+            for(CoDebtorGuarantor coDebtorGuarantor : coDebtorGuarantorList) {
+                map.put("${name}",coDebtorGuarantor.getName());
+                map.put("${identifyCard}",coDebtorGuarantor.getIdentifyCard());
+
+                parameterList = parameterService.findParameterByTypeAndValue("custom_variable_contract",type+i+"%");
+
+                for (Parameter parameter : parameterList) {
+                    origin = parameter.getDescriptionParameter();
+
+                    map.forEach((k, v) -> {
+                        origin = origin.replaceAll(Pattern.quote(k), v);
+
+                    });
+                    if (data.containsKey(parameter.getValueParameter()))
+                        data.put(parameter.getValueParameter(),origin);
+                    else
+                        data.put(parameter.getValueParameter(),"");
+               }
+               i++;
+            }
+            for(int j=i;j<5;j++){
+                parameterList = parameterService.findParameterByTypeAndValue("custom_variable_contract",type+j+"%");
+                for(Parameter parameter : parameterList) {
+                    data.put(parameter.getValueParameter()," ");
+                }
+
+            }
+
+        }
+
+        return data;
+    }
+
+    private Map<String,String> replaceCicleInsured(Map<String,String> data, String json){
+        ObjectMapper mapper = new ObjectMapper();
+        List<CoDebtorGuarantor> coDebtorGuarantorList = new ArrayList<>();
+        String insuredCodebtors="";
+        ParameterService parameterService = new ParameterService();
+        try {
+            List<Parameter> parameterList = new ArrayList<>();
+            coDebtorGuarantorList = Arrays.asList(mapper.readValue(json,CoDebtorGuarantor[].class));
+//            parameterList = parameterService.findParameterByTypeAndValue("custom_variable_contract","#lista_asegurados");
+            for(CoDebtorGuarantor coDebtorGuarantor:coDebtorGuarantorList){
+                if (coDebtorGuarantor.getInsured().equals("asegurado")) {
+                    if (insuredCodebtors.equals(""))
+                        insuredCodebtors = insuredCodebtors + coDebtorGuarantor.getName();
+                    else insuredCodebtors = insuredCodebtors+", "+ coDebtorGuarantor.getName();
+
+                }
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        data.put("#lista_asegurados",insuredCodebtors);
+        return data;
+
+    }
+
+    private Map<String,String> replaceCicleVariables(Map<String,String> data, String json, String type){
+        ObjectMapper mapper = new ObjectMapper();
+        List<CoDebtorGuarantor> coDebtorGuarantorList = new ArrayList<>();
+
+        Map<String,String> map = new HashMap<>();
+        try {
+            ParameterService parameterService = new ParameterService();
+            coDebtorGuarantorList = Arrays.asList(mapper.readValue(json,CoDebtorGuarantor[].class));
+            List<Parameter> parameterList = new ArrayList<>();
+            parameterList = parameterService.findParameterByTypeAndValue("custom_variable_contract",type);
+            if (coDebtorGuarantorList.size()>0){
+
+                for(CoDebtorGuarantor coDebtorGuarantor : coDebtorGuarantorList) {
+                    map.put("${name}",coDebtorGuarantor.getName());
+                    map.put("${addressHome}",coDebtorGuarantor.getAddressHome());
+                    map.put("${addressOffice}",coDebtorGuarantor.getAddressOffice());
+                    map.put("${identifyCard}",coDebtorGuarantor.getIdentifyCard());
+                    map.put("${gender}",coDebtorGuarantor.getGender());
+                    map.put("${civilStatus}",coDebtorGuarantor.getCivilStatus());
+                    map.put("${codeMebership}",coDebtorGuarantor.getCodeMebership().toString());
+
+                    for (Parameter parameter : parameterList) {
+                        origin = parameter.getDescriptionParameter();
+                        data.forEach((k,v)-> {
+                            String key = "${"+k+"}";
+                            origin =  origin.replaceAll(Pattern.quote(key),v);
+                        } );
+                        map.forEach((k,v) ->{
+                          origin =  origin.replaceAll(Pattern.quote(k),v);
+                        });
+                        if (!data.containsKey(parameter.getValueParameter()))
+                            data.put(parameter.getValueParameter(),origin);
+                        else {
+                           String value =  data.get(parameter.getValueParameter());
+                           if (value.contains("${")){
+                               data.replace(parameter.getValueParameter(),value,origin);
+                           }else{
+                               origin = origin +"\n" +value;
+                               data.replace(parameter.getValueParameter(),value,origin);
+                           }
+                        }
+
+                    }
+                }
+
+            }else{
+                for (Parameter parameter : parameterList) {
+//                    data.put(parameter)
+                }
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return data;
+    }
+
 
 
 
     private boolean validateData(){
         if (dateContractGenerate.isEmpty()) return false;
-
+        if (txtLoanDataId.isEmpty()) return false;
+        if (txtFileNameContract.isEmpty()) return false;
         return true;
     }
 
@@ -352,16 +716,27 @@ public class GenerateContractsForm extends CustomComponent implements View {
         LoanDataService loanDataService = new LoanDataService();
         List<LoanData> loanDataList = new ArrayList<>();
         if (criteria.equals("Numero credito")){
-            loanDataList.add(loanDataService.findLoanDataByLoanNumber(Integer.parseInt(textSearch)));
+
+            if (StringUtils.isNumeric(textSearch))
+               loanDataList = java.util.Arrays.asList(loanDataService.findLoanDataByLoanNumber(Integer.parseInt(textSearch)));
+            else {
+                Notification.show("Contrato",
+                        "Ingrese un numero de credito valido",
+                        Notification.Type.ERROR_MESSAGE);
+                txtTextSearch.focus();
+            }
         } else if (criteria.equals("Nombre deudor")){
+            textSearch = textSearch.toUpperCase();
+            txtTextSearch.setValue(textSearch);
             loanDataList = loanDataService.findLoanDataByDebtorName('%'+textSearch+'%');
         }
         gridLoanData.removeAllColumns();
-        gridLoanData.setItems(loanDataList);
-        gridLoanData.addColumn(LoanData::getLoanDataId).setCaption("ID");
-        gridLoanData.addColumn(LoanData::getLoanNumber).setCaption("Nro credito");
-        gridLoanData.addColumn(LoanData::getDebtorName).setCaption("Deudor");
-
+        if (loanDataList!= null) {
+            gridLoanData.setItems(loanDataList);
+            gridLoanData.addColumn(LoanData::getLoanDataId).setCaption("ID");
+            gridLoanData.addColumn(LoanData::getLoanNumber).setCaption("Nro credito");
+            gridLoanData.addColumn(LoanData::getDebtorName).setCaption("Deudor");
+        }
     }
 
     private void fillGridTemplateContract(){
@@ -371,6 +746,38 @@ public class GenerateContractsForm extends CustomComponent implements View {
         gridContractTemplate.addColumn(Parameter::getParameterId).setCaption("ID");
         gridContractTemplate.addColumn(Parameter::getValueParameter).setCaption("Contrato");
         gridContractTemplate.addColumn(Parameter::getDescriptionParameter).setCaption("Descripcion");
+        gridContractTemplate.addComponentColumn(parameter -> {
+            Button button = new Button();
+            button.setIcon(VaadinIcons.DOWNLOAD);
+            button.setStyleName(ValoTheme.BUTTON_FRIENDLY);
+            button.addClickListener(clickEvent -> {
+                if (verifyExistFileContract(pathGenerate)) {
+                    final FileResource res = new FileResource(new File(pathGenerate));
+                    res.setCacheTime(0);
+                    FileDownloader fd = new FileDownloader(res) {
+                        @Override
+                        public boolean handleConnectorRequest(VaadinRequest request,
+                                                              VaadinResponse response, String path) throws IOException {
+
+                            boolean result = super.handleConnectorRequest(request, response, path);
+
+                            // Now the accept can be processed
+                            // close the dialog here
+
+                            return result;
+                        }
+                    };
+
+
+                    fd.extend(button);
+                } else {
+                    Notification.show("Contrato",
+                            "Contrato no generado",
+                            Notification.Type.ERROR_MESSAGE);
+                }
+            });
+            return button;
+        });
     }
 
 
@@ -416,7 +823,7 @@ public class GenerateContractsForm extends CustomComponent implements View {
     }
 
     private Panel buildPanelGridTemplateContract(){
-        panelGridTemplateContract = new Panel();
+        panelGridTemplateContract = new Panel("Lista modelos de contratos");
         panelGridTemplateContract.setStyleName(ValoTheme.PANEL_WELL);
         panelGridTemplateContract.setWidth("100%");
         panelGridTemplateContract.setHeight("80%");
@@ -443,21 +850,30 @@ public class GenerateContractsForm extends CustomComponent implements View {
         txtLoanDataId = new TextField("ID credito:");
         txtLoanDataId.setStyleName(ValoTheme.TEXTFIELD_TINY);
         txtLoanDataId.setEnabled(false);
+        txtLoanDataId.setRequiredIndicatorVisible(true);
         horizontalLayout.addComponent(txtLoanDataId);
 
         txtFileNameContract = new TextField("Archivo contrato:");
         txtFileNameContract.setStyleName(ValoTheme.TEXTFIELD_TINY);
         txtFileNameContract.setEnabled(false);
+        txtFileNameContract.setRequiredIndicatorVisible(true);
         horizontalLayout.addComponent(txtFileNameContract);
 
         dateContractGenerate = new DateField("Fecha contrato:");
         dateContractGenerate.setStyleName(ValoTheme.DATEFIELD_TINY);
         dateContractGenerate.setDateFormat("yyyy-MM-dd");
+        dateContractGenerate.setRequiredIndicatorVisible(true);
         horizontalLayout.addComponent(dateContractGenerate);
 
         txtDescription = new TextField("Descripcion");
         txtDescription.setStyleName(ValoTheme.TEXTFIELD_TINY);
         horizontalLayout.addComponent(txtDescription);
+
+        btnInsured = new Button("Asegurados");
+        btnInsured.setStyleName(ValoTheme.BUTTON_FRIENDLY);
+        btnInsured.setIcon(VaadinIcons.EYE);
+        horizontalLayout.addComponent(btnInsured);
+        horizontalLayout.setComponentAlignment(btnInsured,Alignment.BOTTOM_LEFT);
 
         btnGenerateContract = new Button("Generar");
         btnGenerateContract.setStyleName(ValoTheme.BUTTON_PRIMARY);
@@ -468,6 +884,7 @@ public class GenerateContractsForm extends CustomComponent implements View {
         btnDownloadContract = new Button("Descargar");
         btnDownloadContract.setStyleName(ValoTheme.BUTTON_FRIENDLY);
         btnDownloadContract.setIcon(VaadinIcons.DOWNLOAD);
+        btnDownloadContract.setVisible(false);
         horizontalLayout.addComponent(btnDownloadContract);
         horizontalLayout.setComponentAlignment(btnDownloadContract,Alignment.BOTTOM_LEFT);
 

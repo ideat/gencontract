@@ -56,7 +56,7 @@
 
     </select>
 
-    <select id="findCotractByLoanNumber" resultMap="ContractResult" parameterType="int">
+    <select id="findContractByLoanNumber" resultMap="ContractResult" parameterType="int">
         select c.*, ld.debtor_name
         from contract c
         inner join loan_data ld on (ld.loan_data_id = c.loan_data_id)
@@ -105,6 +105,11 @@
         where contract_id = #{contractId}
     </update>
 
-
+    <update id="updateStateContract" parameterType="contract">
+        update contract
+        set
+        state = #{state}
+        where contract_id = #{contractId}
+    </update>
 
 </mapper>

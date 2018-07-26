@@ -34,14 +34,23 @@
         <result	property="guarantors" column="guarantors"/>
         <result property="warranty" column="warranty"/>
         <result property="extraData" column="extra_data"/>
+        <association property="branchOffice"  column="branch_office_id" javaType="branchoffice" resultMap="BranchOfficeResult" />
 
     </resultMap>
 
+    <resultMap type="branchoffice" id="BranchOfficeResult">
+        <id 	property="branchOfficeId" column="branch_office_id"/>
+        <result property="branchName" column="branch_name"/>
+        <result property="cityName" column="city_name"/>
+        <result property="provinceName" column="province_name"/>
+        <result property="signatories" column="signatories" />
+    </resultMap>
 
     <select id="findLoanDataByLoanNumber" resultMap="LoanDataResult" parameterType="int">
         select *
-        from loan_data
-        where loan_number = #{loanNumber}
+        from loan_data l
+        inner join branch_office bo on (l.branch_office_id = bo.branch_office_id)
+        where l.loan_number = #{loanNumber}
 
     </select>
 
@@ -116,5 +125,44 @@
         #{extraData}::json)
     </insert>
 
+    <update id="updateLoanData" parameterType="loanData">
+      update loan_data
+      set
+        branch_office_id = #{branchOfficeId},
+        loan_number = #{loanNumber},
+        loan_date = #{loanDate},
+        currency = #{currency},
+        loan_mount = #{loanMount},
+        loan_term = #{loanTerm},
+        interest_rate = #{interestRate},
+        tre_rate = #{treRate},
+        teac_rate = #{teacRate},
+        fee_payment =#{feePayment},
+        payment_frecuency = #{paymentFrecuency},
+        credit_life_insurance = #{creditLifeInsurance},
+        total_payment = #{totalPayment},
+        loan_destination = #{loanDestination},
+        agency = #{agency},
+        official = #{official},
+        debtor_name = #{debtorName},
+        identity_card_debtor = #{identityCardDebtor},
+        address_debtor = #{addressDebtor},
+        civil_status_debtor = #{civilStatusDebtor},
+        gender_debtor = #{genderDebtor},
+        client_loan_id = #{clientLoanId},
+        fixed_payment_day = #{fixedPaymentDay},
+        co_debtors = #{coDebtors}::json,
+        guarantors = #{guarantors}::json,
+        warranty = #{warranty}::json,
+        extra_data = #{extraData}::json
+        where loan_data_id = #{loanDataId}
+    </update>
+
+    <update id="updateCodebtor" parameterType="loanData">
+        update loan_data
+        set
+        co_debtors =  #{coDebtors}::json
+        where loan_data_id = #{loanDataId}
+    </update>
 
 </mapper>

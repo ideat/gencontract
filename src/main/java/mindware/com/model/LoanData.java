@@ -34,7 +34,16 @@ public class LoanData {
     private String guarantors;
     private String warranty;
     private String extraData;
+    private BranchOffice branchOffice;
 
+
+    public BranchOffice getBranchOffice() {
+        return branchOffice;
+    }
+
+    public void setBranchOffice(BranchOffice branchOffice) {
+        this.branchOffice = branchOffice;
+    }
 
     public Integer getLoanDataId() {
         return loanDataId;

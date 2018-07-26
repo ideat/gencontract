@@ -1,6 +1,7 @@
 package mindware.com.netbank.model;
 
 public class CodebtorGuarantorNetbank {
+
     private Integer prdeucage;
     private Integer prdeunpre;
     private Integer prdeutres;
@@ -10,6 +11,7 @@ public class CodebtorGuarantorNetbank {
     private String gbageddo;
     private String gbageeciv;
     private String gbagesexo;
+
 
     public Integer getPrdeucage() {
         return prdeucage;

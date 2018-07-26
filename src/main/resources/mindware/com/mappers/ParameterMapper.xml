@@ -28,6 +28,13 @@
 
     </select>
 
+    <select id="findParameterByTypeAndValue" resultMap="ParameterResult" parameterType="map">
+        select *
+        from parameter
+        where type_parameter = #{typeParameter}
+        and value_parameter like #{valueParameter}
+    </select>
+
     <insert id="insertParameter"  parameterType="parameter" keyProperty="parameterId" >
         <selectKey keyProperty="parameterId" resultType="int" order="BEFORE">
             select nextval('parameter_id_seq')

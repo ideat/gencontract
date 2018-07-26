@@ -2,22 +2,21 @@ package mindware.com.view;
 
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.navigator.View;
-import com.vaadin.server.FileDownloader;
-import com.vaadin.server.FileResource;
-import com.vaadin.server.Resource;
-import com.vaadin.server.StreamResource;
+import com.vaadin.server.*;
 import com.vaadin.ui.*;
-import com.vaadin.ui.renderers.ButtonRenderer;
 import com.vaadin.ui.renderers.DateRenderer;
 import com.vaadin.ui.themes.ValoTheme;
 import mindware.com.model.Contract;
 import mindware.com.model.ListContractLoan;
 import mindware.com.service.ContractService;
 import mindware.com.utilities.Util;
-import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.vaadin.gridutil.cell.GridCellFilter;
 
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -27,36 +26,75 @@ public class ListContractsForm extends CustomComponent implements View {
     private GridLayout gridMainLayout;
     private Grid<ListContractLoan> gridListContract;
     private Panel panelListContract;
-    private Button btnDownloadContract;
+    private Button btnUploadContract;
     private GridCellFilter<Contract> filter;
     private String fileContract;
+    private Upload uploadContract;
+    private String fileNameContract="";
 
     public ListContractsForm(){
 
         setCompositionRoot(buildGridMainLayout());
 
         gridListContract.setItems(getListContract());
+        gridListContract.addComponentColumn(listContract ->{
+            Button button = new Button();
+            button.setIcon(VaadinIcons.DOWNLOAD);
+            button.setStyleName(ValoTheme.BUTTON_FRIENDLY);
+            button.addClickListener(clickEvent -> {
+
+                File file = new File(listContract.getFileNameContract());
+                if (file.exists()) {
+
+                    final FileResource res = new FileResource(new File(listContract.getFileNameContract()));
+                    res.setCacheTime(0);
+                    FileDownloader fd = new FileDownloader(res) {
+                        @Override
+                        public boolean handleConnectorRequest(VaadinRequest request,
+                                                              VaadinResponse response, String path) throws IOException {
+
+                            boolean result = super.handleConnectorRequest(request, response, path);
+
+                            return result;
+                        }
+                    };
+
+                    fd.extend(button);
+                }else {
+                    Notification.show("Contrato",
+                            "No existe el contrato generado",
+                            Notification.Type.ERROR_MESSAGE);
+                }
+            });
+
+            return button;
+
+        });
         postBuild(gridListContract);
     }
 
     private void postBuild(final Grid grid){
         fillGridListContract(grid);
-        btnDownloadContract.addClickListener(clickEvent -> {
-            Resource res = new FileResource(new File(fileContract));
-            FileDownloader fd = new FileDownloader(res);
-            fd.extend(btnDownloadContract);
-        });
+//        btnUploadContract.addClickListener(clickEvent -> {
+////            FileResource res = new FileResource(new File(fileContract));
+////            res.setCacheTime(0);
+////            FileDownloader fd = new FileDownloader(res);
+////            fd.extend(btnUploadContract);
+//
+//        });
 
         gridListContract.addItemClickListener( itemClick -> {
            fileContract = itemClick.getItem().getFileNameContract();
            File file = new File(fileContract);
+           fileNameContract = file.getName();
            if (!file.exists()){
                Notification.show("Contrato",
                        "No existe el contrato generado",
                        Notification.Type.ERROR_MESSAGE);
-               btnDownloadContract.setEnabled(false);
+//               uploadContract.setEnabled(false);
+               uploadContract.setEnabled(true);
            }else {
-               btnDownloadContract.setEnabled(true);
+               uploadContract.setEnabled(true);
            }
 
         });
@@ -77,6 +115,7 @@ public class ListContractsForm extends CustomComponent implements View {
         grid.getColumn("loanMount").setCaption("Monto").setWidth(120);
         grid.getColumn("debtorName").setCaption("Deudor").setWidth(300);
         grid.getColumn("currency").setCaption("Moneda").setWidth(90);
+
 
         this.filter = new GridCellFilter(grid);
 
@@ -118,12 +157,56 @@ public class ListContractsForm extends CustomComponent implements View {
         gridMainLayout.setSpacing(true);
         gridMainLayout.setSizeFull();
 
-        btnDownloadContract = new Button("Descargar");
-        btnDownloadContract.setStyleName(ValoTheme.BUTTON_PRIMARY);
-        btnDownloadContract.setIcon(VaadinIcons.DOWNLOAD);
-        btnDownloadContract.setEnabled(false);
-        gridMainLayout.addComponent(btnDownloadContract,6,0);
-        gridMainLayout.setComponentAlignment(btnDownloadContract,Alignment.BOTTOM_RIGHT);
+        uploadContract = new Upload(null, new Upload.Receiver() {
+            @Override
+            public OutputStream receiveUpload(String fileName, String mimeType) {
+                String extension = FilenameUtils.getExtension(fileName);
+                if (extension.equals("doc") || extension.equals("docx") || extension.equals("odt")) {
+                    try {
+                        File fileContract = File.createTempFile(fileName, extension);
+                        String path = this.getClass().getClassLoader().getResource("/contract/generated").getPath();
+                        fileContract = new File(path, fileNameContract);
+
+                        return new FileOutputStream(fileContract);
+
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }else{
+                    Notification.show("ARCHIVO", "Extension incorrecta",Notification.Type.ERROR_MESSAGE);
+                }
+                return null;
+
+            }
+        });
+
+        uploadContract.addStartedListener(new Upload.StartedListener() {
+            @Override
+            public void uploadStarted(Upload.StartedEvent startedEvent) {
+                if (startedEvent.getFilename().isEmpty())
+                    Notification.show("ARCHIVO",
+                            "Seleccione un archivo",
+                            Notification.Type.WARNING_MESSAGE);
+            }
+        });
+
+        uploadContract.addFailedListener(new Upload.FailedListener() {
+            @Override
+            public void uploadFailed(Upload.FailedEvent failedEvent) {
+
+                Notification.show("ERROR",
+                        "Error al cargar el archivo",
+                        Notification.Type.ERROR_MESSAGE);
+
+
+            }
+        });
+
+        uploadContract.setButtonCaption("Cargar contrato");
+        uploadContract.setWidth("100%");
+        uploadContract.setImmediateMode(false);
+        gridMainLayout.addComponent(uploadContract,0,0);
+        gridMainLayout.setComponentAlignment(uploadContract,Alignment.BOTTOM_RIGHT);
 
         panelListContract = new Panel("<font size=3 color=#163759> Contratos generados <font>");
         panelListContract.setCaptionAsHtml(true);

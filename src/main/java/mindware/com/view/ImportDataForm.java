@@ -642,7 +642,7 @@ public class ImportDataForm extends CustomComponent implements View {
 
         txtCreditLifeInsurance = new TextField("Seguro desgravamen:");
         txtCreditLifeInsurance.setStyleName(ValoTheme.TEXTFIELD_TINY);
-        txtCreditLifeInsurance.setReadOnly(true);
+        txtCreditLifeInsurance.setReadOnly(false);
         gridLayoutLoan.addComponent(txtCreditLifeInsurance,5,0);
 
         txtFixedPaymentDay = new TextField("Dia fijo de pago:");

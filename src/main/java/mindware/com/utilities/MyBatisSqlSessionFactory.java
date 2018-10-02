@@ -68,10 +68,12 @@ public class MyBatisSqlSessionFactory {
 
     public static SqlSession getSqlSession(String environment)
     {
-        if (environment=="development")
+        if (environment=="development") 
             return getSqlSessionFactory(environment).openSession();
-        else
+        else if (environment == "netbank")
             return getSqlSessionFactoryInformix(environment).openSession(true);
+        else
+        	return getSqlSessionFactory("development").openSession();
 
     }
 

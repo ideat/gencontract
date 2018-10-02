@@ -45,6 +45,8 @@
         <result property="provinceName" column="province_name"/>
         <result property="signatories" column="signatories" />
     </resultMap>
+    
+    
 
     <select id="findLoanDataByLoanNumber" resultMap="LoanDataResult" parameterType="int">
         select *

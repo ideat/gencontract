@@ -258,15 +258,15 @@ public class MyUI extends UI implements DetachListener {
 
             hybridMenu.addLeftMenuButton(importDataButton);
         }
-        if (Arrays.asList(listOptions).contains("2")) {
-            MenuButton registerDataButton = LeftMenuButtonBuilder.get()
-                    .withCaption("Registrar nuevos datos")
-                    .withIcon(VaadinIcons.ADD_DOCK)
-                    .withNavigateTo(RegisterNewDataForm.class)
-                    .build();
-
-            hybridMenu.addLeftMenuButton(registerDataButton);
-        }
+//        if (Arrays.asList(listOptions).contains("2")) {
+//            MenuButton registerDataButton = LeftMenuButtonBuilder.get()
+//                    .withCaption("Registrar nuevos datos")
+//                    .withIcon(VaadinIcons.ADD_DOCK)
+//                    .withNavigateTo(RegisterNewDataForm.class)
+//                    .build();
+//
+//            hybridMenu.addLeftMenuButton(registerDataButton);
+//        }
 
         if (Arrays.asList(listOptions).contains("3") || Arrays.asList(listOptions).contains("4") || Arrays.asList(listOptions).contains("5")) {
             MenuSubMenu contractManageList = LeftMenuSubMenuBuilder.get()
@@ -312,6 +312,16 @@ public class MyUI extends UI implements DetachListener {
                     .build();
             hybridMenu.addLeftMenuButton(VariablesContractsButton);
         }
+
+        if (Arrays.asList(listOptions).contains("12")) {
+            MenuButton CustomVariableButton = LeftMenuButtonBuilder.get()
+                    .withCaption("Variables personalizadas")
+                    .withIcon(VaadinIcons.ABACUS)
+                    .withNavigateTo(CustomVariableForm.class)
+                    .build();
+            hybridMenu.addLeftMenuButton(CustomVariableButton);
+        }
+
         if (Arrays.asList(listOptions).contains("8")) {
             MenuButton UserButton = LeftMenuButtonBuilder.get()
                     .withCaption("Usuarios")
@@ -328,14 +338,14 @@ public class MyUI extends UI implements DetachListener {
                     .build();
             hybridMenu.addLeftMenuButton(RolButton);
         }
-        if (Arrays.asList(listOptions).contains("10")) {
-            MenuButton ParameterButton = LeftMenuButtonBuilder.get()
-                    .withCaption("Parametros")
-                    .withIcon(VaadinIcons.PANEL)
-                    .withNavigateTo(ParametersForm.class)
-                    .build();
-            hybridMenu.addLeftMenuButton(ParameterButton);
-        }
+//        if (Arrays.asList(listOptions).contains("10")) {
+//            MenuButton ParameterButton = LeftMenuButtonBuilder.get()
+//                    .withCaption("Parametros")
+//                    .withIcon(VaadinIcons.PANEL)
+//                    .withNavigateTo(ParametersForm.class)
+//                    .build();
+//            hybridMenu.addLeftMenuButton(ParameterButton);
+//        }
         if (Arrays.asList(listOptions).contains("11")) {
             MenuSubMenu demoSettings = LeftMenuSubMenuBuilder.get()
                     .setCaption("Preferencia")
@@ -368,14 +378,7 @@ public class MyUI extends UI implements DetachListener {
                     .build(demoSettings);
         }
 
-        if (Arrays.asList(listOptions).contains("12")) {
-            MenuButton CustomVariableButton = LeftMenuButtonBuilder.get()
-                    .withCaption("Variables personalizadas")
-                    .withIcon(VaadinIcons.ABACUS)
-                    .withNavigateTo(CustomVariableForm.class)
-                    .build();
-            hybridMenu.addLeftMenuButton(CustomVariableButton);
-        }
+
 
         MenuButton ExitButton = LeftMenuButtonBuilder.get()
                 .withCaption("Salir")

@@ -22,6 +22,7 @@ import org.apache.poi.xwpf.usermodel.*;
 
 import java.io.*;
 import java.net.URI;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -303,9 +304,23 @@ public class GenerateContractsForm extends CustomComponent implements View {
                 int s = m.start(1);
                 int e = m.end(1);
                 String key = g;
-                String x = data.get(key).trim();
+                String x = "";
+                try {
+                     if (key.equals("dateContract")){
+                         x = data.get(key).trim();
+                         SimpleDateFormat dt = new SimpleDateFormat("yyyyy-mm-dd");
+                         Date date = dt.parse(x);
+                         x = new SimpleDateFormat("dd 'de' MMMM yyyy").format(date);
+                     }else {
+                         x = data.get(key).trim();
+                     }
+                } catch (Exception f){
+                    x = "";
+                }
+
                 if (x == null)
                     x = "";
+
                 SortedMap<Integer, XWPFRun> range = posRuns.subMap(s - 2, true, e + 1, true); // get runs which contain the pattern
                 boolean found1 = false; // found $
                 boolean found2 = false; // found {
@@ -332,7 +347,7 @@ public class GenerateContractsForm extends CustomComponent implements View {
                         if (txt == null)
                             break; // no more texts in the run, exit loop
                         if (txt.contains("$") && !found1) {  // found $, replace it with value from data map
-                            txt = txt.replaceFirst("\\$", x);
+                            txt = txt.replaceFirst("\\$", String.valueOf(x));
                             found1 = true;
                         }
                         if (txt.contains("{") && !found2 && found1) {

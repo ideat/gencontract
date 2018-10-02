@@ -35,9 +35,9 @@ public class LoanData {
     private String warranty;
     private String extraData;
     private BranchOffice branchOffice;
+    
 
-
-    public BranchOffice getBranchOffice() {
+	public BranchOffice getBranchOffice() {
         return branchOffice;
     }
 

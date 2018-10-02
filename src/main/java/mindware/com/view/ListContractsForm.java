@@ -190,17 +190,17 @@ public class ListContractsForm extends CustomComponent implements View {
             }
         });
 
-        uploadContract.addFailedListener(new Upload.FailedListener() {
-            @Override
-            public void uploadFailed(Upload.FailedEvent failedEvent) {
-
-                Notification.show("ERROR",
-                        "Error al cargar el archivo",
-                        Notification.Type.ERROR_MESSAGE);
-
-
-            }
-        });
+//        uploadContract.addFailedListener(new Upload.FailedListener() {
+//            @Override
+//            public void uploadFailed(Upload.FailedEvent failedEvent) {
+//
+//                Notification.show("ERROR",
+//                        "Error al cargar el archivo",
+//                        Notification.Type.ERROR_MESSAGE);
+//
+//
+//            }
+//        });
 
         uploadContract.setButtonCaption("Cargar contrato");
         uploadContract.setWidth("100%");

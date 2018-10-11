@@ -134,10 +134,10 @@ public class LoginForm extends CustomComponent {
         lblMensaje.setStyleName(ValoTheme.LABEL_FAILURE,true);
         lblMensaje.setVisible(false);
 
-        txtLogin = new TextField("Login:");
+        txtLogin = new TextField("Usuario:");
         txtLogin.setStyleName(ValoTheme.TEXTFIELD_SMALL);
 
-        txtPassword = new PasswordField("Password:");
+        txtPassword = new PasswordField("Clave:");
 
         btnIngresar = new Button();
         btnIngresar.setCaption("Ingresar");

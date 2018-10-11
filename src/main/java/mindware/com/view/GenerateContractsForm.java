@@ -18,10 +18,13 @@ import mindware.com.utilities.NumberToLiteral;
 import mindware.com.utilities.Util;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.openxml4j.opc.OPCPackage;
+import org.apache.poi.xwpf.model.XWPFHeaderFooterPolicy;
 import org.apache.poi.xwpf.usermodel.*;
 
 import java.io.*;
 import java.net.URI;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.regex.Matcher;
@@ -80,8 +83,9 @@ public class GenerateContractsForm extends CustomComponent implements View {
         btnGenerateContract.addClickListener(clickEvent -> {
             pathGenerate = "";
             if (validateData()){
-                String path = this.getClass().getClassLoader().getResource("/contract/template").getPath() + txtFileNameContract.getValue();
-                pathGenerate = this.getClass().getClassLoader().getResource("/contract/generated").getPath() + numberLoan.toString()+".docx";
+                Path paths = Paths.get(System.getProperties().get("user.home").toString());
+                String path = paths.toString()+"/template/" + txtFileNameContract.getValue();
+                pathGenerate = paths.toString()+"/generated/"+ numberLoan.toString()+".docx";
                 if (verifyExistFileContract(path)) {
                     if (verifyExistFileContract(pathGenerate)) {
 
@@ -277,10 +281,16 @@ public class GenerateContractsForm extends CustomComponent implements View {
 
     private void replace(String inFile, Map<String, String> data, OutputStream out) throws Exception, IOException {
         XWPFDocument doc = new XWPFDocument(OPCPackage.open(inFile));
+
+        XWPFHeaderFooterPolicy policy = new XWPFHeaderFooterPolicy(doc);
+        //read header
+        XWPFHeader header = policy.getDefaultHeader();
+        replace2(header.getParagraphArray(0), data, "body",doc);
+
         for (XWPFParagraph p : doc.getParagraphs()) {
             replace2(p, data, "body",doc);
-
         }
+
         for (XWPFTable tbl : doc.getTables()) {
             for (XWPFTableRow row : tbl.getRows()) {
                 for (XWPFTableCell cell : row.getTableCells()) {
@@ -367,7 +377,11 @@ public class GenerateContractsForm extends CustomComponent implements View {
                                     txt = txt.substring(txt.indexOf('}'));
                             }
                             else if (r == found2Run) // same run as { but no }, remove all text starting at {
-                                txt = txt.substring(0,  found2Pos);
+                            {
+                                if (txt.length()> found2Pos)
+                                    txt = txt.substring(0, found2Pos);
+
+                            }
                             else
                                 txt = ""; // run between { and }, set text to blank
                         }
@@ -383,7 +397,8 @@ public class GenerateContractsForm extends CustomComponent implements View {
                                     int i = 0;
                                     for (String string : strings) {
                                         r.setText(string, i);
-                                        r.addCarriageReturn();
+                                        if (i!=strings.length-1)
+                                            r.addCarriageReturn();
                                         i++;
                                         p.insertNewRun(i);
                                     }
@@ -482,6 +497,11 @@ public class GenerateContractsForm extends CustomComponent implements View {
                 stringMapVariables.put(parameter.getValueParameter(),loanData.getFixedPaymentDay().toString());
             if(parameter.getValueParameter().equals("dateContract"))
                 stringMapVariables.put(parameter.getValueParameter(),dateContractGenerate.getValue().toString());
+            if(parameter.getValueParameter().equals("ciudadSucursal"))
+                stringMapVariables.put(parameter.getValueParameter(),loanData.getBranchOffice().getCityName());
+            if(parameter.getValueParameter().equals("direccionSucursal"))
+                stringMapVariables.put(parameter.getValueParameter(),loanData.getBranchOffice().getAddress());
+
             if (parameter.getValueParameter().equals("paymentFrecuency")){
                 String frecuencia ="";
                 if (loanData.getPaymentFrecuency().equals("30"))
@@ -507,6 +527,35 @@ public class GenerateContractsForm extends CustomComponent implements View {
 
                 stringMapVariables.put(parameter.getValueParameter(),frecuencia);
             }
+            if (parameter.getValueParameter().equals("paymentFrecuency2")){
+                String frecuencia ="";
+                if (loanData.getPaymentFrecuency().equals("30"))
+                    frecuencia= "MENSUAL";
+                else
+                if (loanData.getPaymentFrecuency().equals("60"))
+                    frecuencia = "BIMESTRAL";
+                else
+                if (loanData.getPaymentFrecuency().equals("90"))
+                    frecuencia = "TRIMESTRAL";
+                else
+                if (loanData.getPaymentFrecuency().equals("120"))
+                    frecuencia = "CUATRIMESTRAL";
+                else
+                if (loanData.getPaymentFrecuency().equals("150"))
+                    frecuencia = "QUINTIMESTRAL";
+                else
+                if (loanData.getPaymentFrecuency().equals("180"))
+                    frecuencia = "SEMESTRAL";
+                else
+                if (loanData.getPaymentFrecuency().equals("360"))
+                    frecuencia = "ANUAL";
+
+                stringMapVariables.put(parameter.getValueParameter(),frecuencia);
+            }
+            if (parameter.getValueParameter().equals("savingBox"))
+                stringMapVariables.put(parameter.getValueParameter(),loanData.getSavingBox());
+            if (parameter.getValueParameter().equals("spread"))
+                stringMapVariables.put(parameter.getValueParameter(),loanData.getSpread().toString());
         }
 
         listVariableContract.removeAll(listVariableContract);
@@ -530,6 +579,11 @@ public class GenerateContractsForm extends CustomComponent implements View {
                 stringMapVariables.put(parameter.getValueParameter(),new NumberToLiteral()
                         .Convert(loanData.getInterestRate().toString(),true,"","float"));
             }else
+            if (parameter.getValueParameter().equals("literal_spread")){
+                stringMapVariables.put(parameter.getValueParameter(),new NumberToLiteral()
+                        .Convert(loanData.getSpread().toString(),true,"","float"));
+            }
+            else
                 stringMapVariables.put(parameter.getValueParameter(),parameter.getDescriptionParameter());
         }
         if (!loanData.getGuarantors().equals("[]")) {
@@ -547,6 +601,7 @@ public class GenerateContractsForm extends CustomComponent implements View {
         return stringMapVariables;
     }
 
+
     private Map<String,String> replaceSignatureEntity(Map<String,String> data, String json, String type){
         ObjectMapper mapper = new ObjectMapper();
         List<Signatories> signatoriesList = new ArrayList<>();
@@ -563,6 +618,14 @@ public class GenerateContractsForm extends CustomComponent implements View {
             map.put("${nameSignatorie}",signatories.getNameSignatorie());
             map.put("${position}",signatories.getPosition());
             map.put("${identifyCardSignatorie}",signatories.getIdentifyCardSignatorie());
+            map.put("${nroPoder}",signatories.getNroPoder());
+            map.put("${fechaPoder}",signatories.getFechaPoder());
+            map.put("${nroNotaria}",signatories.getNroNotaria());
+            map.put("${nombreNotario}",signatories.getNombreNotario());
+            map.put("${distritoJudicial}",signatories.getDistritoJudicial());
+            map.put("${nroTestimonio}",signatories.getNroTestimonio());
+            map.put("${fechaTestimonio}",signatories.getFechaTestimonio());
+
             parameterList = parameterService.findParameterByTypeAndValue("custom_variable_contract",type+i+"%");
             for (Parameter parameter:parameterList){
                 origin = parameter.getDescriptionParameter();

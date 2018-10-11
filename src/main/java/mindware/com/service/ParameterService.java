@@ -19,6 +19,17 @@ public class ParameterService {
         }
     }
 
+    public void deleteParameter(Parameter parameter){
+        SqlSession sqlSession = MyBatisSqlSessionFactory.getSqlSession("development");
+        try{
+            ParameterMapper parameterMapper = sqlSession.getMapper(ParameterMapper.class);
+            parameterMapper.deleteParameter(parameter);
+            sqlSession.commit();
+        }finally {
+            sqlSession.close();
+        }
+    }
+
     public List<Parameter> findParameterByType(String typeParameter){
         SqlSession sqlSession = MyBatisSqlSessionFactory.getSqlSession("development");
         try{

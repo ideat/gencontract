@@ -11,6 +11,7 @@
         <result property="gbofimcen" column="gbofimcen"/>
         <result property="gbdptdesc" column="gbdptdesc"/>
         <result property="gbprvdesc" column="gbprvdesc"/>
+        <result property="gbofidire" column="gbofidire"/>
     </resultMap>
 
 
@@ -20,6 +21,7 @@
         , gbofi.gbofimcen		--Es Central?
         , gbdpt.gbdptdesc	 	--Departamento
         , gbprv.gbprvdesc	 	--Provincia
+        , gbofi.gbofidire       --Direccion
         FROM gbofi
         LEFT JOIN gbdpt ON gbofi.gbofidpto = gbdpt.gbdptdpto
         LEFT JOIN gbprv ON gbofi.gboficprv = gbprv.gbprvcprv

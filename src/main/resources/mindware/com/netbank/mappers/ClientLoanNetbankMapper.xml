@@ -21,6 +21,7 @@
         <result property="prtsatbas" column="prtsatbas"/>
         <result property="prmprdiap" column="prmprdiap"/>
         <result property="prmprfreg" column="prmprfreg"/>
+        <result property="prtsasprd" column="prtsasprd"/>
     </resultMap>
 
 
@@ -34,15 +35,30 @@
           when  gbagedir2 is null then ''
           else gbagedir2
         end as gbagedir,
-        prmprnpre, prmprcmon, prmprmdes, prmprplzo, prmprppgk, prmprdiap
+        prmprnpre, prmprcmon, prmprmdes,
+        case
+          when prmpruplz = 1 then prmprplzo*12
+          when prmpruplz = 2 then prmprplzo
+          when prmpruplz = 3 then prmprplzo / 30
+          else prmprplzo
+         end as prmprplzo,
+
+        prmprppgk, prmprdiap
         , case
-            when prtsatbas is null then 0
-            else prtsatbas
+            when prmprtsex is null then prtsatbas
+            else prtsasprd
           end as prtsatbas
+        , case
+            when prtsasprd is null then 0
+            else prtsasprd
+          end as prtsasprd
         from gbage
         inner join prmpr on (prmprcage = gbagecage)
         left join prtsa on (prmprnpre = prtsanpre)
         where prmprnpre = #{prmprnpre}
+        and  prtsafvig = (select MAX(prtsafvig) from prtsa where prtsanpre = #{prmprnpre})
+
+
 
     </select>
 

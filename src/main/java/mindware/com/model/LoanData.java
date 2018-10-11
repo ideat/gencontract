@@ -35,9 +35,26 @@ public class LoanData {
     private String warranty;
     private String extraData;
     private BranchOffice branchOffice;
-    
+    private String savingBox;
+    private Double spread;
 
-	public BranchOffice getBranchOffice() {
+    public Double getSpread() {
+        return spread;
+    }
+
+    public void setSpread(Double spread) {
+        this.spread = spread;
+    }
+
+    public String getSavingBox() {
+        return savingBox;
+    }
+
+    public void setSavingBox(String savingBox) {
+        this.savingBox = savingBox;
+    }
+
+    public BranchOffice getBranchOffice() {
         return branchOffice;
     }
 

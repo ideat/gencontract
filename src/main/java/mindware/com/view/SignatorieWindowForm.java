@@ -20,6 +20,13 @@ public class SignatorieWindowForm extends Window {
     private TextField txtIdentifyCardSignatorie;
     private TextField txtPosition;
     private ComboBox cmbStatus;
+    private TextField txtNroPoder;
+    private TextField txtFechaPoder;
+    private TextField txtNroNotaria;
+    private TextField txtNombreNotario;
+    private TextField txtDistritoJudicial;
+    private TextField txtNroTestimonio;
+    private TextField txtFechaTestimonio;
     private Button btnSave;
     private Label lblTitle;
 
@@ -52,7 +59,15 @@ public class SignatorieWindowForm extends Window {
         txtNameSignatorie.setValue(signatories.getNameSignatorie());
         txtIdentifyCardSignatorie.setValue(signatories.getIdentifyCardSignatorie());
         cmbStatus.setValue(signatories.getStatus());
+        txtNroPoder.setValue(signatories.getNroPoder());
+        txtFechaPoder.setValue(signatories.getFechaPoder());
+        txtNroNotaria.setValue(signatories.getNroNotaria());
+        txtNombreNotario.setValue(signatories.getNombreNotario());
+        txtDistritoJudicial.setValue(signatories.getDistritoJudicial());
+        txtNroTestimonio.setValue(signatories.getNroTestimonio());
+        txtFechaTestimonio.setValue(signatories.getFechaTestimonio());
         txtPosition.setValue(signatories.getPosition());
+
     }
 
 
@@ -64,6 +79,14 @@ public class SignatorieWindowForm extends Window {
             signatorie.setIdentifyCardSignatorie(txtIdentifyCardSignatorie.getValue());
             signatorie.setPosition(txtPosition.getValue());
             signatorie.setStatus(cmbStatus.getValue().toString());
+            signatorie.setNroPoder(txtNroPoder.getValue());
+            signatorie.setFechaPoder(txtFechaPoder.getValue());
+            signatorie.setNroNotaria(txtNroNotaria.getValue());
+            signatorie.setNombreNotario(txtNombreNotario.getValue());
+            signatorie.setDistritoJudicial(txtDistritoJudicial.getValue());
+            signatorie.setNroTestimonio(txtNroTestimonio.getValue());
+            signatorie.setFechaTestimonio(txtFechaTestimonio.getValue());
+
             List<Signatories> signatoriesList = new ArrayList<>();
 
             ObjectMapper mapper = new ObjectMapper();
@@ -131,6 +154,14 @@ public class SignatorieWindowForm extends Window {
         if (txtIdentifyCardSignatorie.isEmpty()) return false;
         if (txtPosition.isEmpty()) return false;
         if (cmbStatus.isEmpty()) return false;
+        if (txtNroPoder.isEmpty()) return false;
+        if (txtFechaPoder.isEmpty()) return false;
+        if (txtNroNotaria.isEmpty()) return false;
+        if (txtNombreNotario.isEmpty()) return false;
+        if (txtDistritoJudicial.isEmpty()) return false;
+        if (txtNroTestimonio.isEmpty()) return false;
+        if (txtNroTestimonio.isEmpty()) return false;
+        if (txtFechaTestimonio.isEmpty()) return false;
         return true;
     }
 
@@ -171,6 +202,41 @@ public class SignatorieWindowForm extends Window {
         cmbStatus.setRequiredIndicatorVisible(true);
         cmbStatus.setEmptySelectionAllowed(false);
         formLayout.addComponent(cmbStatus);
+
+        txtNroPoder = new TextField("Nro Poder:");
+        txtNroPoder.setStyleName(ValoTheme.TEXTFIELD_TINY);
+        txtNroPoder.setRequiredIndicatorVisible(true);
+        formLayout.addComponent(txtNroPoder);
+
+        txtFechaPoder = new TextField("Fecha poder:");
+        txtFechaPoder.setStyleName(ValoTheme.TEXTFIELD_TINY);
+        txtFechaPoder.setRequiredIndicatorVisible(true);
+        formLayout.addComponent(txtFechaPoder);
+
+        txtNroNotaria = new TextField("Nro Notaria:");
+        txtNroNotaria.setStyleName(ValoTheme.TEXTFIELD_TINY);
+        txtNroNotaria.setRequiredIndicatorVisible(true);
+        formLayout.addComponent(txtNroNotaria);
+
+        txtNombreNotario = new TextField("Nombre Notario:");
+        txtNombreNotario.setStyleName(ValoTheme.TEXTFIELD_TINY);
+        txtNombreNotario.setRequiredIndicatorVisible(true);
+        formLayout.addComponent(txtNombreNotario);
+
+        txtDistritoJudicial = new TextField("Distrito Judicial:");
+        txtDistritoJudicial.setStyleName(ValoTheme.TEXTFIELD_TINY);
+        txtDistritoJudicial.setRequiredIndicatorVisible(true);
+        formLayout.addComponent(txtDistritoJudicial);
+
+        txtNroTestimonio = new TextField("Nro Testimonio:");
+        txtNroTestimonio.setStyleName(ValoTheme.TEXTFIELD_TINY);
+        txtNroTestimonio.setRequiredIndicatorVisible(true);
+        formLayout.addComponent(txtNroTestimonio);
+
+        txtFechaTestimonio = new TextField("Fecha Testimonio:");
+        txtFechaTestimonio.setStyleName(ValoTheme.TEXTFIELD_TINY);
+        txtFechaTestimonio.setRequiredIndicatorVisible(true);
+        formLayout.addComponent(txtFechaTestimonio);
 
         btnSave = new Button("Guardar");
         btnSave.setStyleName(ValoTheme.BUTTON_PRIMARY);

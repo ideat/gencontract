@@ -18,6 +18,15 @@ public class ClientLoanNetbank {
     private Integer prmprdiap;
     private Integer prmpragen;
     private Date prmprfreg;
+    private Double prtsasprd;
+
+    public Double getPrtsasprd() {
+        return prtsasprd;
+    }
+
+    public void setPrtsasprd(Double prtsasprd) {
+        this.prtsasprd = prtsasprd;
+    }
 
     public Integer getPrmprdiap() {
         return prmprdiap;

@@ -167,6 +167,7 @@ public class VariablesContractsForm extends CustomComponent implements View {
         gridMainLayout.setRows(5);
         gridMainLayout.setColumns(6);
         gridMainLayout.setSpacing(true);
+        gridMainLayout.setWidth("100%");
 
         txtVariableId = new TextField("ID:");
         txtVariableId.setStyleName(ValoTheme.TEXTFIELD_TINY);
@@ -204,14 +205,17 @@ public class VariablesContractsForm extends CustomComponent implements View {
 
         panelGridVariable = new Panel();
         panelGridVariable.setStyleName(ValoTheme.PANEL_WELL);
-        panelGridVariable.setSizeFull();
-        gridMainLayout.addComponent(panelGridVariable,0,2,5,4);
+        panelGridVariable.setWidth("100%");
 
         gridVariable = new Grid();
         gridVariable.setStyleName(ValoTheme.TABLE_COMPACT);
-        gridVariable.setWidth("100%");
+        gridVariable.setSizeFull();
         panelGridVariable.setContent(gridVariable);
-//        gridMainLayout.addComponent(gridVariable,0,2,4,4);
+        
+        gridMainLayout.addComponent(panelGridVariable,0,2,5,4);
+
+
+
 
         return gridMainLayout;
     }

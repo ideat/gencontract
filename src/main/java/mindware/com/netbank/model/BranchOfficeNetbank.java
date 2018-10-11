@@ -6,6 +6,19 @@ public class BranchOfficeNetbank {
     private String gbofimcen;
     private String gbdptdesc;
     private String gbprvdesc;
+    private String gbofidire;
+
+    public void setGbofinofi(Integer gbofinofi) {
+        this.gbofinofi = gbofinofi;
+    }
+
+    public String getGbofidire() {
+        return gbofidire;
+    }
+
+    public void setGbofidire(String gbofidire) {
+        this.gbofidire = gbofidire;
+    }
 
     public Integer getGbofinofi() {
         return gbofinofi;

@@ -48,9 +48,16 @@ import kaesdingeling.hybridmenu.data.top.TopMenuSubContent;
 
 import mindware.com.page.SettingsPage;
 import mindware.com.page.ThemeBuilderPage;
+import org.apache.ibatis.io.Resources;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Properties;
 
 @Theme("mytheme")
 @Title("Generador contratos")
@@ -71,7 +78,28 @@ public class MyUI extends UI implements DetachListener {
     	UI.getCurrent().setPollInterval(5000);
         loginForm = new LoginForm();
     	setContent(loginForm);
+        try {
+            createFolders();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
 //		callMenu();
+    }
+
+    private void createFolders() throws IOException {
+
+        Path path = Paths.get(System.getProperties().get("user.home").toString());
+
+        File template = new File(path.toString()+"/template");
+        File generated = new File(path.toString()+"/generated");
+
+        if (!template.exists()) {
+            template.mkdirs();
+        }
+        if (!generated.exists()) {
+            generated.mkdirs();
+        }
     }
 
 	public void callMenu(String login, Integer userId, Integer rolId) {

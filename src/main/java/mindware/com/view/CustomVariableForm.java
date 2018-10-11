@@ -36,7 +36,7 @@ public class CustomVariableForm extends CustomComponent implements View {
                 if (validateData()) {
                     if (txtIdVariable.isEmpty()) {
                         if (validateNameVariable()) {
-                            new ParameterService().insertParameter(prepareParameter());
+                            new ParameterService().insertParameter(prepareParameter("insert"));
                             fillGridVariable();
                             clearFields();
                             Notification.show("Parametro",
@@ -48,14 +48,14 @@ public class CustomVariableForm extends CustomComponent implements View {
                                     Notification.Type.ERROR_MESSAGE);
                         }
                     } else {
-                        if (validateNameVariable()) {
-                            new ParameterService().updateParameter(prepareParameter());
+//                        if (validateNameVariable()) {
+                            new ParameterService().updateParameter(prepareParameter("update"));
                             fillGridVariable();
                             clearFields();
                             Notification.show("Parametro",
                                     "Parametro actulizado",
                                     Notification.Type.HUMANIZED_MESSAGE);
-                        }
+//                        }
                     }
 
                 } else {
@@ -93,12 +93,13 @@ public class CustomVariableForm extends CustomComponent implements View {
         gridVariable.addColumn(Parameter::getDescriptionParameter).setCaption("Valor variable");
     }
 
-    private Parameter prepareParameter(){
+    private Parameter prepareParameter(String tipo){
         Parameter parameter = new Parameter();
         parameter.setTypeParameter("custom_variable_contract");
         parameter.setValueParameter(txtNameVariable.getValue());
         parameter.setDescriptionParameter(txtValueVariable.getValue());
-
+        if (tipo.equals("update"))
+            parameter.setParameterId(Integer.parseInt(txtIdVariable.getValue()));
         return parameter;
     }
 
@@ -129,6 +130,7 @@ public class CustomVariableForm extends CustomComponent implements View {
         mainGridLayout.setColumns(5);
         mainGridLayout.setRows(5);
         mainGridLayout.setSpacing(true);
+        mainGridLayout.setWidth("100%");
 
         txtIdVariable = new TextField("ID:");
         txtIdVariable.setStyleName(ValoTheme.TEXTFIELD_TINY);
@@ -167,7 +169,7 @@ public class CustomVariableForm extends CustomComponent implements View {
 
         gridVariable = new Grid<>();
         gridVariable.setStyleName(ValoTheme.TABLE_SMALL);
-        gridVariable.setWidth("100%");
+        gridVariable.setSizeFull();
 
         panelGridVariable.setContent(gridVariable);
 

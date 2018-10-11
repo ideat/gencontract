@@ -17,6 +17,8 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -164,13 +166,20 @@ public class ListContractsForm extends CustomComponent implements View {
                 if (extension.equals("doc") || extension.equals("docx") || extension.equals("odt")) {
                     try {
                         File fileContract = File.createTempFile(fileName, extension);
-                        String path = this.getClass().getClassLoader().getResource("/contract/generated").getPath();
+                        Path paths = Paths.get(System.getProperties().get("user.home").toString());
+                        String path = paths.toString()+"/generated";
                         fileContract = new File(path, fileNameContract);
 
+                        Notification.show("ACTUALIZACION",
+                                "Contrato actualizado",
+                                Notification.Type.HUMANIZED_MESSAGE);
                         return new FileOutputStream(fileContract);
 
                     } catch (IOException e) {
                         e.printStackTrace();
+                        Notification.show("ERROR",
+                                e.getMessage(),
+                                Notification.Type.ERROR_MESSAGE);
                     }
                 }else{
                     Notification.show("ARCHIVO", "Extension incorrecta",Notification.Type.ERROR_MESSAGE);

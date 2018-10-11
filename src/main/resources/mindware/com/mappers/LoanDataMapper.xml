@@ -34,6 +34,8 @@
         <result	property="guarantors" column="guarantors"/>
         <result property="warranty" column="warranty"/>
         <result property="extraData" column="extra_data"/>
+        <result property="savingBox" column="saving_box"/>
+        <result property="spread" column="spread"/>
         <association property="branchOffice"  column="branch_office_id" javaType="branchoffice" resultMap="BranchOfficeResult" />
 
     </resultMap>
@@ -44,6 +46,7 @@
         <result property="cityName" column="city_name"/>
         <result property="provinceName" column="province_name"/>
         <result property="signatories" column="signatories" />
+        <result property="address" column="address"/>
     </resultMap>
     
     
@@ -95,7 +98,9 @@
         co_debtors,
         guarantors,
         warranty,
-        extra_data)
+        extra_data,
+        saving_box,
+        spread)
         values (
         #{loanDataId},
         #{branchOfficeId},
@@ -124,7 +129,9 @@
         #{coDebtors}::json,
         #{guarantors}::json,
         #{warranty}::json,
-        #{extraData}::json)
+        #{extraData}::json,
+        #{savingBox},
+        #{spread})
     </insert>
 
     <update id="updateLoanData" parameterType="loanData">
@@ -156,7 +163,9 @@
         co_debtors = #{coDebtors}::json,
         guarantors = #{guarantors}::json,
         warranty = #{warranty}::json,
-        extra_data = #{extraData}::json
+        extra_data = #{extraData}::json,
+        saving_box = #{savingBox},
+        spread = #{spread}
         where loan_data_id = #{loanDataId}
     </update>
 
@@ -164,6 +173,19 @@
         update loan_data
         set
         co_debtors =  #{coDebtors}::json
+        where loan_data_id = #{loanDataId}
+    </update>
+
+    <update id="updateInputData" parameterType="loanData">
+        update loan_data
+        set
+          saving_box = #{savingBox},
+          tre_rate = #{treRate},
+          teac_rate = #{teacRate},
+          fee_payment =#{feePayment},
+          total_payment = #{totalPayment},
+          loan_destination = #{loanDestination}
+
         where loan_data_id = #{loanDataId}
     </update>
 

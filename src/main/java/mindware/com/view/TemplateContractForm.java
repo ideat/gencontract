@@ -13,6 +13,8 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 
 public class TemplateContractForm extends CustomComponent implements View {
@@ -23,9 +25,11 @@ public class TemplateContractForm extends CustomComponent implements View {
     private TextField txtDescriptionContract;
     private Button btnUpdateContract;
     private Button btnNewContract;
+    private Button btnDeleteContract;
     private Panel panelGridContracts;
     private Upload uploadContract;
     private File fileContract;
+
 
     public TemplateContractForm(){
 
@@ -62,6 +66,37 @@ public class TemplateContractForm extends CustomComponent implements View {
             txtNameFileContract.setEnabled(true);
             txtNameFileContract.focus();
         });
+
+        btnDeleteContract.addClickListener(clickEvent -> {
+            Parameter parameter = new Parameter();
+            parameter.setParameterId(Integer.parseInt(txtContractId.getValue()));
+            parameter.setTypeParameter("contract");
+
+            ParameterService parameterService = new ParameterService();
+            parameterService.deleteParameter(parameter);
+            Notification.show("BORRAR",
+                    "Referencia eliminada",
+                    Notification.Type.HUMANIZED_MESSAGE);
+
+            Path paths = Paths.get(System.getProperties().get("user.home").toString());
+            String path = paths.toString()+"/template";
+            File file = new File(path+"/"+txtNameFileContract.getValue());
+            if (file.delete()) {
+                Notification.show("BORRAR",
+                        "Plantilla eliminada",
+                        Notification.Type.HUMANIZED_MESSAGE);
+            }else {
+                Notification.show("ADVERTENCIA",
+                        "Plantilla no eliminada",
+                        Notification.Type.WARNING_MESSAGE);
+            }
+            fillGridContract(getListParameter());
+            clearData();
+
+            txtNameFileContract.setEnabled(true);
+        });
+
+
     }
 
 
@@ -97,7 +132,7 @@ public class TemplateContractForm extends CustomComponent implements View {
 
     private GridLayout buildMainLayout(){
         gridMainLayout = new GridLayout();
-        gridMainLayout.setColumns(6);
+        gridMainLayout.setColumns(7);
         gridMainLayout.setRows(5);
         gridMainLayout.setSizeFull();
         gridMainLayout.setSpacing(true);
@@ -133,6 +168,12 @@ public class TemplateContractForm extends CustomComponent implements View {
         gridMainLayout.addComponent(btnNewContract,5,0);
         gridMainLayout.setComponentAlignment(btnNewContract,Alignment.BOTTOM_LEFT);
 
+        btnDeleteContract = new Button("Borrar");
+        btnDeleteContract.setStyleName(ValoTheme.BUTTON_DANGER);
+        btnDeleteContract.setIcon(VaadinIcons.FILE_TEXT_O);
+        gridMainLayout.addComponent(btnDeleteContract,6,0);
+        gridMainLayout.setComponentAlignment(btnDeleteContract,Alignment.BOTTOM_LEFT);
+
         uploadContract = new Upload(null, new Upload.Receiver() {
             @Override
             public OutputStream receiveUpload(String fileName, String mimetype) {
@@ -143,7 +184,8 @@ public class TemplateContractForm extends CustomComponent implements View {
                             String extension = FilenameUtils.getExtension(fileName);
                             if (extension.equals("doc") || extension.equals("docx") || extension.equals("odt")) {
                                 fileContract = File.createTempFile(fileName, extension);
-                                String path = this.getClass().getClassLoader().getResource("/contract/template").getPath();
+                                Path paths = Paths.get(System.getProperties().get("user.home").toString());
+                                String path = paths.toString()+"/template";
                                 txtNameFileContract.setValue(txtNameFileContract.getValue()+'.'+extension);
                                 fileContract = new File(path, txtNameFileContract.getValue());
 

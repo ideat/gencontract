@@ -11,4 +11,6 @@ public interface ParameterMapper {
     List<Parameter> findParameterByType(@Param("typeParameter") String typeParameter);
     List<Parameter> findParameterByTypeAndValue(@Param("typeParameter") String typeParameter,@Param("valueParameter") String valueParameter);
     int findParameterByNameAndType(@Param("typeParameter") String typeParameter, @Param("valueParameter") String valueParameter);
+
+    void deleteParameter(Parameter parameter);
 }

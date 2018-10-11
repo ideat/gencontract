@@ -60,6 +60,7 @@ public class ManageBranchOfficeForm extends CustomComponent implements View {
                 branchOffice.setBranchName(branchOfficeNetbank.getGbofidesc());
                 branchOffice.setCityName(branchOfficeNetbank.getGbdptdesc());
                 branchOffice.setProvinceName(branchOfficeNetbank.getGbprvdesc());
+                branchOffice.setAddress(String.valueOf(branchOfficeNetbank.getGbofidire()));
 
                 String jsonStr= null;
                 try {
@@ -99,7 +100,7 @@ public class ManageBranchOfficeForm extends CustomComponent implements View {
            SignatorieWindowForm signatorieWindowForm = new SignatorieWindowForm(branchOfficeIdSelected,currentSignatories,signatorieSelected,"INSERT");
            signatorieWindowForm.setModal(true);
            signatorieWindowForm.setWidth("350px");
-           signatorieWindowForm.setHeight("300px");
+           signatorieWindowForm.setHeight("700px");
            signatorieWindowForm.center();
            UI.getCurrent().addWindow(signatorieWindowForm);
            signatorieWindowForm.addCloseListener(closeEvent -> {
@@ -118,7 +119,7 @@ public class ManageBranchOfficeForm extends CustomComponent implements View {
             SignatorieWindowForm signatorieWindowForm = new SignatorieWindowForm(branchOfficeIdSelected,currentSignatories,signatorieSelected,"EDIT");
             signatorieWindowForm.setModal(true);
             signatorieWindowForm.setWidth("350px");
-            signatorieWindowForm.setHeight("300px");
+            signatorieWindowForm.setHeight("700px");
             signatorieWindowForm.center();
             UI.getCurrent().addWindow(signatorieWindowForm);
             signatorieWindowForm.addCloseListener(closeEvent -> {
@@ -165,6 +166,14 @@ public class ManageBranchOfficeForm extends CustomComponent implements View {
         signatories.setIdentifyCardSignatorie("");
         signatories.setPosition("");
         signatories.setStatus("");
+        signatories.setNroPoder("");
+        signatories.setFechaPoder("");
+        signatories.setNroNotaria("");
+        signatories.setNombreNotario("");
+        signatories.setDistritoJudicial("");
+        signatories.setNroTestimonio("");
+        signatories.setFechaTestimonio("");
+
         signatoriesList.add(signatories);
         return signatoriesList;
     }
@@ -175,6 +184,14 @@ public class ManageBranchOfficeForm extends CustomComponent implements View {
         gridSignatories.addColumn(Signatories::getIdentifyCardSignatorie).setCaption("Carnet");
         gridSignatories.addColumn(Signatories::getPosition).setCaption("Cargo");
         gridSignatories.addColumn(Signatories::getStatus).setCaption("Estado");
+        gridSignatories.addColumn(Signatories::getNroPoder).setCaption("Nro Poder");
+        gridSignatories.addColumn(Signatories::getFechaPoder).setCaption("Fecha Poder");
+        gridSignatories.addColumn(Signatories::getNroNotaria).setCaption("Nro Notaria");
+        gridSignatories.addColumn(Signatories::getNombreNotario).setCaption("Nombre Notario");
+        gridSignatories.addColumn(Signatories::getDistritoJudicial).setCaption("Distrito Judicial");
+        gridSignatories.addColumn(Signatories::getNroTestimonio).setCaption("Nro Testimonio");
+        gridSignatories.addColumn(Signatories::getFechaTestimonio).setCaption("Fecha Testimonio");
+
     }
 
     private void fillGridSignatories(List<Signatories> signatoriesList){
@@ -184,6 +201,13 @@ public class ManageBranchOfficeForm extends CustomComponent implements View {
        gridSignatories.addColumn(Signatories::getIdentifyCardSignatorie).setCaption("Carnet");
        gridSignatories.addColumn(Signatories::getPosition).setCaption("Cargo");
        gridSignatories.addColumn(Signatories::getStatus).setCaption("Estado");
+        gridSignatories.addColumn(Signatories::getNroPoder).setCaption("Nro Poder");
+        gridSignatories.addColumn(Signatories::getFechaPoder).setCaption("Fecha Poder");
+        gridSignatories.addColumn(Signatories::getNroNotaria).setCaption("Nro Notaria");
+        gridSignatories.addColumn(Signatories::getNombreNotario).setCaption("Nombre Notario");
+        gridSignatories.addColumn(Signatories::getDistritoJudicial).setCaption("Distrito Judicial");
+        gridSignatories.addColumn(Signatories::getNroTestimonio).setCaption("Nro Testimonio");
+        gridSignatories.addColumn(Signatories::getFechaTestimonio).setCaption("Fecha Testimonio");
 
     }
 
@@ -195,6 +219,7 @@ public class ManageBranchOfficeForm extends CustomComponent implements View {
         gridBranchOffice.addColumn(BranchOffice::getBranchName).setCaption("Nombre");
         gridBranchOffice.addColumn(BranchOffice::getCityName).setCaption("Departamento");
         gridBranchOffice.addColumn(BranchOffice::getProvinceName).setCaption("Provincia");
+        gridBranchOffice.addColumn(BranchOffice::getAddress).setCaption("Direccion");
         gridBranchOffice.addColumn(BranchOffice::getSignatories).setHidden(true);
     }
 

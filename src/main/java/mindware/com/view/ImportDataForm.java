@@ -32,6 +32,8 @@ import java.util.List;
 public class ImportDataForm extends CustomComponent implements View {
     private Button btnSearch;
     private Button btnImport;
+    private Button btnUpdate;
+
     private TextField txtLoanNumberSearch;
     private TextField txtLoanNumber;
     private DateField dateLoanDate; //*
@@ -55,6 +57,8 @@ public class ImportDataForm extends CustomComponent implements View {
     private TextField txtCivilStatusDebtor;
     private TextField txtGenderDebtor;
     private TextField txtClientLoanId;
+    private TextField txtSavingBox;
+    private TextField txtSpread;
 
     private Grid<?> gridCoDebtor;
     private Grid<?> gridGuarantor;
@@ -163,6 +167,8 @@ public class ImportDataForm extends CustomComponent implements View {
                     loanData.setLoanDestination(txtLoanDestination.getValue().toString().trim());
                     loanData.setLoanDate(util.stringToDate(dateLoanDate.getValue().toString(), "yyyy-MM-dd"));
                     loanData.setTotalPayment(Double.parseDouble(txtTotalPayment.getValue().toString().trim()));
+                    loanData.setSavingBox(txtSavingBox.getValue());
+                    loanData.setSpread(Double.parseDouble(txtSpread.getValue()));
 
                     ObjectMapper mapper = new ObjectMapper();
                     String jsonCodebtor = null;
@@ -218,6 +224,26 @@ public class ImportDataForm extends CustomComponent implements View {
 
         });
 
+        btnUpdate.addClickListener(clickEvent -> {
+            if (validateLoanData()){
+                LoanData loanData = new LoanData();
+                loanData.setLoanDataId(loanDataId);
+                loanData.setTeacRate(Double.parseDouble(txtTeacRate.getValue().toString().trim()));
+                loanData.setTreRate(Double.parseDouble(txtTreRate.getValue().toString().trim()));
+                loanData.setFeePayment(Double.parseDouble(txtFeePayment.getValue().toString().trim()));
+                loanData.setLoanDestination(txtLoanDestination.getValue().toString().trim());
+                loanData.setTotalPayment(Double.parseDouble(txtTotalPayment.getValue().toString().trim()));
+                loanData.setSavingBox(txtSavingBox.getValue());
+
+                LoanDataService loanDataService = new LoanDataService();
+
+                loanDataService.updateInputData(loanData);
+                Notification.show("Actualizar",
+                        "Datos actualizado!",
+                        Notification.Type.HUMANIZED_MESSAGE);
+
+            }
+        });
     }
 
     private void dataFromNetBank() {
@@ -243,6 +269,7 @@ public class ImportDataForm extends CustomComponent implements View {
         if (txtTotalPayment.isEmpty()) return false;
         if (txtTotalPayment.isEmpty()) return false;
         if (txtLoanDestination.isEmpty()) return false;
+        if (txtSavingBox.isEmpty()) return false;
         return true;
     }
 
@@ -273,7 +300,8 @@ public class ImportDataForm extends CustomComponent implements View {
         dateLoanDate.setValue(date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate());
         txtTotalPayment.setValue(loanData.getTotalPayment().toString());
         dateLoanDate.setValue(new Util().stringToLocalDate(loanData.getLoanDate().toString(),"dd-MM-yyyy"));
-
+        txtSavingBox.setValue(String.valueOf(loanData.getSavingBox()));
+        txtSpread.setValue(loanData.getSpread().toString());
         gridCoDebtor.removeAllColumns();
         gridGuarantor.removeAllColumns();
         gridWarranty.removeAllColumns();
@@ -469,10 +497,10 @@ public class ImportDataForm extends CustomComponent implements View {
         fieldClientStatus(false);
 
         txtClientLoanId.setValue(clientLoanNetbank.getPrmprcage().toString());
-        txtIdentifyCardDebtor.setValue(clientLoanNetbank.getGbagendid());
-        txtDebtorName.setValue(clientLoanNetbank.getGbagenomb());
+        txtIdentifyCardDebtor.setValue(String.valueOf(clientLoanNetbank.getGbagendid()));
+        txtDebtorName.setValue(String.valueOf(clientLoanNetbank.getGbagenomb()));
         String civilStatus = null;
-        switch (Integer.parseInt(clientLoanNetbank.getGbageeciv().toString())) {
+        switch (Integer.parseInt(clientLoanNetbank.getGbageeciv() == null ? "0" : clientLoanNetbank.getGbageeciv().toString())) {
             case 1:
                 civilStatus = "SOLTERO";
                 break;
@@ -485,25 +513,27 @@ public class ImportDataForm extends CustomComponent implements View {
             case 4:
                 civilStatus = "VIUDO";
                 break;
+            default: civilStatus= "DESCONOCIDO";
         }
 
         txtCivilStatusDebtor.setValue(civilStatus);
         String gender = null;
-        switch (Integer.parseInt(clientLoanNetbank.getGbagesexo().toString())){
+        switch (Integer.parseInt(clientLoanNetbank.getGbagesexo() == null ? "0" : clientLoanNetbank.getGbagesexo().toString() )){
             case 1:
                 gender = "MASCULINO";
                 break;
             case 2:
                 gender = "FEMENINO";
                 break;
+            default: gender= "DESCONOCIDO";
         }
         txtGenderDebtor.setValue(gender);
-        txtAddressDebtor.setValue(clientLoanNetbank.getGbagedir());
+        txtAddressDebtor.setValue(String.valueOf(clientLoanNetbank.getGbagedir()));
 
         //Load Loan Data
         txtLoanNumber.setValue(clientLoanNetbank.getPrmprnpre().toString());
         String currency=null;
-        switch (Integer.parseInt(clientLoanNetbank.getPrmprcmon().toString())){
+        switch (Integer.parseInt(Integer.valueOf(clientLoanNetbank.getPrmprcmon()).toString())){
             case 1:
                 currency = "BS";
                 break;
@@ -516,7 +546,7 @@ public class ImportDataForm extends CustomComponent implements View {
         txtLoanMount.setValue(clientLoanNetbank.getPrmprmdes().toString());
         txtLoanTerm.setValue(clientLoanNetbank.getPrmprplzo().toString());
         txtInterestRate.setValue(clientLoanNetbank.getPrtsatbas().toString());
-        txtFixedPaymentDay.setValue(clientLoanNetbank.getPrmprdiap().toString());
+        txtFixedPaymentDay.setValue(clientLoanNetbank.getPrmprdiap() == null ? "0" : clientLoanNetbank.getPrmprdiap().toString());
         txtPaymentFrecuency.setValue(clientLoanNetbank.getPrmprppgk().toString());
         dateLoanDate.setValue(new Util().stringToLocalDate(clientLoanNetbank.getPrmprfreg().toString(),"dd-MM-yyyy"));
         txtCreditLifeInsurance.setValue("0");
@@ -548,7 +578,7 @@ public class ImportDataForm extends CustomComponent implements View {
         txtLoanDestination.clear();
         dateLoanDate.clear();
         txtTotalPayment.clear();
-
+        txtSavingBox.clear();
         fieldClientStatus(true);
     }
 
@@ -593,6 +623,12 @@ public class ImportDataForm extends CustomComponent implements View {
         btnImport.setIcon(VaadinIcons.DATABASE);
         gridLayout.addComponent(btnImport,2,0);
         gridLayout.setComponentAlignment(btnImport,Alignment.BOTTOM_LEFT);
+
+        btnUpdate = new Button("Actualizar");
+        btnUpdate.setStyleName(ValoTheme.BUTTON_FRIENDLY);
+        btnUpdate.setIcon(VaadinIcons.DATABASE);
+        gridLayout.addComponent(btnUpdate,3,0);
+        gridLayout.setComponentAlignment(btnUpdate,Alignment.BOTTOM_LEFT);
 
         gridLayout.addComponent(buildClientPanel(),0,1,9,3);
         gridLayout.addComponent(buildLoanPanel(),0,4,9,6);
@@ -644,6 +680,11 @@ public class ImportDataForm extends CustomComponent implements View {
         txtCreditLifeInsurance.setStyleName(ValoTheme.TEXTFIELD_TINY);
         txtCreditLifeInsurance.setReadOnly(false);
         gridLayoutLoan.addComponent(txtCreditLifeInsurance,5,0);
+
+        txtSpread = new TextField("Spread:");
+        txtSpread.setStyleName(ValoTheme.TEXTFIELD_TINY);
+        txtSpread.setReadOnly(false);
+        gridLayoutLoan.addComponent(txtSpread,6,0);
 
         txtFixedPaymentDay = new TextField("Dia fijo de pago:");
         txtFixedPaymentDay.setStyleName(ValoTheme.TEXTFIELD_TINY);
@@ -762,6 +803,10 @@ public class ImportDataForm extends CustomComponent implements View {
         txtTotalPayment = new TextField("Total a cancelar:");
         txtTotalPayment.setStyleName(ValoTheme.TEXTFIELD_TINY);
         gridLayoutSupplementaryData.addComponent(txtTotalPayment,4,0);
+
+        txtSavingBox = new TextField("Caja ahorro:");
+        txtSavingBox.setStyleName(ValoTheme.TEXTFIELD_TINY);
+        gridLayoutSupplementaryData.addComponent(txtSavingBox,5,0);
 
         txtLoanDestination = new TextField("Destino del credito:");
         txtLoanDestination.setStyleName(ValoTheme.TEXTFIELD_TINY);

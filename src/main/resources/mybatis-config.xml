@@ -19,10 +19,10 @@
         <environment id="development">
             <transactionManager type="JDBC"/>
             <dataSource type="POOLED">
-                <property name="driver" value="org.postgresql.Driver"/>
-                <property name="url" value="jdbc:postgresql://localhost:5432/dbcontract?searchpath=public"/>
-                <property name="username" value="postgres"/>
-                <property name="password" value="postgres"/>
+                <property name="driver" value="${driver2}"/>
+                <property name="url" value="${url2}"/>
+                <property name="username" value="${username2}"/>
+                <property name="password" value="${password}"/>
             </dataSource>
         </environment>
 

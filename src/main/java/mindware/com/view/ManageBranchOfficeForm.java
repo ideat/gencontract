@@ -4,9 +4,12 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.vaadin.data.Binder;
+import com.vaadin.data.converter.StringToDoubleConverter;
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.navigator.View;
 import com.vaadin.ui.*;
+import com.vaadin.ui.renderers.NumberRenderer;
+import com.vaadin.ui.renderers.TextRenderer;
 import com.vaadin.ui.themes.ValoTheme;
 import mindware.com.model.BranchOffice;
 import mindware.com.model.Signatories;
@@ -44,7 +47,9 @@ public class ManageBranchOfficeForm extends CustomComponent implements View {
         branchOfficeService = new BranchOfficeService();
         loadBranchOffice(branchOfficeService.findAllBranchOffice());
 
+
     }
+
 
     private void postBuild(){
 
@@ -82,8 +87,10 @@ public class ManageBranchOfficeForm extends CustomComponent implements View {
                 for(BranchOffice branchOffice:branchOfficeList){
                     boolean find = false;
                     for(BranchOffice branchOffice1:branchOfficeListLocal){
-                        if (branchOffice.getBranchOfficeId()== branchOffice1.getBranchOfficeId() )
-                            find =true;
+                        if (branchOffice.getBranchOfficeId()== branchOffice1.getBranchOfficeId() ) {
+                            find = true;
+                            branchOfficeService.updateAddressBranchOffice(branchOffice);
+                        }
                     }
                     if (find==false)
                         branchOffices.add(branchOffice);
@@ -116,15 +123,21 @@ public class ManageBranchOfficeForm extends CustomComponent implements View {
         });
 
         btnEditSignatorie.addClickListener(clickEvent -> {
-            SignatorieWindowForm signatorieWindowForm = new SignatorieWindowForm(branchOfficeIdSelected,currentSignatories,signatorieSelected,"EDIT");
-            signatorieWindowForm.setModal(true);
-            signatorieWindowForm.setWidth("350px");
-            signatorieWindowForm.setHeight("700px");
-            signatorieWindowForm.center();
-            UI.getCurrent().addWindow(signatorieWindowForm);
-            signatorieWindowForm.addCloseListener(closeEvent -> {
-                loadSignatorie(branchOfficeIdSelected);
-            });
+            if (signatorieSelected!=null) {
+                SignatorieWindowForm signatorieWindowForm = new SignatorieWindowForm(branchOfficeIdSelected, currentSignatories, signatorieSelected, "EDIT");
+                signatorieWindowForm.setModal(true);
+                signatorieWindowForm.setWidth("350px");
+                signatorieWindowForm.setHeight("700px");
+                signatorieWindowForm.center();
+                UI.getCurrent().addWindow(signatorieWindowForm);
+                signatorieWindowForm.addCloseListener(closeEvent -> {
+                    loadSignatorie(branchOfficeIdSelected);
+                });
+            }else{
+                Notification.show("Error",
+                        "Seccione un representante legal para editarlo ",
+                        Notification.Type.WARNING_MESSAGE);
+            }
 
         });
 
@@ -132,6 +145,21 @@ public class ManageBranchOfficeForm extends CustomComponent implements View {
            signatorieSelected = event.getItem();
 
         });
+
+        gridBranchOffice.getEditor().addSaveListener(editorSaveEvent -> {
+            try {
+                branchOfficeService.updateAddressBranchOffice(editorSaveEvent.getBean());
+                Notification.show("Actualizacion",
+                        "Direccion actualizada",
+                        Notification.Type.HUMANIZED_MESSAGE);
+            }catch (Exception e){
+                Notification.show("Error",
+                        "Al actualizar la direccion " + e.getMessage(),
+                        Notification.Type.ERROR_MESSAGE);
+            }
+        });
+
+
     }
 
     private void loadSignatorie(int branchOfficeId){
@@ -219,8 +247,32 @@ public class ManageBranchOfficeForm extends CustomComponent implements View {
         gridBranchOffice.addColumn(BranchOffice::getBranchName).setCaption("Nombre");
         gridBranchOffice.addColumn(BranchOffice::getCityName).setCaption("Departamento");
         gridBranchOffice.addColumn(BranchOffice::getProvinceName).setCaption("Provincia");
-        gridBranchOffice.addColumn(BranchOffice::getAddress).setCaption("Direccion");
+//        gridBranchOffice.addColumn(BranchOffice::getAddress).setCaption("Direccion");
+
+        Binder<BranchOffice> binder = gridBranchOffice.getEditor().getBinder();
+        gridBranchOffice.addColumn(BranchOffice::getAddress,new TextRenderer())
+                .setEditorBinding(binder
+                        .forField(new TextField())
+                        .bind(BranchOffice::getAddress, BranchOffice::setAddress)
+                ).setCaption("Direccion");
+
+
         gridBranchOffice.addColumn(BranchOffice::getSignatories).setHidden(true);
+
+        gridBranchOffice.addComponentColumn(branchOffice -> {
+            Button button = new Button();
+            button.setIcon(VaadinIcons.TRASH);
+            button.setStyleName(ValoTheme.BUTTON_DANGER);
+            button.addClickListener(clickEvent -> {
+
+                branchOfficeService.deleteBranchOffice(branchOffice.getBranchOfficeId());
+                loadBranchOffice(branchOfficeService.findAllBranchOffice());
+                Notification.show("Borrar Agencia",
+                        "Datos eliminados",
+                        Notification.Type.HUMANIZED_MESSAGE);
+            });
+            return button;
+        });
     }
 
     private GridLayout buildMainLayout(){
@@ -265,6 +317,9 @@ public class ManageBranchOfficeForm extends CustomComponent implements View {
 
         gridBranchOffice = new Grid();
         gridBranchOffice.setStyleName(ValoTheme.TABLE_SMALL);
+        gridBranchOffice.getEditor().setEnabled(true);
+        gridBranchOffice.getEditor().setSaveCaption("Guardar");
+        gridBranchOffice.getEditor().setCancelCaption("Cancelar");
         gridBranchOffice.setSizeFull();
 
         panelBranchOffice.setContent(gridBranchOffice);

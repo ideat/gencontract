@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace = "mindware.com.mappers.BranchUserMapper">
+
+    <resultMap type="branchuser" id="BranchUserResult">
+        <id 	property="branchUserId" column="branch_user_id"/>
+        <result property="branchOfficeId" column="branch_office_id"/>
+        <result property="rolViewContractId" column="rol_view_contract_id"/>
+        <result property="city" column="city"/>
+        <association property="branchOffice"  column="branch_office_id" javaType="branchOffice" resultMap="BranchOfficeResult" />
+    </resultMap>
+
+    <resultMap type="branchoffice" id="BranchOfficeResult">
+        <id 	property="branchOfficeId" column="branch_office_id"/>
+        <result property="branchName" column="branch_name"/>
+        <result property="cityName" column="city_name"/>
+        <result property="provinceName" column="province_name"/>
+        <result property="address" column="address"/>
+        <result property="signatories" column="signatories" />
+    </resultMap>
+
+
+    <select id="findBranchUserByRolViewerId" resultMap="BranchUserResult" parameterType="int">
+        select *
+        from branch_user bu
+        inner join  branch_office bo on (bu.branch_office_id = bo.branch_office_id)
+        where rol_view_contract_id = #{rolViewContractId}
+        order by bu.branch_user_id
+    </select>
+
+    <select id="findBranchUserByRolViewerIdCity" resultMap="BranchUserResult" parameterType="map">
+        select *
+        from branch_user bu
+        inner join  branch_office bo on (bu.branch_office_id = bo.branch_office_id)
+        where rol_view_contract_id = #{rolViewContractId}
+        and bu.city = #{city}
+        order by bu.branch_user_id
+    </select>
+
+
+    <insert id="insertBranchUser"  parameterType="branchuser" keyProperty="branchUserId" >
+        <selectKey keyProperty="branchUserId" resultType="int" order="BEFORE">
+            select nextval('branch_user_id_seq')
+        </selectKey>
+        insert into branch_user (
+        branch_user_id,
+        branch_office_id,
+        rol_view_contract_id,
+        city)
+        values (
+        #{branchUserId},
+        #{branchOfficeId},
+        #{rolViewContractId},
+        #{city})
+    </insert>
+
+    <update id="deleteBranchUser" parameterType="map">
+        delete from branch_user
+        where rol_view_contract_id = #{rolViewContractId}
+        and city = #{city}
+    </update>
+
+</mapper>

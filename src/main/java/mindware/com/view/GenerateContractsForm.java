@@ -1,8 +1,6 @@
 package mindware.com.view;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.gwt.event.dom.client.KeyCodes;
-import com.vaadin.event.FieldEvents;
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.navigator.View;
 import com.vaadin.server.*;
@@ -10,9 +8,7 @@ import com.vaadin.ui.*;
 import com.vaadin.ui.themes.ValoTheme;
 import de.steinwedel.messagebox.MessageBox;
 import mindware.com.model.*;
-import mindware.com.service.ContractService;
-import mindware.com.service.LoanDataService;
-import mindware.com.service.ParameterService;
+import mindware.com.service.*;
 import mindware.com.utilities.NumberToLiteral;
 
 import mindware.com.utilities.Util;
@@ -82,45 +78,51 @@ public class GenerateContractsForm extends CustomComponent implements View {
 
         btnGenerateContract.addClickListener(clickEvent -> {
             pathGenerate = "";
-            if (validateData()){
-                Path paths = Paths.get(System.getProperties().get("user.home").toString());
-                String path = paths.toString()+"/template/" + txtFileNameContract.getValue();
-                pathGenerate = paths.toString()+"/generated/"+ numberLoan.toString()+".docx";
-                if (verifyExistFileContract(path)) {
-                    if (verifyExistFileContract(pathGenerate)) {
+            if (validateData()) {
+                if (validateSignatoryEntity()) {
+                    Path paths = Paths.get(System.getProperties().get("user.home").toString());
+                    String path = paths.toString() + "/template/" + txtFileNameContract.getValue();
+                    pathGenerate = paths.toString() + "/generated/" + numberLoan.toString() + ".docx";
+                    if (verifyExistFileContract(path)) {
+                        if (verifyExistFileContract(pathGenerate)) {
 
-                        MessageBox
-                                .createQuestion()
-                                .withCaption("Contrato")
-                                .withMessage("Prestamo ya tiene contrato, desea reemplazarlo?")
-                                .withYesButton(() -> {
-                                    createContract(path, pathGenerate);
-                                    Notification.show("Contrato",
-                                            "Contrato creado",
-                                            Notification.Type.HUMANIZED_MESSAGE);
-                                    insertUpdateContract(pathGenerate, "update");
-                                })
-                                .withNoButton(() -> {
-                                })
-                                .open();
-                    } else {
-                        if (txtContractId.isEmpty()) {
-                            createContract(path, pathGenerate);
-                            Notification.show("Contrato",
-                                    "Contrato creado",
-                                    Notification.Type.HUMANIZED_MESSAGE);
-                            insertUpdateContract(pathGenerate, "insert");
-                        }else{
-                            createContract(path, pathGenerate);
-                            Notification.show("Contrato",
-                                    "Contrato regenerado",
-                                    Notification.Type.HUMANIZED_MESSAGE);
-                            insertUpdateContract(pathGenerate, "update");
+                            MessageBox
+                                    .createQuestion()
+                                    .withCaption("Contrato")
+                                    .withMessage("Prestamo ya tiene contrato, desea reemplazarlo?")
+                                    .withYesButton(() -> {
+                                        createContract(path, pathGenerate);
+                                        Notification.show("Contrato",
+                                                "Contrato creado",
+                                                Notification.Type.HUMANIZED_MESSAGE);
+                                        insertUpdateContract(pathGenerate, "update");
+                                    })
+                                    .withNoButton(() -> {
+                                    })
+                                    .open();
+                        } else {
+                            if (txtContractId.isEmpty()) {
+                                createContract(path, pathGenerate);
+                                Notification.show("Contrato",
+                                        "Contrato creado",
+                                        Notification.Type.HUMANIZED_MESSAGE);
+                                insertUpdateContract(pathGenerate, "insert");
+                            } else {
+                                createContract(path, pathGenerate);
+                                Notification.show("Contrato",
+                                        "Contrato regenerado",
+                                        Notification.Type.HUMANIZED_MESSAGE);
+                                insertUpdateContract(pathGenerate, "update");
+                            }
                         }
+                    } else {
+                        Notification.show("Contrato",
+                                "No existe la plantilla de contrato selecionada",
+                                Notification.Type.ERROR_MESSAGE);
                     }
-                }else{
+                }else {
                     Notification.show("Contrato",
-                            "No existe la plantilla de contrato selecionada",
+                            "No tiene registrado responsables legales en la agencia o sucursal",
                             Notification.Type.ERROR_MESSAGE);
                 }
             }else {
@@ -250,7 +252,13 @@ public class GenerateContractsForm extends CustomComponent implements View {
             replace(path, getFieldValuesLoanData(numberLoan), contract);
 
         } catch (Exception e) {
-            e.printStackTrace();
+            Notification.show("ERROR",
+                    "Verifique lo siguiente:\n" +
+                            "1. Que existan los representantes legales de la agencia\n" +
+                            " 2. Si el contrato es con garantes que el credito, tenga registrado garantes\n" +
+                            " 3. "+ e +"\n" ,
+                    Notification.Type.ERROR_MESSAGE);
+
         }
     }
 
@@ -279,7 +287,7 @@ public class GenerateContractsForm extends CustomComponent implements View {
 
     }
 
-    private void replace(String inFile, Map<String, String> data, OutputStream out) throws Exception, IOException {
+    private void replace(String inFile, Map<String, String> data, OutputStream out) throws Exception {
         XWPFDocument doc = new XWPFDocument(OPCPackage.open(inFile));
 
         XWPFHeaderFooterPolicy policy = new XWPFHeaderFooterPolicy(doc);
@@ -303,7 +311,7 @@ public class GenerateContractsForm extends CustomComponent implements View {
         doc.write(out);
     }
 
-    private void replace2(XWPFParagraph p, Map<String, String> data, String partDocument, XWPFDocument doc) {
+    private void replace2(XWPFParagraph p, Map<String, String> data, String partDocument, XWPFDocument doc) throws Exception{
         String pText = p.getText(); // complete paragraph as string
         if (pText.contains("${")) { // if paragraph does not include our pattern, ignore
             TreeMap<Integer, XWPFRun> posRuns = getPosToRuns(p);
@@ -466,7 +474,7 @@ public class GenerateContractsForm extends CustomComponent implements View {
             if(parameter.getValueParameter().equals("creditLifeInsurance"))
                 stringMapVariables.put(parameter.getValueParameter(),loanData.getCreditLifeInsurance().toString());
             if(parameter.getValueParameter().equals("totalPayment"))
-                stringMapVariables.put(parameter.getValueParameter(),loanData.getTotalPayment().toString());
+                stringMapVariables.put(parameter.getValueParameter(), String.format("%,.2f",loanData.getTotalPayment()));
             if(parameter.getValueParameter().equals("loanDestination"))
                 stringMapVariables.put(parameter.getValueParameter(),loanData.getLoanDestination());
             if(parameter.getValueParameter().equals("agency"))
@@ -556,6 +564,17 @@ public class GenerateContractsForm extends CustomComponent implements View {
                 stringMapVariables.put(parameter.getValueParameter(),loanData.getSavingBox());
             if (parameter.getValueParameter().equals("spread"))
                 stringMapVariables.put(parameter.getValueParameter(),loanData.getSpread().toString());
+            if(parameter.getValueParameter().equals("loanLine"))
+                stringMapVariables.put(parameter.getValueParameter(),loanData.getLoanLine().toString());
+            if(parameter.getValueParameter().equals("lineRate"))
+                stringMapVariables.put(parameter.getValueParameter(),loanData.getLineRate().toString());
+            if(parameter.getValueParameter().equals("lineSpread"))
+                stringMapVariables.put(parameter.getValueParameter(),loanData.getLineSpread().toString());
+            if(parameter.getValueParameter().equals("lineTerm"))
+                stringMapVariables.put(parameter.getValueParameter(),loanData.getLineTerm().toString());
+            if(parameter.getValueParameter().equals("lineMount"))
+                stringMapVariables.put(parameter.getValueParameter(),loanData.getLineMount().toString());
+
         }
 
         listVariableContract.removeAll(listVariableContract);
@@ -571,7 +590,7 @@ public class GenerateContractsForm extends CustomComponent implements View {
                         .Convert(String.format("%.2f",loanData.getTotalPayment()),true,"","float"));
             }else
             if (parameter.getValueParameter().equals("literal_plazo")){
-                Integer plazo = loanData.getLoanTerm()/30;
+                Integer plazo = loanData.getLoanTerm();
                 stringMapVariables.put(parameter.getValueParameter(),new NumberToLiteral()
                         .Convert(plazo.toString(),true,"","integer"));
             } else
@@ -582,6 +601,15 @@ public class GenerateContractsForm extends CustomComponent implements View {
             if (parameter.getValueParameter().equals("literal_spread")){
                 stringMapVariables.put(parameter.getValueParameter(),new NumberToLiteral()
                         .Convert(loanData.getSpread().toString(),true,"","float"));
+            }else
+            if (parameter.getValueParameter().equals("literal_monto_linea")){
+                stringMapVariables.put(parameter.getValueParameter(),new NumberToLiteral()
+                        .Convert(String.format("%.2f", loanData.getLineMount()),true,"","float"));
+            }else
+            if (parameter.getValueParameter().equals("literal_plazo_linea")){
+                Integer plazo = loanData.getLineTerm()/30;
+                stringMapVariables.put(parameter.getValueParameter(),new NumberToLiteral()
+                        .Convert(plazo.toString(),true,"","integer"));
             }
             else
                 stringMapVariables.put(parameter.getValueParameter(),parameter.getDescriptionParameter());
@@ -776,6 +804,13 @@ public class GenerateContractsForm extends CustomComponent implements View {
 
 
 
+    private boolean validateSignatoryEntity(){
+        BranchOfficeService branchOfficeService = new BranchOfficeService();
+        BranchOffice branchOffice =  branchOfficeService.findSignatorieByBranchOffice(loanData.getBranchOfficeId());
+        if (branchOffice.getSignatories().equals("[]"))
+            return false;
+        return true;
+    }
 
     private boolean validateData(){
         if (dateContractGenerate.isEmpty()) return false;

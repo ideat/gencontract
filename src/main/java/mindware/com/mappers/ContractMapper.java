@@ -9,6 +9,7 @@ public interface ContractMapper {
     List<Contract> findContractByLoanNumber(@Param("loanNumber") Integer loanNumber);
     List<Contract> findContractByNameDebtor(@Param("debtorName") String debtorName);
     List<Contract> findAllContract();
+    List<Contract> findAllContractByBranch(@Param("branchOfficeList") List<Integer> branchOfficeList);
     void insertContract(Contract contract);
     void updateContract(Contract contract);
     void updateStateContract(Contract contract);

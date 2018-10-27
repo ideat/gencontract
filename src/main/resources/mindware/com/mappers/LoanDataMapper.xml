@@ -36,6 +36,11 @@
         <result property="extraData" column="extra_data"/>
         <result property="savingBox" column="saving_box"/>
         <result property="spread" column="spread"/>
+        <result property="loanLine" column="loan_line"/>
+        <result property="lineSpread" column="line_spread"/>
+        <result property="lineTerm" column="line_term"/>
+        <result property="lineRate" column="line_rate"/>
+        <result property="lineMount" column="line_mount"/>
         <association property="branchOffice"  column="branch_office_id" javaType="branchoffice" resultMap="BranchOfficeResult" />
 
     </resultMap>
@@ -100,7 +105,12 @@
         warranty,
         extra_data,
         saving_box,
-        spread)
+        spread,
+        loan_line,
+        line_spread,
+        line_rate,
+        line_term,
+        line_mount)
         values (
         #{loanDataId},
         #{branchOfficeId},
@@ -131,7 +141,12 @@
         #{warranty}::json,
         #{extraData}::json,
         #{savingBox},
-        #{spread})
+        #{spread},
+        #{loanLine},
+        #{lineSpread},
+        #{lineRate},
+        #{lineTerm},
+        #{lineMount})
     </insert>
 
     <update id="updateLoanData" parameterType="loanData">
@@ -165,7 +180,12 @@
         warranty = #{warranty}::json,
         extra_data = #{extraData}::json,
         saving_box = #{savingBox},
-        spread = #{spread}
+        spread = #{spread},
+        loan_line = #{loanLine},
+        line_spread = #{lineSpread},
+        line_rate = #{lineRate},
+        line_term = #{lineTerm},
+        line_mount = #{lineMount}
         where loan_data_id = #{loanDataId}
     </update>
 

@@ -12,7 +12,9 @@
         <result property="password" column="password"/>
         <result property="nameUser" column="name_user"/>
         <result property="state" column="state"/>
+        <result property="rolViewContractId" column="rol_view_contract_id"/>
         <association property="rol"  column="rol_id" javaType="rol" resultMap="RolResult" />
+        <association property="rolViewContract"  column="rol_view_contract_id" javaType="rolviewcontract" resultMap="RolViewContractResult" />
     </resultMap>
 
     <resultMap type="rol" id="RolResult">
@@ -21,11 +23,17 @@
         <result property="description" column="description"/>
     </resultMap>
 
+    <resultMap type="rolviewcontract" id="RolViewContractResult">
+        <id 	property="rolViewContractId" column="rol_view_contract_id"/>
+        <result property="rolViewContractName" column="rol_view_contract_name"/>
+        <result property="description" column="description"/>
+    </resultMap>
 
     <select id="findAllUser" resultMap="UserResult">
         select *
         from public.user u
         inner join rol r on (r.rol_id=u.rol_id)
+        inner join rol_view_contract rv on (rv.rol_view_contract_id = u.rol_view_contract_id)
         order by name_user
     </select>
 
@@ -61,14 +69,16 @@
         login,
         password,
         name_user,
-        state)
+        state,
+        rol_view_contract_id)
         values (
         #{userId},
         #{rolId},
         #{login},
         #{password},
         #{nameUser},
-        #{state})
+        #{state},
+        #{rolViewContractId})
     </insert>
 
     <update id="updateUser" parameterType="user">
@@ -77,7 +87,8 @@
         rol_id = #{rolId},
         password = #{password},
         name_user = #{nameUser},
-        state = #{state}
+        state = #{state},
+        rol_view_contract_id = #{rolViewContractId}
         where user_id = #{userId}
 
     </update>

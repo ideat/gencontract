@@ -1,8 +1,5 @@
 package mindware.com.model;
 
-import com.fasterxml.jackson.core.TreeNode;
-import com.google.gson.JsonArray;
-
 import java.util.Date;
 
 public class LoanData {
@@ -37,6 +34,51 @@ public class LoanData {
     private BranchOffice branchOffice;
     private String savingBox;
     private Double spread;
+    private Integer loanLine;
+    private Double lineRate;
+    private Double lineSpread;
+    private Integer lineTerm;
+    private Double lineMount;
+
+    public Double getLineMount() {
+        return lineMount;
+    }
+
+    public void setLineMount(Double lineMount) {
+        this.lineMount = lineMount;
+    }
+
+    public Integer getLoanLine() {
+        return loanLine;
+    }
+
+    public void setLoanLine(Integer loanLine) {
+        this.loanLine = loanLine;
+    }
+
+    public Double getLineRate() {
+        return lineRate;
+    }
+
+    public void setLineRate(Double lineRate) {
+        this.lineRate = lineRate;
+    }
+
+    public Double getLineSpread() {
+        return lineSpread;
+    }
+
+    public void setLineSpread(Double lineSpread) {
+        this.lineSpread = lineSpread;
+    }
+
+    public Integer getLineTerm() {
+        return lineTerm;
+    }
+
+    public void setLineTerm(Integer lineTerm) {
+        this.lineTerm = lineTerm;
+    }
 
     public Double getSpread() {
         return spread;

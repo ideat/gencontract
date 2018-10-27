@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace = "mindware.com.mappers.RolViewContractMapper">
+
+    <resultMap type="rolviewcontract" id="RolViewContractResult">
+        <id 	property="rolViewContractId" column="rol_view_contract_id"/>
+        <result property="rolViewContractName" column="rol_view_contract_name"/>
+        <result property="description" column="description"/>
+        <collection property="branchUsers" column="rol_view_contract_id" ofType="branchuser" resultMap="BranchUserResult"/>
+    </resultMap>
+
+    <resultMap type="branchuser" id="BranchUserResult">
+        <id 	property="branchUserId" column="branch_user_id"/>
+        <result property="branchOfficeId" column="branch_office_id"/>
+        <result property="rolViewContractId" column="rol_view_contract_id"/>
+        <association property="branchOffice"  column="branch_office_id" javaType="branchOffice" resultMap="BranchOfficeResult" />
+    </resultMap>
+
+    <resultMap type="branchoffice" id="BranchOfficeResult">
+        <id 	property="branchOfficeId" column="branch_office_id"/>
+        <result property="branchName" column="branch_name"/>
+        <result property="cityName" column="city_name"/>
+        <result property="provinceName" column="province_name"/>
+        <result property="address" column="address"/>
+        <result property="signatories" column="signatories" />
+    </resultMap>
+
+    <select id="findAllRolViewContract" resultMap="RolViewContractResult">
+        select * from rol_view_contract
+        order by rol_view_contract_name
+    </select>
+
+    <select id="findAllRolViewContractByRolId" resultMap="RolViewContractResult" parameterType="int">
+        select *
+        from rol_view_contract rv
+        inner join branch_user bu ON rv.rol_view_contract_id = bu.rol_view_contract_id
+        where rv.rol_view_contract_id = #{rolViewContractId}
+
+    </select>
+
+
+    <insert id="insertRolViewContract"  parameterType="rolviewcontract" keyProperty="rolViewContractId" >
+        <selectKey keyProperty="rolViewContractId" resultType="int" order="BEFORE">
+            select nextval('rol_view_contract_id_seq')
+        </selectKey>
+        insert into rol_view_contract (
+        rol_view_contract_id,
+        rol_view_contract_name,
+        description)
+        values (
+        #{rolViewContractId},
+        #{rolViewContractName},
+        #{description})
+    </insert>
+
+    <update id="updateRolViewContract" parameterType="rolviewcontract">
+        update rol_view_contract
+        set
+        description = #{description},
+        rol_view_contract_name = #{rolViewContractName}
+        where rol_view_contract_id = #{rolViewContractId}
+
+    </update>
+
+
+
+</mapper>

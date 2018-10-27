@@ -64,7 +64,7 @@ public class LoginForm extends CustomComponent {
 
     private void logeo() {
         if (validateCredentials(txtLogin.getValue().toString(), txtPassword.getValue().toString())) {
-            ((MyUI) UI.getCurrent()).callMenu(user.getLogin(),user.getUserId(),user.getRolId());
+            ((MyUI) UI.getCurrent()).callMenu(user.getLogin(),user.getUserId(),user.getRolId(), user.getRolViewContractId());
         } else {
             lblMensaje.setVisible(true);
             lblMensaje.setValue("Credenciales invalidas");

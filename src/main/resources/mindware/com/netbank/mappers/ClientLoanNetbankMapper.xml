@@ -22,6 +22,11 @@
         <result property="prmprdiap" column="prmprdiap"/>
         <result property="prmprfreg" column="prmprfreg"/>
         <result property="prtsasprd" column="prtsasprd"/>
+        <result property="prmprlncr" column="prmprlncr"/>
+        <result property="lcmlcsprd" column="lcmlcsprd"/>
+        <result property="lcmlctasa" column="lcmlctasa"/>
+        <result property="lcmlcplzo" column="lcmlcplzo"/>
+        <result property="lcmlcmapr" column="lcmlcmapr"/>
     </resultMap>
 
 
@@ -35,11 +40,11 @@
           when  gbagedir2 is null then ''
           else gbagedir2
         end as gbagedir,
-        prmprnpre, prmprcmon, prmprmdes,
+        prmprnpre, prmprcmon, prmprmapt as prmprmdes,
         case
           when prmpruplz = 1 then prmprplzo*12
-          when prmpruplz = 2 then prmprplzo
-          when prmpruplz = 3 then prmprplzo / 30
+          when prmpruplz = 2 then prmprplzo/30
+          when prmpruplz = 3 then prmprplzo
           else prmprplzo
          end as prmprplzo,
 
@@ -51,10 +56,31 @@
         , case
             when prtsasprd is null then 0
             else prtsasprd
-          end as prtsasprd
+          end as prtsasprd,
+          case
+              when prmprlncr is null then 0
+              else prmprlncr
+          end as prmprlncr,
+          case
+              when lcmlcsprd is null then 0
+              else lcmlcsprd
+          end as lcmlcsprd,
+          case
+               when lcmlctasa is null then 0
+               else lcmlctasa
+          end as lcmlctasa,
+          case
+		   when lcmlcplzo is null then 0
+		   else lcmlcplzo
+          end as lcmlcplzo,
+          case
+		   when lcmlcmapr is null then 0
+		   else lcmlcmapr
+          end as lcmlcmapr
         from gbage
         inner join prmpr on (prmprcage = gbagecage)
         left join prtsa on (prmprnpre = prtsanpre)
+        left join lcmlc on (prmprlncr = lcmlcnrlc)
         where prmprnpre = #{prmprnpre}
         and  prtsafvig = (select MAX(prtsafvig) from prtsa where prtsanpre = #{prmprnpre})
 

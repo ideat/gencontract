@@ -59,6 +59,11 @@ public class ImportDataForm extends CustomComponent implements View {
     private TextField txtClientLoanId;
     private TextField txtSavingBox;
     private TextField txtSpread;
+    private TextField txtLoanLine;
+    private TextField txtLineSpread;
+    private TextField txtLineRate;
+    private TextField txtLineMount;
+    private TextField txtLineTerm;
 
     private Grid<?> gridCoDebtor;
     private Grid<?> gridGuarantor;
@@ -70,8 +75,10 @@ public class ImportDataForm extends CustomComponent implements View {
     private Panel panelSupplentaryData;
     private Panel panelCoDebtor;
     private Panel panelGuarantor;
+    private Panel panelLineCredit;
     private TabSheet tabSupplementaryData;
     private GridLayout gridLayoutSupplementaryData;
+    private GridLayout gridLayoutLineCredit;
 
     private  Grid<?> gridWarranty;
 
@@ -141,75 +148,85 @@ public class ImportDataForm extends CustomComponent implements View {
             LoanDataService loanDataService = new LoanDataService();
 //            if (loanDataService.findLoanDataByLoanNumber(Integer.parseInt(txttxtLoanNumberSearchLoanNumberSearch.getValue()))==null ) {
                 if (validateLoanData()) {
-                    Util util = new Util();
-                    LoanData loanData = new LoanData();
-                    loanData.setDebtorName(txtDebtorName.getValue().toString().trim());
-                    loanData.setIdentityCardDebtor(txtIdentifyCardDebtor.getValue());
-                    loanData.setClientLoanId(Integer.parseInt(txtClientLoanId.getValue().toString().trim()));
-                    loanData.setAddressDebtor(txtAddressDebtor.getValue().toString().trim());
-                    loanData.setCivilStatusDebtor(txtCivilStatusDebtor.getValue().trim());
-                    loanData.setGenderDebtor(txtGenderDebtor.getValue().trim());
-                    loanData.setLoanNumber(Integer.parseInt(txtLoanNumber.getValue()));
-                    loanData.setCurrency(txtCurrency.getValue().trim());
-                    loanData.setLoanMount(Double.parseDouble(txtLoanMount.getValue().trim()));
-                    loanData.setLoanTerm(Integer.parseInt(txtLoanTerm.getValue().trim()));
-                    loanData.setInterestRate(Double.parseDouble(txtInterestRate.getValue().trim()));
-                    loanData.setCreditLifeInsurance(Double.parseDouble(txtCreditLifeInsurance.getValue().trim()));
-                    loanData.setFixedPaymentDay(Integer.parseInt(txtFixedPaymentDay.getValue().trim()));
-                    loanData.setPaymentFrecuency(txtPaymentFrecuency.getValue().trim());
-                    loanData.setBranchOfficeId(Integer.parseInt(txtAgency.getValue().trim()));
-                    loanData.setOfficial(txtOfficial.getValue().trim());
-                    loanData.setAgency(txtAgency.getValue().trim());
+                    if (validateDataType().equals("OK")) {
+                        Util util = new Util();
+                        LoanData loanData = new LoanData();
+                        loanData.setDebtorName(txtDebtorName.getValue().toString().trim());
+                        loanData.setIdentityCardDebtor(txtIdentifyCardDebtor.getValue());
+                        loanData.setClientLoanId(Integer.parseInt(txtClientLoanId.getValue().toString().trim()));
+                        loanData.setAddressDebtor(txtAddressDebtor.getValue().toString().trim());
+                        loanData.setCivilStatusDebtor(txtCivilStatusDebtor.getValue().trim());
+                        loanData.setGenderDebtor(txtGenderDebtor.getValue().trim());
+                        loanData.setLoanNumber(Integer.parseInt(txtLoanNumber.getValue()));
+                        loanData.setCurrency(txtCurrency.getValue().trim());
+                        loanData.setLoanMount(Double.parseDouble(txtLoanMount.getValue().trim()));
+                        loanData.setLoanTerm(Integer.parseInt(txtLoanTerm.getValue().trim()));
+                        loanData.setInterestRate(Double.parseDouble(txtInterestRate.getValue().trim()));
+                        loanData.setCreditLifeInsurance(Double.parseDouble(txtCreditLifeInsurance.getValue().trim()));
+                        loanData.setFixedPaymentDay(Integer.parseInt(txtFixedPaymentDay.getValue().trim()));
+                        loanData.setPaymentFrecuency(txtPaymentFrecuency.getValue().trim());
+                        loanData.setBranchOfficeId(Integer.parseInt(txtAgency.getValue().trim()));
+                        loanData.setOfficial(txtOfficial.getValue().trim());
+                        loanData.setAgency(txtAgency.getValue().trim());
 
-                    loanData.setTeacRate(Double.parseDouble(txtTeacRate.getValue().toString().trim()));
-                    loanData.setTreRate(Double.parseDouble(txtTreRate.getValue().toString().trim()));
-                    loanData.setFeePayment(Double.parseDouble(txtFeePayment.getValue().toString().trim()));
-                    loanData.setLoanDestination(txtLoanDestination.getValue().toString().trim());
-                    loanData.setLoanDate(util.stringToDate(dateLoanDate.getValue().toString(), "yyyy-MM-dd"));
-                    loanData.setTotalPayment(Double.parseDouble(txtTotalPayment.getValue().toString().trim()));
-                    loanData.setSavingBox(txtSavingBox.getValue());
-                    loanData.setSpread(Double.parseDouble(txtSpread.getValue()));
+                        loanData.setTeacRate(Double.parseDouble(txtTeacRate.getValue().toString().trim()));
+                        loanData.setTreRate(Double.parseDouble(txtTreRate.getValue().toString().trim()));
+                        loanData.setFeePayment(Double.parseDouble(txtFeePayment.getValue().toString().trim()));
+                        loanData.setLoanDestination(txtLoanDestination.getValue().toString().trim());
+                        loanData.setLoanDate(util.stringToDate(dateLoanDate.getValue().toString(), "yyyy-MM-dd"));
+                        loanData.setTotalPayment(Double.parseDouble(txtTotalPayment.getValue().toString().trim()));
+                        loanData.setSavingBox(txtSavingBox.getValue());
+                        loanData.setSpread(Double.parseDouble(txtSpread.getValue()));
+                        loanData.setLoanLine(Integer.parseInt(txtLoanLine.getValue()));
+                        loanData.setLineRate(Double.parseDouble(txtLineRate.getValue()));
+                        loanData.setLineSpread(Double.parseDouble(txtLineSpread.getValue()));
+                        loanData.setLineMount(Double.parseDouble(txtLineMount.getValue()));
+                        loanData.setLineTerm(Integer.parseInt(txtLineTerm.getValue()));
 
-                    ObjectMapper mapper = new ObjectMapper();
-                    String jsonCodebtor = null;
+                        ObjectMapper mapper = new ObjectMapper();
+                        String jsonCodebtor = null;
 
-                    try {
-                        jsonCodebtor = mapper.writeValueAsString(getCoDebtorsGuarantors("codebtor", codebtorNetbankList));
-                    } catch (JsonProcessingException e) {
-                        e.printStackTrace();
+                        try {
+                            jsonCodebtor = mapper.writeValueAsString(getCoDebtorsGuarantors("codebtor", codebtorNetbankList));
+                        } catch (JsonProcessingException e) {
+                            e.printStackTrace();
+                        }
+
+                        String jsonGuarantor = null;
+                        try {
+                            jsonGuarantor = mapper.writeValueAsString(getCoDebtorsGuarantors("guarantor", guarantorNetbankList));
+                        } catch (JsonProcessingException e) {
+                            e.printStackTrace();
+                        }
+
+                        String jsonWarranty = null;
+                        try {
+                            jsonWarranty = mapper.writeValueAsString(getWarranty(warrantyNetbankList));
+                        } catch (JsonProcessingException e) {
+                            e.printStackTrace();
+                        }
+
+                        loanData.setGuarantors(jsonGuarantor);
+                        loanData.setCoDebtors(jsonCodebtor);
+                        loanData.setWarranty(jsonWarranty);
+
+                        if (loanDataService.findLoanDataByLoanNumber(Integer.parseInt(txtLoanNumberSearch.getValue())) == null) {
+                            loanDataService.insertLoanData(loanData);
+                            Notification.show("Importacion datos",
+                                    "Datos del credito importados!",
+                                    Notification.Type.HUMANIZED_MESSAGE);
+                        } else {
+                            loanData.setLoanDataId(loanDataId);
+                            loanDataService.updateLoanData(loanData);
+                            Notification.show("Importacion datos",
+                                    "Datos del credito actualizados!",
+                                    Notification.Type.HUMANIZED_MESSAGE);
+                        }
+                    }else{
+                        Notification.show("ERROR",
+                                validateDataType(),
+                                Notification.Type.WARNING_MESSAGE);
                     }
-
-                    String jsonGuarantor = null;
-                    try {
-                        jsonGuarantor = mapper.writeValueAsString(getCoDebtorsGuarantors("guarantor", guarantorNetbankList));
-                    } catch (JsonProcessingException e) {
-                        e.printStackTrace();
-                    }
-
-                    String jsonWarranty = null;
-                    try {
-                        jsonWarranty = mapper.writeValueAsString(getWarranty(warrantyNetbankList));
-                    } catch (JsonProcessingException e) {
-                        e.printStackTrace();
-                    }
-
-                    loanData.setGuarantors(jsonGuarantor);
-                    loanData.setCoDebtors(jsonCodebtor);
-                    loanData.setWarranty(jsonWarranty);
-
-                    if (loanDataService.findLoanDataByLoanNumber(Integer.parseInt(txtLoanNumberSearch.getValue()))==null ) {
-                        loanDataService.insertLoanData(loanData);
-                        Notification.show("Importacion datos",
-                                "Datos del credito importados!",
-                                Notification.Type.HUMANIZED_MESSAGE);
-                    }else {
-                        loanData.setLoanDataId(loanDataId);
-                        loanDataService.updateLoanData(loanData);
-                        Notification.show("Importacion datos",
-                                "Datos del credito actualizados!",
-                                Notification.Type.HUMANIZED_MESSAGE);
-                    }
-
                 } else {
                     Notification.show("ERROR",
                             "Datos incompeltos, complete la informacion",
@@ -267,10 +284,21 @@ public class ImportDataForm extends CustomComponent implements View {
         if (txtTeacRate.isEmpty()) return false;
         if (txtFeePayment.isEmpty()) return false;
         if (txtTotalPayment.isEmpty()) return false;
-        if (txtTotalPayment.isEmpty()) return false;
         if (txtLoanDestination.isEmpty()) return false;
         if (txtSavingBox.isEmpty()) return false;
         return true;
+    }
+
+    private String validateDataType(){
+        Util util = new Util();
+        if (!util.isNumber(txtTreRate.getValue())) return "Tasa TRE no es valida";
+        if (!util.isNumber(txtTeacRate.getValue())) return "Tasa TEAC no es valida";
+        if (!util.isNumber(txtFeePayment.getValue())) return "Monto cuota no es valido";
+        if(!util.isNumber(txtTotalPayment.getValue())) return "Total a pagar no es valido";
+        if (!util.isNumber(txtCreditLifeInsurance.getValue())) return "Seguro desgravamen no es valido";
+        if (!util.isNumber(txtSpread.getValue())) return "Spread no es valido";
+
+        return "OK";
     }
 
     private void loadLoanDataLocal(LoanData loanData){
@@ -302,6 +330,12 @@ public class ImportDataForm extends CustomComponent implements View {
         dateLoanDate.setValue(new Util().stringToLocalDate(loanData.getLoanDate().toString(),"dd-MM-yyyy"));
         txtSavingBox.setValue(String.valueOf(loanData.getSavingBox()));
         txtSpread.setValue(loanData.getSpread().toString());
+        txtLoanLine.setValue(loanData.getLoanLine().toString());
+        txtLineTerm.setValue(loanData.getLineTerm().toString());
+        txtLineSpread.setValue(loanData.getLineSpread().toString());
+        txtLineRate.setValue(loanData.getLineRate().toString());
+        txtLineMount.setValue(loanData.getLineMount().toString());
+
         gridCoDebtor.removeAllColumns();
         gridGuarantor.removeAllColumns();
         gridWarranty.removeAllColumns();
@@ -550,8 +584,15 @@ public class ImportDataForm extends CustomComponent implements View {
         txtPaymentFrecuency.setValue(clientLoanNetbank.getPrmprppgk().toString());
         dateLoanDate.setValue(new Util().stringToLocalDate(clientLoanNetbank.getPrmprfreg().toString(),"dd-MM-yyyy"));
         txtCreditLifeInsurance.setValue("0");
+        txtSpread.setValue("0");
         txtOfficial.setValue("");
+        txtFeePayment.setValue("0");
         txtAgency.setValue(clientLoanNetbank.getPrmpragen().toString());
+        txtLoanLine.setValue(clientLoanNetbank.getPrmprlncr().toString());
+        txtLineRate.setValue(clientLoanNetbank.getLcmlctasa().toString());
+        txtLineMount.setValue(clientLoanNetbank.getLcmlcmapr().toString());
+        txtLineSpread.setValue(clientLoanNetbank.getLcmlcsprd().toString());
+        txtLineTerm.setValue(clientLoanNetbank.getLcmlcplzo().toString());
         fieldClientStatus(true);
 
     }
@@ -579,10 +620,18 @@ public class ImportDataForm extends CustomComponent implements View {
         dateLoanDate.clear();
         txtTotalPayment.clear();
         txtSavingBox.clear();
+
+        txtLoanLine.clear();
+        txtLineRate.clear();
+        txtLineMount.clear();
+        txtLineSpread.clear();
+        txtLineTerm.clear();
         fieldClientStatus(true);
     }
 
     private void fieldClientStatus(boolean read) {
+        dateLoanDate.setReadOnly(read);
+
         txtClientLoanId.setReadOnly(read);
         txtIdentifyCardDebtor.setReadOnly(read);
         txtDebtorName.setReadOnly(read);
@@ -597,6 +646,12 @@ public class ImportDataForm extends CustomComponent implements View {
         txtInterestRate.setReadOnly(read);
         txtFixedPaymentDay.setReadOnly(read);
         txtPaymentFrecuency.setReadOnly(read);
+
+        txtLoanLine.setReadOnly(read);
+        txtLineSpread.setReadOnly(read);
+        txtLineRate.setReadOnly(read);
+        txtLineMount.setReadOnly(read);
+        txtLineTerm.setReadOnly(read);
 
     }
 
@@ -618,7 +673,7 @@ public class ImportDataForm extends CustomComponent implements View {
         gridLayout.addComponent(btnSearch,1,0);
         gridLayout.setComponentAlignment(btnSearch,Alignment.BOTTOM_LEFT);
 
-        btnImport = new Button("Importar");
+        btnImport = new Button("Guardar");
         btnImport.setStyleName(ValoTheme.BUTTON_FRIENDLY);
         btnImport.setIcon(VaadinIcons.DATABASE);
         gridLayout.addComponent(btnImport,2,0);
@@ -678,11 +733,13 @@ public class ImportDataForm extends CustomComponent implements View {
 
         txtCreditLifeInsurance = new TextField("Seguro desgravamen:");
         txtCreditLifeInsurance.setStyleName(ValoTheme.TEXTFIELD_TINY);
+        txtCreditLifeInsurance.addStyleName("my_bg_style");
         txtCreditLifeInsurance.setReadOnly(false);
         gridLayoutLoan.addComponent(txtCreditLifeInsurance,5,0);
 
         txtSpread = new TextField("Spread:");
         txtSpread.setStyleName(ValoTheme.TEXTFIELD_TINY);
+        txtSpread.addStyleName("my_bg_style");
         txtSpread.setReadOnly(false);
         gridLayoutLoan.addComponent(txtSpread,6,0);
 
@@ -767,9 +824,50 @@ public class ImportDataForm extends CustomComponent implements View {
         tabSupplementaryData.addTab(buildPanelCodDebtor(),"Codeudores");
         tabSupplementaryData.addTab(buildPanelWarranty(),"Garantias");
         tabSupplementaryData.addTab(buildPanelGuarantor(),"Garantes");
-
-
+        tabSupplementaryData.addTab(buildPanelLineCredit(),"Linea de credito");
         return tabSupplementaryData;
+    }
+
+
+    private Panel buildPanelLineCredit(){
+        panelLineCredit = new Panel();
+        panelLineCredit.setStyleName(ValoTheme.PANEL_WELL);
+        panelLineCredit.setWidth("100%");
+
+        gridLayoutLineCredit = new GridLayout();
+        gridLayoutLineCredit.setStyleName(ValoTheme.TABLE_COMPACT);
+        gridLayoutLineCredit.setRows(2);
+        gridLayoutLineCredit.setColumns(5);
+        gridLayoutLineCredit.setSpacing(true);
+
+        txtLoanLine = new TextField("Nro linea:");
+        txtLoanLine.setStyleName(ValoTheme.TEXTFIELD_TINY);
+        txtLoanLine.setReadOnly(true);
+        gridLayoutLineCredit.addComponent(txtLoanLine,0,0);
+
+        txtLineMount = new TextField("Monto linea:");
+        txtLineMount.setStyleName(ValoTheme.TEXTFIELD_TINY);
+        txtLineMount.setReadOnly(true);
+        gridLayoutLineCredit.addComponent(txtLineMount,1,0);
+
+        txtLineRate = new TextField("Tasa:");
+        txtLineRate.setStyleName(ValoTheme.TEXTFIELD_TINY);
+        txtLineRate.setReadOnly(true);
+        gridLayoutLineCredit.addComponent(txtLineRate,2,0);
+
+        txtLineSpread = new TextField("Spread:");
+        txtLineSpread.setStyleName(ValoTheme.TEXTFIELD_TINY);
+        txtLineSpread.setReadOnly(true);
+        gridLayoutLineCredit.addComponent(txtLineSpread,3,0);
+
+        txtLineTerm = new TextField("Plazo:");
+        txtLineTerm.setStyleName(ValoTheme.TEXTFIELD_TINY);
+        txtLineTerm.setReadOnly(true);
+        gridLayoutLineCredit.addComponent(txtLineTerm,4,0);
+
+        panelLineCredit.setContent(gridLayoutLineCredit);
+
+        return panelLineCredit;
     }
 
     private Panel buildPanelSupplentaryData(){
@@ -790,27 +888,33 @@ public class ImportDataForm extends CustomComponent implements View {
 
         txtTreRate = new TextField("Tasa TRE:");
         txtTreRate.setStyleName(ValoTheme.TEXTFIELD_TINY);
+        txtTreRate.addStyleName("my_bg_style");
         gridLayoutSupplementaryData.addComponent(txtTreRate,1,0);
 
         txtTeacRate = new TextField("Tasa TEAC:");
         txtTeacRate.setStyleName(ValoTheme.TEXTFIELD_TINY);
+        txtTeacRate.addStyleName("my_bg_style");
         gridLayoutSupplementaryData.addComponent(txtTeacRate,2,0);
 
-        txtFeePayment = new TextField("Cuota:");
+        txtFeePayment = new TextField("Monto cuota:");
         txtFeePayment.setStyleName(ValoTheme.TEXTFIELD_TINY);
+        txtFeePayment.addStyleName("my_bg_style");
         gridLayoutSupplementaryData.addComponent(txtFeePayment,3,0);
 
         txtTotalPayment = new TextField("Total a cancelar:");
         txtTotalPayment.setStyleName(ValoTheme.TEXTFIELD_TINY);
+        txtTotalPayment.addStyleName("my_bg_style");
         gridLayoutSupplementaryData.addComponent(txtTotalPayment,4,0);
 
         txtSavingBox = new TextField("Caja ahorro:");
         txtSavingBox.setStyleName(ValoTheme.TEXTFIELD_TINY);
+        txtSavingBox.addStyleName("my_bg_style");
         gridLayoutSupplementaryData.addComponent(txtSavingBox,5,0);
 
         txtLoanDestination = new TextField("Destino del credito:");
         txtLoanDestination.setStyleName(ValoTheme.TEXTFIELD_TINY);
         txtLoanDestination.setWidth("360px");
+        txtLoanDestination.addStyleName("my_bg_style");
         gridLayoutSupplementaryData.addComponent(txtLoanDestination,0,1,3,1);
 
 //        btnSaveSupplementaryData = new Button("Guardar");

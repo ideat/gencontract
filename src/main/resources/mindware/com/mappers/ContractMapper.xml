@@ -44,16 +44,38 @@
         <result	property="guarantors" column="guarantors"/>
         <result property="warranty" column="warranty"/>
         <result property="extraData" column="extra_data"/>
+        <association property="branchOffice" column="branch_office_id" javaType="branchoffice" resultMap="BranchOfficeResult" />
+    </resultMap>
 
+    <resultMap type="branchoffice" id="BranchOfficeResult">
+        <id 	property="branchOfficeId" column="branch_office_id"/>
+        <result property="branchName" column="branch_name"/>
+        <result property="cityName" column="city_name"/>
+        <result property="provinceName" column="province_name"/>
+        <result property="address" column="address"/>
+        <result property="signatories" column="signatories" />
     </resultMap>
 
 
     <select id="findAllContract" resultMap="ContractResult">
-        select c.*, ld.debtor_name, ld.loan_number, ld.loan_mount, ld.currency
+        select c.*, ld.debtor_name, ld.loan_number, ld.loan_mount, ld.currency, bo.branch_office_id
         from contract c
         inner join loan_data ld on (ld.loan_data_id = c.loan_data_id)
+        inner join branch_office bo on (ld.branch_office_id = bo.branch_office_id)
         order by c.date_contract
+    </select>
 
+    <select id="findAllContractByBranch" resultMap="ContractResult">
+        select c.*, ld.debtor_name, ld.loan_number, ld.loan_mount, ld.currency, bo.branch_office_id
+        from contract c
+        inner join loan_data ld on (ld.loan_data_id = c.loan_data_id)
+        inner join branch_office bo on (ld.branch_office_id = bo.branch_office_id)
+        where ld.branch_office_id in
+        <foreach item="item" index="index" collection="branchOfficeList"
+                 open="(" separator="," close=")">
+            #{item}
+        </foreach>
+        order by c.date_contract
     </select>
 
     <select id="findContractByLoanNumber" resultMap="ContractResult" parameterType="int">

@@ -61,4 +61,26 @@ public class Util {
         return day.toString()+'-'+monthString+'-'+year.toString();
     }
 
+    public boolean isInteger(String number){
+        boolean result;
+        try {
+            Integer.parseInt(number);
+            result = true;
+        }catch (Exception e){
+            result = false;
+        }
+        return result;
+    }
+
+    public boolean isNumber(String number){
+        boolean result;
+        try {
+            Double.parseDouble(number);
+            result = true;
+        }catch (Exception e){
+            result = false;
+        }
+        return result;
+    }
+
 }

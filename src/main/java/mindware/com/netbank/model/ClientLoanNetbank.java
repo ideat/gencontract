@@ -19,6 +19,51 @@ public class ClientLoanNetbank {
     private Integer prmpragen;
     private Date prmprfreg;
     private Double prtsasprd;
+    private Integer prmprlncr;
+    private Double lcmlcsprd;
+    private Double lcmlctasa;
+    private Integer lcmlcplzo;
+    private Double lcmlcmapr;
+
+    public Double getLcmlcmapr() {
+        return lcmlcmapr;
+    }
+
+    public void setLcmlcmapr(Double lcmlcmapr) {
+        this.lcmlcmapr = lcmlcmapr;
+    }
+
+    public Integer getPrmprlncr() {
+        return prmprlncr;
+    }
+
+    public void setPrmprlncr(Integer prmprlncr) {
+        this.prmprlncr = prmprlncr;
+    }
+
+    public Double getLcmlcsprd() {
+        return lcmlcsprd;
+    }
+
+    public void setLcmlcsprd(Double lcmlcsprd) {
+        this.lcmlcsprd = lcmlcsprd;
+    }
+
+    public Double getLcmlctasa() {
+        return lcmlctasa;
+    }
+
+    public void setLcmlctasa(Double lcmlctasa) {
+        this.lcmlctasa = lcmlctasa;
+    }
+
+    public Integer getLcmlcplzo() {
+        return lcmlcplzo;
+    }
+
+    public void setLcmlcplzo(Integer lcmlcplzo) {
+        this.lcmlcplzo = lcmlcplzo;
+    }
 
     public Double getPrtsasprd() {
         return prtsasprd;

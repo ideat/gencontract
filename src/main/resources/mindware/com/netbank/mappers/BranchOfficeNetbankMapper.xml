@@ -16,15 +16,16 @@
 
 
     <select id="findAllBranchOfficeNetbank" resultMap="BranchOfficeNetBankResult" >
-        SELECT gbofi.gbofinofi	--Codigo Agencia
-        , gbofi.gbofidesc		--Nombre Agencia
-        , gbofi.gbofimcen		--Es Central?
-        , gbdpt.gbdptdesc	 	--Departamento
-        , gbprv.gbprvdesc	 	--Provincia
-        , gbofi.gbofidire       --Direccion
+        SELECT gbofi.gbofinofi  --Codigo Agencia
+        , gbofi.gbofidesc                    --Nombre Agencia
+        , gbofi.gbofimcen                  --Es Central?
+        , gbdpt.gbdptdesc                 --Departamento
+        , gbprv.gbprvdesc                 --Provincia
+        , adagndire as gbofidire       --Direccion
         FROM gbofi
         LEFT JOIN gbdpt ON gbofi.gbofidpto = gbdpt.gbdptdpto
         LEFT JOIN gbprv ON gbofi.gboficprv = gbprv.gbprvcprv
+        LEFT JOIN adagn ON  adagnagen=gbofinofi
 
     </select>
 

@@ -6,8 +6,11 @@ import com.vaadin.server.*;
 import com.vaadin.ui.*;
 import com.vaadin.ui.renderers.DateRenderer;
 import com.vaadin.ui.themes.ValoTheme;
+import mindware.com.MyUI;
+import mindware.com.model.BranchUser;
 import mindware.com.model.Contract;
 import mindware.com.model.ListContractLoan;
+import mindware.com.service.BranchUserService;
 import mindware.com.service.ContractService;
 import mindware.com.utilities.Util;
 import org.apache.commons.io.FilenameUtils;
@@ -28,17 +31,53 @@ public class ListContractsForm extends CustomComponent implements View {
     private GridLayout gridMainLayout;
     private Grid<ListContractLoan> gridListContract;
     private Panel panelListContract;
-    private Button btnUploadContract;
+    private Button btnListContract;
     private GridCellFilter<Contract> filter;
     private String fileContract;
     private Upload uploadContract;
     private String fileNameContract="";
 
-    public ListContractsForm(){
 
+    public ListContractsForm(){
+        Integer rolViewContract = ((MyUI) UI.getCurrent()).rolViewContractId2;
         setCompositionRoot(buildGridMainLayout());
 
-        gridListContract.setItems(getListContract());
+        postBuild(rolViewContract);
+        if (gridListContract.getHeaderRowCount()>1)
+            gridListContract.removeAllColumns();
+
+    }
+
+    private void postBuild(Integer rolViewContract){
+        btnListContract.addClickListener(clickEvent -> {
+            loadGridContract(rolViewContract);
+            fillGridListContract(gridListContract);
+
+        });
+
+        gridListContract.addItemClickListener( itemClick -> {
+            fileContract = itemClick.getItem().getFileNameContract();
+            File file = new File(fileContract);
+            fileNameContract = file.getName();
+            if (!file.exists()){
+                Notification.show("Contrato",
+                        "No existe el contrato generado",
+                        Notification.Type.ERROR_MESSAGE);
+//               uploadContract.setEnabled(false);
+                uploadContract.setEnabled(true);
+            }else {
+                uploadContract.setEnabled(true);
+            }
+
+        });
+
+    }
+
+
+    private void loadGridContract(Integer rolViewContract) {
+
+
+        gridListContract.setItems(getListContract(rolViewContract));
         gridListContract.addComponentColumn(listContract ->{
             Button button = new Button();
             button.setIcon(VaadinIcons.DOWNLOAD);
@@ -72,38 +111,12 @@ public class ListContractsForm extends CustomComponent implements View {
             return button;
 
         });
-        postBuild(gridListContract);
     }
 
-    private void postBuild(final Grid grid){
-        fillGridListContract(grid);
-//        btnUploadContract.addClickListener(clickEvent -> {
-////            FileResource res = new FileResource(new File(fileContract));
-////            res.setCacheTime(0);
-////            FileDownloader fd = new FileDownloader(res);
-////            fd.extend(btnUploadContract);
-//
-//        });
-
-        gridListContract.addItemClickListener( itemClick -> {
-           fileContract = itemClick.getItem().getFileNameContract();
-           File file = new File(fileContract);
-           fileNameContract = file.getName();
-           if (!file.exists()){
-               Notification.show("Contrato",
-                       "No existe el contrato generado",
-                       Notification.Type.ERROR_MESSAGE);
-//               uploadContract.setEnabled(false);
-               uploadContract.setEnabled(true);
-           }else {
-               uploadContract.setEnabled(true);
-           }
-
-        });
-
-    }
 
     private void fillGridListContract(final Grid grid){
+        if(grid.getHeaderRowCount()>1)
+            grid.removeHeaderRow(1);
 
         grid.getColumn("description").setHidden(true);
         grid.getColumn("fileNameContract").setHidden(true);
@@ -129,9 +142,14 @@ public class ListContractsForm extends CustomComponent implements View {
 
     }
 
-    private List<ListContractLoan> getListContract(){
+    private List<ListContractLoan> getListContract(Integer rolViewContract){
         ContractService contractService = new ContractService();
-        List<Contract> contractList = contractService.findAllContract();
+        List<Integer> branchOfficeId = getBranchOffice(rolViewContract);
+
+        List<Contract> contractList = new ArrayList<>();
+        if(!branchOfficeId.isEmpty())
+             contractList = contractService.findAllContractByBranch(branchOfficeId);
+
         List<ListContractLoan> listContractLoans = new ArrayList<>();
         Util util = new Util();
         for (Contract contract:contractList){
@@ -150,6 +168,16 @@ public class ListContractsForm extends CustomComponent implements View {
         }
 
         return listContractLoans;
+    }
+
+    private List<Integer> getBranchOffice(Integer rolViewContract) {
+        BranchUserService branchUserService = new BranchUserService();
+        List<BranchUser> branchUserList = branchUserService.findBranchUserByRolViewerId(rolViewContract);
+        List<Integer> branchOfficeId = new ArrayList<>();
+        for(BranchUser branchUser: branchUserList){
+            branchOfficeId.add(branchUser.getBranchOfficeId());
+        }
+        return branchOfficeId;
     }
 
     private GridLayout buildGridMainLayout(){
@@ -217,6 +245,11 @@ public class ListContractsForm extends CustomComponent implements View {
         gridMainLayout.addComponent(uploadContract,0,0);
         gridMainLayout.setComponentAlignment(uploadContract,Alignment.BOTTOM_RIGHT);
 
+        btnListContract = new Button("Listar contratos");
+        btnListContract.setStyleName(ValoTheme.BUTTON_PRIMARY);
+        btnListContract.setIcon(VaadinIcons.LIST);
+        gridMainLayout.addComponent(btnListContract,0,1);
+
         panelListContract = new Panel("<font size=3 color=#163759> Contratos generados <font>");
         panelListContract.setCaptionAsHtml(true);
         panelListContract.setStyleName(ValoTheme.PANEL_WELL);
@@ -227,7 +260,8 @@ public class ListContractsForm extends CustomComponent implements View {
         gridListContract.setWidth("100%");
         panelListContract.setContent(gridListContract);
 
-        gridMainLayout.addComponent(panelListContract,0,1,6,4);
+
+        gridMainLayout.addComponent(panelListContract,0,2,6,4);
 
         return gridMainLayout;
     }

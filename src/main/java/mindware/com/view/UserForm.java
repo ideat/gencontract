@@ -5,9 +5,11 @@ import com.vaadin.ui.*;
 import com.vaadin.navigator.View;
 import com.vaadin.ui.themes.ValoTheme;
 import mindware.com.model.Rol;
+import mindware.com.model.RolViewContract;
 import mindware.com.model.User;
 import mindware.com.security.Encript;
 import mindware.com.service.RolService;
+import mindware.com.service.RolViewContractService;
 import mindware.com.service.UserService;
 import org.apache.poi.hssf.record.UserSViewEnd;
 
@@ -27,11 +29,13 @@ public class UserForm extends CustomComponent implements View{
     private RadioButtonGroup btnGroupStateUser;
     private ComboBox<Rol> cmbRol;
     private CheckBox chkResetPassword;
+    private ComboBox<RolViewContract> cmbRolViewContract;
 
     public UserForm(){
         setCompositionRoot(buildGridMainLayout());
         fillRol();
         fillGridUser();
+        fillRolViewContract();
         postBuild();
     }
 
@@ -48,9 +52,7 @@ public class UserForm extends CustomComponent implements View{
         });
 
         cmbRol.addValueChangeListener(valueChangeEvent -> {
-            Notification.show("ROL",
-                    "Rol value" + valueChangeEvent.getValue().getRolId().toString(),
-                    Notification.Type.HUMANIZED_MESSAGE);
+
             txtLogin.focus();
         });
 
@@ -62,6 +64,7 @@ public class UserForm extends CustomComponent implements View{
            txtPassword.setValue(user.getPassword());
            btnGroupStateUser.setValue(user.getState());
            cmbRol.setValue(user.getRol());
+           cmbRolViewContract.setValue(user.getRolViewContract());
            txtPassword.setEnabled(false);
            txtLogin.setEnabled(false);
         });
@@ -125,6 +128,7 @@ public class UserForm extends CustomComponent implements View{
         user.setLogin(txtLogin.getValue());
         user.setRolId(cmbRol.getValue().getRolId());
         user.setState(btnGroupStateUser.getValue().toString());
+        user.setRolViewContractId(cmbRolViewContract.getValue().getRolViewContractId());
         if (txtUserId.isEmpty())
             user.setPassword(encript.encriptString(txtPassword.getValue()));
         else {
@@ -147,6 +151,8 @@ public class UserForm extends CustomComponent implements View{
         chkResetPassword.clear();
         txtPassword.setEnabled(true);
         txtLogin.setEnabled(true);
+        cmbRol.clear();
+        cmbRolViewContract.clear();
     }
 
     private void fillGridUser(){
@@ -160,6 +166,8 @@ public class UserForm extends CustomComponent implements View{
         gridUser.addColumn(User::getPassword).setCaption("Password").setHidden(true);
         gridUser.addColumn(User::getState).setCaption("Estado");
         gridUser.addColumn(User::getRol).setCaption("Rol").setHidden(true);
+        gridUser.addColumn(User::getRolViewContract).setCaption("Ambito contrato").setHidden(true);
+
     }
 
     private void fillRol(){
@@ -169,12 +177,20 @@ public class UserForm extends CustomComponent implements View{
         cmbRol.setItemCaptionGenerator(Rol::getRolName);
     }
 
+    private void fillRolViewContract(){
+        RolViewContractService rolViewContractService = new RolViewContractService();
+        List<RolViewContract> rolViewContractList = rolViewContractService.findAllRolViewContract();
+        cmbRolViewContract.setItems(rolViewContractList);
+        cmbRolViewContract.setItemCaptionGenerator(RolViewContract::getRolViewContractName);
+    }
+
     private boolean validateData(){
         if (txtNameUser.isEmpty()) return false;
         if (txtLogin.isEmpty()) return false;
         if (txtPassword.isEmpty()) return false;
         if (cmbRol.isEmpty()) return false;
         if (btnGroupStateUser.isEmpty()) return false;
+        if (cmbRolViewContract.isEmpty()) return false;
         return true;
     }
 
@@ -216,7 +232,7 @@ public class UserForm extends CustomComponent implements View{
 
         cmbRol = new ComboBox<>("Rol usuario:");
         cmbRol.setStyleName(ValoTheme.COMBOBOX_TINY);
-        cmbRol.setEmptySelectionAllowed(true);
+        cmbRol.setEmptySelectionAllowed(false);
         cmbRol.setRequiredIndicatorVisible(true);
         cmbRol.setEmptySelectionCaption("Seleccione Rol");
         gridMainLayout.addComponent(cmbRol,2,1);
@@ -230,6 +246,14 @@ public class UserForm extends CustomComponent implements View{
         chkResetPassword = new CheckBox("Reset password:");
         chkResetPassword.setStyleName(ValoTheme.CHECKBOX_SMALL);
         gridMainLayout.addComponent(chkResetPassword,1,2);
+        gridMainLayout.setComponentAlignment(chkResetPassword,Alignment.MIDDLE_LEFT);
+
+        cmbRolViewContract = new ComboBox<>("Ambito contratos:");
+        cmbRolViewContract.setStyleName(ValoTheme.COMBOBOX_TINY);
+        cmbRolViewContract.setEmptySelectionAllowed(false);
+        cmbRolViewContract.setRequiredIndicatorVisible(true);
+        cmbRolViewContract.setWidth("100%");
+        gridMainLayout.addComponent(cmbRolViewContract,2,2,3,2);
 
         btnSaveUser = new Button("Guardar");
         btnSaveUser.setStyleName(ValoTheme.BUTTON_PRIMARY);

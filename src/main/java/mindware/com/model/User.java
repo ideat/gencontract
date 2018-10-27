@@ -8,6 +8,24 @@ public class User {
     private String nameUser;
     private String state;
     private Rol rol;
+    private Integer rolViewContractId;
+    private RolViewContract rolViewContract;
+
+    public Integer getRolViewContractId() {
+        return rolViewContractId;
+    }
+
+    public void setRolViewContractId(Integer rolViewContractId) {
+        this.rolViewContractId = rolViewContractId;
+    }
+
+    public RolViewContract getRolViewContract() {
+        return rolViewContract;
+    }
+
+    public void setRolViewContract(RolViewContract rolViewContract) {
+        this.rolViewContract = rolViewContract;
+    }
 
     public Rol getRol() {
         return rol;

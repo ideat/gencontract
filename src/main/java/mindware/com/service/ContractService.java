@@ -29,6 +29,16 @@ public class ContractService {
         }
     }
 
+    public  List<Contract> findAllContractByBranch(List<Integer> branchOfficeList){
+        SqlSession sqlSession = MyBatisSqlSessionFactory.getSqlSession("development");
+        try{
+            ContractMapper contractMapper = sqlSession.getMapper(ContractMapper.class);
+            return contractMapper.findAllContractByBranch(branchOfficeList);
+        }finally {
+            sqlSession.close();
+        }
+    }
+
     public List<Contract> findContractByNameDebtor(String debtorName){
         SqlSession sqlSession = MyBatisSqlSessionFactory.getSqlSession("development");
         try{

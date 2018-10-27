@@ -73,6 +73,8 @@ public class MyUI extends UI implements DetachListener {
     private NotificationCenter notiCenter = null;
     private HybridMenu hybridMenu = null;
 	private LoginForm loginForm = null;
+	private ListContractsForm listContractsForm = null;
+	public Integer rolViewContractId2;
     @Override
     protected void init(VaadinRequest request) {
     	UI.getCurrent().setPollInterval(5000);
@@ -85,7 +87,9 @@ public class MyUI extends UI implements DetachListener {
         }
 
 //		callMenu();
+
     }
+
 
     private void createFolders() throws IOException {
 
@@ -102,10 +106,10 @@ public class MyUI extends UI implements DetachListener {
         }
     }
 
-	public void callMenu(String login, Integer userId, Integer rolId) {
+	public void callMenu(String login, Integer userId, Integer rolId, Integer rolViewContractId) {
 		MenuConfig menuConfig = new MenuConfig();
 		menuConfig.setDesignItem(DesignItem.getDarkDesign());
-
+        rolViewContractId2 = rolViewContractId;
 		notiCenter = new NotificationCenter(5000);
 
 		hybridMenu = HybridMenuBuilder.get()
@@ -125,6 +129,7 @@ public class MyUI extends UI implements DetachListener {
 		UI.getCurrent().getNavigator().addView(VariablesContractsForm.class.getSimpleName(), VariablesContractsForm.class);
         UI.getCurrent().getNavigator().addView(CustomVariableForm.class.getSimpleName(), CustomVariableForm.class);
 		UI.getCurrent().getNavigator().addView(RolForm.class.getSimpleName(), RolForm.class);
+		UI.getCurrent().getNavigator().addView(RolViewContractForm.class.getSimpleName(),RolViewContractForm.class);
 		UI.getCurrent().getNavigator().addView(GenerateContractsForm.class.getSimpleName(), GenerateContractsForm.class);
 		UI.getCurrent().getNavigator().addView(ParametersForm.class.getSimpleName(), ParametersForm.class);
 //    	UI.getCurrent().getNavigator().addView(ThemeBuilderPage.class.getSimpleName(), ThemeBuilderPage.class);
@@ -133,10 +138,10 @@ public class MyUI extends UI implements DetachListener {
 
 
 		if(hybridMenu.getMenuComponents().equals(EMenuComponents.ONLY_LEFT))
-    	buildLeftMenu(hybridMenu,rolId);
+    	buildLeftMenu(hybridMenu,rolId,rolViewContractId);
 		else
 			if(hybridMenu.getMenuComponents().equals(EMenuComponents.LEFT_WITH_TOP)) {
-				buildLeftMenu(hybridMenu, rolId);
+				buildLeftMenu(hybridMenu, rolId, rolViewContractId);
 				buildTopOnlyMenu(hybridMenu,userId);
 			}else
 				buildTopOnlyMenu(hybridMenu,userId);
@@ -201,13 +206,14 @@ public class MyUI extends UI implements DetachListener {
 		notiCenter.setNotificationButton(notiButton);
 
 		TopMenuLabel label = TopMenuLabelBuilder.get()
-				.setCaption("<b>Generador contratos</b>")
+				.setCaption("<b>Generador contratos</b>" + "<font size=1 color=white> Ver. 1.4<font>")
 				.setIcon(new ThemeResource("images/Logo.png"))
+                .setAlignment(Alignment.TOP_LEFT)
 				.build(hybridMenu);
 
-		label.getComponent().addClickListener(e -> {
-			UI.getCurrent().getNavigator().navigateTo(UserForm.class.getSimpleName());
-		});
+//		label.getComponent().addClickListener(e -> {
+//			UI.getCurrent().getNavigator().navigateTo(UserForm.class.getSimpleName());
+//		});
 
 //		TopMenuButton notiButtonLow = TopMenuButtonBuilder.get()
 //				.setCaption("Add Low noti")
@@ -264,7 +270,7 @@ public class MyUI extends UI implements DetachListener {
 
 
 
-	private void buildLeftMenu(HybridMenu hybridMenu,  Integer rolId) {
+	private void buildLeftMenu(HybridMenu hybridMenu,  Integer rolId, Integer rolViewContractId) {
         RolService rolService = new RolService();
         Rol rol = rolService.findAllRolMenuOptionByRolId(rolId);
         List<MenuOption> menuOptionList = rol.getMenuOption();
@@ -322,6 +328,7 @@ public class MyUI extends UI implements DetachListener {
                         .withIcon(VaadinIcons.FILE_TABLE)
                         .withNavigateTo(ListContractsForm.class)
                         .build());
+
             }
         }
         if (Arrays.asList(listOptions).contains("6")) {
@@ -365,6 +372,15 @@ public class MyUI extends UI implements DetachListener {
                     .withNavigateTo(RolForm.class)
                     .build();
             hybridMenu.addLeftMenuButton(RolButton);
+        }
+
+        if (Arrays.asList(listOptions).contains("13")) {
+            MenuButton RolViewContractButton = LeftMenuButtonBuilder.get()
+                    .withCaption("Alcance listado contratos")
+                    .withIcon(VaadinIcons.EYE)
+                    .withNavigateTo(RolViewContractForm.class)
+                    .build();
+            hybridMenu.addLeftMenuButton(RolViewContractButton);
         }
 //        if (Arrays.asList(listOptions).contains("10")) {
 //            MenuButton ParameterButton = LeftMenuButtonBuilder.get()

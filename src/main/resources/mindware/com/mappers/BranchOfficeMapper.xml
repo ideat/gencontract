@@ -17,8 +17,22 @@
     <select id="findAllBranchOffice" resultMap="BranchOfficeResult">
         select branch_office_id, branch_name, city_name,province_name,signatories,address
         from branch_office
-        order by branch_office_id
+        order by  city_name, branch_office_id
 
+    </select>
+
+    <select id="findBranchOfficeByCity" resultMap="BranchOfficeResult">
+        select branch_office_id, branch_name, city_name,province_name,signatories,address
+        from branch_office
+        where trim(city_name) = #{cityName}
+        order by  branch_office_id
+
+    </select>
+
+    <select id="findAllCity" resultMap="BranchOfficeResult">
+        select distinct city_name
+        from branch_office
+        order by  city_name
     </select>
 
     <select id="findSignatorieByBranchOffice" resultMap="BranchOfficeResult">
@@ -57,6 +71,16 @@
         where branch_office_id = #{branchOfficeId}
     </update>
 
+    <update id="updateAddressBranchOffice" parameterType="branchoffice">
+        update branch_office
+        set
+        address = #{address}
+        where branch_office_id = #{branchOfficeId}
+    </update>
 
+    <delete id="deleteBranchOffice" parameterType="int">
+        delete from branch_office
+        where branch_office_id = #{branchofficeId}
+    </delete>
 
 </mapper>

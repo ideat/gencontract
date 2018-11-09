@@ -5,7 +5,8 @@ import java.util.regex.Pattern;
 public class NumberToLiteral {
     private final String[] UNIT = {"", "un ", "dos ", "tres ", "cuatro ", "cinco ", "seis ", "siete ", "ocho ", "nueve "};
     private final String[] TENS = {"diez ", "once ", "doce ", "trece ", "catorce ", "quince ", "dieciseis ",
-            "diecisiete ", "dieciocho ", "diecinueve", "veinte ", "treinta ", "cuarenta ",
+            "diecisiete ", "dieciocho ", "diecinueve", "veinte ", "veintiuno ", "veintidos ","veintitres ","veinticuatro ",
+            "veinticinco ","veintiseis ", "veintisiete ", "veintiocho ", "veintinueve ", "treinta ", "cuarenta ",
             "cincuenta ", "sesenta ", "setenta ", "ochenta ", "noventa "};
     private final String[] HUNDREDS = {"", "ciento ", "doscientos ", "trecientos ", "cuatrocientos ", "quinientos ", "seiscientos ",
             "setecientos ", "ochocientos ", "novecientos "};
@@ -34,10 +35,27 @@ public class NumberToLiteral {
             //se divide el numero 0000000,00 -> entero y decimal
             String Num[]=null;
 
-            if (typeNumber.equals("float")) {
-                 Num = number.split(",");
-                //de da formato al numero decimal
-                decimalPart = Num[1] + "/100 " + currency;
+            if (typeNumber.equals("float") ) {
+                Num = number.split(",");
+                if (!currency.equals("")) {
+                    if (Integer.parseInt(Num[1]) >= 10) {
+                        decimalPart = Num[1] + "/100 " ;//+ currency;
+                    } else {
+                        if (Num[1].startsWith("0"))
+                            decimalPart = Num[1] + "/100 ";// + currency;
+                        else
+                            decimalPart = Num[1] + "0/100 "; //+ currency;
+                    }
+                }else{
+                    if (Integer.parseInt(Num[1]) >= 10) {
+                        decimalPart = "punto " + getTens(Num[1]);
+                    } else {
+                        if (Num[1].startsWith("0"))
+                            decimalPart = "punto cero " + getTens(Num[1]);
+                        else
+                            decimalPart = "punto " + getTens(Num[1]) ;
+                    }
+                }
             }else{
                 Num = number.split(",");
                 Num[0] = number;
@@ -83,9 +101,12 @@ public class NumberToLiteral {
         } else if (n > 19) {//para 20...99
             String u = getUnits(num);
             if (u.equals("")) { //para 20,30,40,50,60,70,80,90
-                return TENS[Integer.parseInt(num.substring(0, 1)) + 8];
+                return TENS[Integer.parseInt(num.substring(0, 1)) + 17];
             } else {
-                return TENS[Integer.parseInt(num.substring(0, 1)) + 8] + "y " + u;
+                if (n > 20 && n < 30)
+                    return TENS[n-10];
+                else
+                    return TENS[Integer.parseInt(num.substring(0, 1)) + 17] + "y " + u;
             }
         } else {//numeros entre 11 y 19
             return TENS[n - 10];

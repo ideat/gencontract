@@ -20,13 +20,14 @@ public class SignatorieWindowForm extends Window {
     private TextField txtIdentifyCardSignatorie;
     private TextField txtPosition;
     private ComboBox cmbStatus;
-    private TextField txtNroPoder;
-    private TextField txtFechaPoder;
+//    private TextField txtNroPoder;
+//    private TextField txtFechaPoder;
     private TextField txtNroNotaria;
     private TextField txtNombreNotario;
     private TextField txtDistritoJudicial;
     private TextField txtNroTestimonio;
     private TextField txtFechaTestimonio;
+    private ComboBox cmbPriority;
     private Button btnSave;
     private Label lblTitle;
 
@@ -59,14 +60,15 @@ public class SignatorieWindowForm extends Window {
         txtNameSignatorie.setValue(signatories.getNameSignatorie());
         txtIdentifyCardSignatorie.setValue(signatories.getIdentifyCardSignatorie());
         cmbStatus.setValue(signatories.getStatus());
-        txtNroPoder.setValue(signatories.getNroPoder());
-        txtFechaPoder.setValue(signatories.getFechaPoder());
+//        txtNroPoder.setValue(signatories.getNroPoder());
+//        txtFechaPoder.setValue(signatories.getFechaPoder());
         txtNroNotaria.setValue(signatories.getNroNotaria());
         txtNombreNotario.setValue(signatories.getNombreNotario());
         txtDistritoJudicial.setValue(signatories.getDistritoJudicial());
         txtNroTestimonio.setValue(signatories.getNroTestimonio());
         txtFechaTestimonio.setValue(signatories.getFechaTestimonio());
         txtPosition.setValue(signatories.getPosition());
+        cmbPriority.setValue(signatories.getPriority());
 
     }
 
@@ -79,13 +81,14 @@ public class SignatorieWindowForm extends Window {
             signatorie.setIdentifyCardSignatorie(txtIdentifyCardSignatorie.getValue());
             signatorie.setPosition(txtPosition.getValue());
             signatorie.setStatus(cmbStatus.getValue().toString());
-            signatorie.setNroPoder(txtNroPoder.getValue());
-            signatorie.setFechaPoder(txtFechaPoder.getValue());
+//            signatorie.setNroPoder(txtNroPoder.getValue());
+//            signatorie.setFechaPoder(txtFechaPoder.getValue());
             signatorie.setNroNotaria(txtNroNotaria.getValue());
             signatorie.setNombreNotario(txtNombreNotario.getValue());
             signatorie.setDistritoJudicial(txtDistritoJudicial.getValue());
             signatorie.setNroTestimonio(txtNroTestimonio.getValue());
             signatorie.setFechaTestimonio(txtFechaTestimonio.getValue());
+            signatorie.setPriority(cmbPriority.getValue().toString());
 
             List<Signatories> signatoriesList = new ArrayList<>();
 
@@ -154,14 +157,15 @@ public class SignatorieWindowForm extends Window {
         if (txtIdentifyCardSignatorie.isEmpty()) return false;
         if (txtPosition.isEmpty()) return false;
         if (cmbStatus.isEmpty()) return false;
-        if (txtNroPoder.isEmpty()) return false;
-        if (txtFechaPoder.isEmpty()) return false;
+//        if (txtNroPoder.isEmpty()) return false;
+//        if (txtFechaPoder.isEmpty()) return false;
         if (txtNroNotaria.isEmpty()) return false;
         if (txtNombreNotario.isEmpty()) return false;
         if (txtDistritoJudicial.isEmpty()) return false;
         if (txtNroTestimonio.isEmpty()) return false;
         if (txtNroTestimonio.isEmpty()) return false;
         if (txtFechaTestimonio.isEmpty()) return false;
+        if (cmbPriority.isEmpty()) return false;
         return true;
     }
 
@@ -173,7 +177,7 @@ public class SignatorieWindowForm extends Window {
 
         lblTitle = new Label("Datos firmante");
         lblTitle.setStyleName(ValoTheme.LABEL_COLORED);
-        lblTitle.setStyleName(ValoTheme.LABEL_H2,true);
+        lblTitle.setStyleName(ValoTheme.LABEL_H3,true);
         formLayout.addComponent(lblTitle);
 
         txtSignatorieId = new TextField("ID:");
@@ -203,15 +207,22 @@ public class SignatorieWindowForm extends Window {
         cmbStatus.setEmptySelectionAllowed(false);
         formLayout.addComponent(cmbStatus);
 
-        txtNroPoder = new TextField("Nro Poder:");
-        txtNroPoder.setStyleName(ValoTheme.TEXTFIELD_TINY);
-        txtNroPoder.setRequiredIndicatorVisible(true);
-        formLayout.addComponent(txtNroPoder);
-
-        txtFechaPoder = new TextField("Fecha poder:");
-        txtFechaPoder.setStyleName(ValoTheme.TEXTFIELD_TINY);
-        txtFechaPoder.setRequiredIndicatorVisible(true);
-        formLayout.addComponent(txtFechaPoder);
+        cmbPriority = new ComboBox("Prioridad");
+        cmbPriority.setStyleName(ValoTheme.COMBOBOX_TINY);
+        cmbPriority.setItems("1","2");
+        cmbPriority.setRequiredIndicatorVisible(true);
+        cmbPriority.setEmptySelectionAllowed(false);
+        formLayout.addComponent(cmbPriority);
+//
+//        txtNroPoder = new TextField("Nro Poder:");
+//        txtNroPoder.setStyleName(ValoTheme.TEXTFIELD_TINY);
+//        txtNroPoder.setRequiredIndicatorVisible(true);
+//        formLayout.addComponent(txtNroPoder);
+//
+//        txtFechaPoder = new TextField("Fecha poder:");
+//        txtFechaPoder.setStyleName(ValoTheme.TEXTFIELD_TINY);
+//        txtFechaPoder.setRequiredIndicatorVisible(true);
+//        formLayout.addComponent(txtFechaPoder);
 
         txtNroNotaria = new TextField("Nro Notaria:");
         txtNroNotaria.setStyleName(ValoTheme.TEXTFIELD_TINY);

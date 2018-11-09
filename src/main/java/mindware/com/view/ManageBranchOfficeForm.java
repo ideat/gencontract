@@ -16,6 +16,7 @@ import mindware.com.model.Signatories;
 import mindware.com.netbank.model.BranchOfficeNetbank;
 import mindware.com.netbank.service.BranchOfficeNetbankService;
 import mindware.com.service.BranchOfficeService;
+import org.vaadin.gridutil.cell.GridCellFilter;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -32,13 +33,14 @@ public class ManageBranchOfficeForm extends CustomComponent implements View {
     private Button btnEditSignatorie;
     private Panel panelBranchOffice;
     private Panel panelSignatories;
-
+    private GridCellFilter<BranchOffice> filterBranch;
     private String currentSignatories;
     private Signatories signatorieSelected;
     private Integer branchOfficeIdSelected;
     private BranchOfficeService branchOfficeService;
     private List<Signatories> signatoriesList = new ArrayList<>();
     private ObjectMapper mapper = new ObjectMapper();
+
 
     public ManageBranchOfficeForm(){
 
@@ -127,7 +129,8 @@ public class ManageBranchOfficeForm extends CustomComponent implements View {
                 SignatorieWindowForm signatorieWindowForm = new SignatorieWindowForm(branchOfficeIdSelected, currentSignatories, signatorieSelected, "EDIT");
                 signatorieWindowForm.setModal(true);
                 signatorieWindowForm.setWidth("350px");
-                signatorieWindowForm.setHeight("700px");
+                signatorieWindowForm.setHeight("740px");
+                signatorieWindowForm.setResizable(true);
                 signatorieWindowForm.center();
                 UI.getCurrent().addWindow(signatorieWindowForm);
                 signatorieWindowForm.addCloseListener(closeEvent -> {
@@ -241,12 +244,14 @@ public class ManageBranchOfficeForm extends CustomComponent implements View {
 
 
     private void loadBranchOffice(List<BranchOffice> branchOfficeList){
+        if (gridBranchOffice.getHeaderRowCount()>1)
+            gridBranchOffice.removeHeaderRow(1);
         gridBranchOffice.removeAllColumns();
         gridBranchOffice.setItems(branchOfficeList);
         gridBranchOffice.addColumn(BranchOffice::getBranchOfficeId).setCaption("Cod. Agencia");
-        gridBranchOffice.addColumn(BranchOffice::getBranchName).setCaption("Nombre");
-        gridBranchOffice.addColumn(BranchOffice::getCityName).setCaption("Departamento");
-        gridBranchOffice.addColumn(BranchOffice::getProvinceName).setCaption("Provincia");
+        gridBranchOffice.addColumn(BranchOffice::getBranchName).setCaption("Nombre").setId("branchName");
+        gridBranchOffice.addColumn(BranchOffice::getCityName).setCaption("Departamento").setId("cityName");
+        gridBranchOffice.addColumn(BranchOffice::getProvinceName).setCaption("Provincia").setId("provinceName");
 //        gridBranchOffice.addColumn(BranchOffice::getAddress).setCaption("Direccion");
 
         Binder<BranchOffice> binder = gridBranchOffice.getEditor().getBinder();
@@ -273,6 +278,16 @@ public class ManageBranchOfficeForm extends CustomComponent implements View {
             });
             return button;
         });
+        fillGridFilterBranch(gridBranchOffice);
+    }
+
+    private void fillGridFilterBranch(final Grid grid){
+        this.filterBranch = new GridCellFilter<>(grid);
+
+        this.filterBranch.setTextFilter("branchName", true,false);
+        this.filterBranch.setTextFilter("cityName", true,false);
+        this.filterBranch.setTextFilter("provinceName", true,false);
+
     }
 
     private GridLayout buildMainLayout(){
@@ -315,7 +330,7 @@ public class ManageBranchOfficeForm extends CustomComponent implements View {
         panelBranchOffice.setStyleName(ValoTheme.PANEL_WELL);
         panelBranchOffice.setHeight("215px");
 
-        gridBranchOffice = new Grid();
+        gridBranchOffice = new Grid(BranchOffice.class);
         gridBranchOffice.setStyleName(ValoTheme.TABLE_SMALL);
         gridBranchOffice.getEditor().setEnabled(true);
         gridBranchOffice.getEditor().setSaveCaption("Guardar");

@@ -37,8 +37,19 @@
           case
             when gbageddo2 is null then ''
             else gbageddo2
-          end as gbageddo,
-         gbageeciv, gbagesexo
+          end as gbageddo
+          , case
+            when gbageeciv = 1 then 'SOLTERO/A'
+            when gbageeciv = 2 then 'CASADO/A'
+            when gbageeciv = 3 then 'DIVORCIADO/A'
+            when gbageeciv = 4 then 'VIUDO/A'
+            else 'DESCONOCIDO'
+          end  as gbageeciv
+         , case
+            when gbagesexo = 1 then 'MASCULINO'
+            when gbagesexo = 2 then 'FEMENINO'
+            else 'DESCONOCIDO'
+           end as gbagesexo
         FROM prdeu
         inner join gbage on (prdeucage = gbagecage)
         where prdeunpre = #{prdeunpre}

@@ -68,32 +68,34 @@ public class TemplateContractForm extends CustomComponent implements View {
         });
 
         btnDeleteContract.addClickListener(clickEvent -> {
-            Parameter parameter = new Parameter();
-            parameter.setParameterId(Integer.parseInt(txtContractId.getValue()));
-            parameter.setTypeParameter("contract");
+            if (!txtContractId.getValue().isEmpty()) {
+                Parameter parameter = new Parameter();
+                parameter.setParameterId(Integer.parseInt(txtContractId.getValue()));
+                parameter.setTypeParameter("contract");
 
-            ParameterService parameterService = new ParameterService();
-            parameterService.deleteParameter(parameter);
-            Notification.show("BORRAR",
-                    "Referencia eliminada",
-                    Notification.Type.HUMANIZED_MESSAGE);
-
-            Path paths = Paths.get(System.getProperties().get("user.home").toString());
-            String path = paths.toString()+"/template";
-            File file = new File(path+"/"+txtNameFileContract.getValue());
-            if (file.delete()) {
+                ParameterService parameterService = new ParameterService();
+                parameterService.deleteParameter(parameter);
                 Notification.show("BORRAR",
-                        "Plantilla eliminada",
+                        "Referencia eliminada",
                         Notification.Type.HUMANIZED_MESSAGE);
-            }else {
-                Notification.show("ADVERTENCIA",
-                        "Plantilla no eliminada",
-                        Notification.Type.WARNING_MESSAGE);
-            }
-            fillGridContract(getListParameter());
-            clearData();
 
-            txtNameFileContract.setEnabled(true);
+                Path paths = Paths.get(System.getProperties().get("user.home").toString());
+                String path = paths.toString() + "/template";
+                File file = new File(path + "/" + txtNameFileContract.getValue());
+                if (file.delete()) {
+                    Notification.show("BORRAR",
+                            "Plantilla eliminada",
+                            Notification.Type.HUMANIZED_MESSAGE);
+                } else {
+                    Notification.show("ADVERTENCIA",
+                            "Plantilla no eliminada",
+                            Notification.Type.WARNING_MESSAGE);
+                }
+                fillGridContract(getListParameter());
+                clearData();
+
+                txtNameFileContract.setEnabled(true);
+            }
         });
 
 
@@ -178,36 +180,59 @@ public class TemplateContractForm extends CustomComponent implements View {
             @Override
             public OutputStream receiveUpload(String fileName, String mimetype) {
                 if (!txtNameFileContract.isEmpty() || !txtDescriptionContract.isEmpty()) {
-                    if (!fileName.isEmpty()) {
-                        try {
 
-                            String extension = FilenameUtils.getExtension(fileName);
-                            if (extension.equals("doc") || extension.equals("docx") || extension.equals("odt")) {
-                                fileContract = File.createTempFile(fileName, extension);
-                                Path paths = Paths.get(System.getProperties().get("user.home").toString());
-                                String path = paths.toString()+"/template";
-                                txtNameFileContract.setValue(txtNameFileContract.getValue()+'.'+extension);
-                                fileContract = new File(path, txtNameFileContract.getValue());
+                        if (!fileName.isEmpty()) {
+                            if (txtContractId.getValue().isEmpty()) {
+                                try {
+                                    if (!txtNameFileContract.getValue().contains(".")) {
+                                        String extension = FilenameUtils.getExtension(fileName);
+                                        if (extension.equals("doc") || extension.equals("docx") || extension.equals("odt")) {
+                                            fileContract = File.createTempFile(fileName, extension);
+                                            Path paths = Paths.get(System.getProperties().get("user.home").toString());
+                                            String path = paths.toString() + "/template";
+                                            txtNameFileContract.setValue(txtNameFileContract.getValue() + '.' + extension);
+                                            fileContract = new File(path, txtNameFileContract.getValue());
 
-                                if (fileContract.exists()) {
-                                    Notification.show("ERROR",
-                                            "Existe contrato con ese nombre",
-                                            Notification.Type.ERROR_MESSAGE);
-                                } else {
-                                    insertContract();
-                                    fillGridContract(getListParameter());
-                                    clearData();
-                                    return new FileOutputStream(fileContract);
+                                            if (fileContract.exists()) {
+                                                Notification.show("ERROR",
+                                                        "Existe contrato con ese nombre",
+                                                        Notification.Type.ERROR_MESSAGE);
+                                            } else {
+                                                insertContract();
+                                                fillGridContract(getListParameter());
+                                                clearData();
+                                                return new FileOutputStream(fileContract);
+                                            }
+                                        } else {
+                                            Notification.show("ERROR",
+                                                    "Formato archivo no valido",
+                                                    Notification.Type.ERROR_MESSAGE);
+                                        }
+                                    }else{
+                                        Notification.show("ERROR",
+                                                "El nombre de archivo no debe tener '.' o ',' en su nombre",
+                                                Notification.Type.ERROR_MESSAGE);
+                                        txtNameFileContract.focus();
+                                    }
+                                } catch (IOException e) {
+                                    e.printStackTrace();
                                 }
                             } else {
-                                Notification.show("ERROR",
-                                        "Formato archivo no valido",
-                                        Notification.Type.ERROR_MESSAGE);
+                                try {
+                                    Path paths = Paths.get(System.getProperties().get("user.home").toString());
+                                    String path = paths.toString() + "/template";
+                                    String nameContract = txtNameFileContract.getValue().replace(".", ",");
+                                    String splitFileName[] = nameContract.split(",");
+                                    fileContract = File.createTempFile(splitFileName[0], splitFileName[1]);
+                                    fileContract = new File(path, txtNameFileContract.getValue());
+                                    return new FileOutputStream(fileContract);
+                                } catch (IOException e) {
+                                    Notification.show("ERROR",
+                                            "Al actualizar la plantilla\n" + e,
+                                            Notification.Type.ERROR_MESSAGE);
+                                }
                             }
-                        } catch (IOException e) {
-                            e.printStackTrace();
                         }
-                    }
                 }else{
                     Notification.show("ERROR",
                             "Ingrese el nombre y descripcion del contrato",
@@ -243,6 +268,15 @@ public class TemplateContractForm extends CustomComponent implements View {
                         Notification.Type.ERROR_MESSAGE);
 
 
+            }
+        });
+
+        uploadContract.addSucceededListener(new Upload.SucceededListener() {
+            @Override
+            public void uploadSucceeded(Upload.SucceededEvent event) {
+                Notification.show("CONTRATO",
+                        "Contrado subido",
+                        Notification.Type.HUMANIZED_MESSAGE);
             }
         });
 

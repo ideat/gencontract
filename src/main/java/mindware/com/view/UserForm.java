@@ -12,7 +12,10 @@ import mindware.com.service.RolService;
 import mindware.com.service.RolViewContractService;
 import mindware.com.service.UserService;
 import org.apache.poi.hssf.record.UserSViewEnd;
+import org.vaadin.gridutil.cell.GridCellFilter;
 
+import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.List;
 
 public class UserForm extends CustomComponent implements View{
@@ -30,6 +33,8 @@ public class UserForm extends CustomComponent implements View{
     private ComboBox<Rol> cmbRol;
     private CheckBox chkResetPassword;
     private ComboBox<RolViewContract> cmbRolViewContract;
+    private GridCellFilter<User> filterUser;
+
 
     public UserForm(){
         setCompositionRoot(buildGridMainLayout());
@@ -37,6 +42,7 @@ public class UserForm extends CustomComponent implements View{
         fillGridUser();
         fillRolViewContract();
         postBuild();
+
     }
 
     private void postBuild(){
@@ -156,17 +162,31 @@ public class UserForm extends CustomComponent implements View{
     }
 
     private void fillGridUser(){
+        if (gridUser.getHeaderRowCount()>1)
+            gridUser.removeHeaderRow(1);
         gridUser.removeAllColumns();
         UserService userService = new UserService();
         List<User> userList = userService.findAllUser();
         gridUser.setItems(userList);
         gridUser.addColumn(User::getUserId).setCaption("ID");
-        gridUser.addColumn(User::getNameUser).setCaption("Nombre usuario");
-        gridUser.addColumn(User::getLogin).setCaption("Login");
+        gridUser.addColumn(User::getNameUser).setCaption("Nombre usuario").setId("nameUser");
+        gridUser.addColumn(User::getLogin).setCaption("Login").setId("login");
         gridUser.addColumn(User::getPassword).setCaption("Password").setHidden(true);
-        gridUser.addColumn(User::getState).setCaption("Estado");
+        gridUser.addColumn(User::getState).setCaption("Estado").setId("state");
         gridUser.addColumn(User::getRol).setCaption("Rol").setHidden(true);
         gridUser.addColumn(User::getRolViewContract).setCaption("Ambito contrato").setHidden(true);
+
+        fillGridFilterUser(gridUser);
+    }
+
+    private void fillGridFilterUser(final Grid grid){
+        this.filterUser = new GridCellFilter<>(grid);
+
+        this.filterUser.setTextFilter("nameUser", true,false);
+        this.filterUser.setTextFilter("login", true, false);
+        this.filterUser.setTextFilter("state", true, false);
+//        this.filterUser.setTextFilter("rol", true, false);
+//        this.filterUser.setTextFilter("rolViewContract", true, false);
 
     }
 
@@ -279,7 +299,7 @@ public class UserForm extends CustomComponent implements View{
         panelGridUser.setStyleName(ValoTheme.PANEL_WELL);
         panelGridUser.setWidth("100%");
         panelGridUser.setHeight("200px");
-        gridUser = new Grid<>();
+        gridUser = new Grid<>(User.class);
         gridUser.setStyleName(ValoTheme.TABLE_SMALL);
         gridUser.setWidth("100%");
         panelGridUser.setContent(gridUser);

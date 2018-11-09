@@ -13,9 +13,11 @@ public class Signatories {
     private String distritoJudicial;
     private String nroTestimonio;
     private String fechaTestimonio;
+    private String priority;
 
     public Signatories(int signatorieId, String nameSignatorie, String identifyCardSignatorie, String position, String status
-    , String nroPoder, String fechaPoder, String nombreNotario, String distritoJudicial, String nroTestimonio, String fechaTestimonio){
+    , String nroPoder, String fechaPoder, String nombreNotario, String distritoJudicial, String nroTestimonio, String fechaTestimonio
+    , String priority){
         this.nameSignatorie = nameSignatorie;
         this.identifyCardSignatorie = identifyCardSignatorie;
         this.position = position;
@@ -27,6 +29,7 @@ public class Signatories {
         this.distritoJudicial = distritoJudicial;
         this.nroTestimonio = nroTestimonio;
         this.fechaTestimonio = fechaTestimonio;
+        this.priority = priority;
     }
 
     public Signatories(){}
@@ -125,5 +128,13 @@ public class Signatories {
 
     public void setFechaTestimonio(String fechaTestimonio) {
         this.fechaTestimonio = fechaTestimonio;
+    }
+
+    public String getPriority() {
+        return priority;
+    }
+
+    public void setPriority(String priority) {
+        this.priority = priority;
     }
 }

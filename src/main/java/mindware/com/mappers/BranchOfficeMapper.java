@@ -10,6 +10,7 @@ public interface BranchOfficeMapper {
     List<BranchOffice> findAllBranchOffice();
     List<BranchOffice> findBranchOfficeByCity(@Param("cityName") String cityName);
     List<BranchOffice> findAllCity();
+    BranchOffice findBranchOfficeById(@Param("branchOfficeId") Integer branchId);
     void updateSignatoriesBranchOffice(BranchOffice branchOffice);
     void updateAddressBranchOffice(BranchOffice branchOffice);
     void insertBranchOffice(BranchOffice branchOffice);

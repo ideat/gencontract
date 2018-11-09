@@ -10,6 +10,7 @@ import mindware.com.model.RolViewContract;
 import mindware.com.service.BranchOfficeService;
 import mindware.com.service.BranchUserService;
 import mindware.com.service.RolViewContractService;
+import org.vaadin.gridutil.cell.GridCellFilter;
 
 import java.util.*;
 
@@ -28,6 +29,7 @@ public class RolViewContractForm extends CustomComponent implements View {
     private List<String> listBranch;
     private List<String> listCity;
     private RolViewContract rolViewContract;
+    private GridCellFilter<RolViewContract> filterRolViewContract;
 
     private BranchOfficeService branchOfficeService;
     private RolViewContractService rolViewContractService;
@@ -95,8 +97,8 @@ public class RolViewContractForm extends CustomComponent implements View {
         if (branchUserService.findBranchUserByRolViewerId(rolViewContract.getRolViewContractId()).size()!=0) {
             branchUser1 = branchUserService.findBranchUserByRolViewerId(rolViewContract.getRolViewContractId()).get(0);
 
-            cmbListCity.setValue(branchUser1.getBranchOffice().getCityName().trim());
-
+//            cmbListCity.setValue(branchUser1.getBranchOffice().getCityName().trim());
+            cmbListCity.setValue(branchUser1.getCity().trim());
             List<BranchUser> branchUserList = branchUserService.findBranchUserByRolViewerId(rolViewContract.getRolViewContractId());
             for (BranchUser branchUser : branchUserList) {
                 assignedBranchUser.add(branchUser.getBranchOfficeId().toString() + "-" + branchUser.getBranchOffice().getBranchName());
@@ -135,12 +137,22 @@ public class RolViewContractForm extends CustomComponent implements View {
 
 
     private void fillGridRolViewContract(){
+        if (gridRolViewContractGrid.getHeaderRowCount()>1)
+            gridRolViewContractGrid.removeHeaderRow(1);
         gridRolViewContractGrid.removeAllColumns();
         List<RolViewContract> rolViewContractList = rolViewContractService.findAllRolViewContract();
         gridRolViewContractGrid.setItems(rolViewContractList);
         gridRolViewContractGrid.addColumn(RolViewContract::getRolViewContractId).setCaption("ID");
-        gridRolViewContractGrid.addColumn(RolViewContract::getRolViewContractName).setCaption("Nombre rol");
-        gridRolViewContractGrid.addColumn(RolViewContract::getDescription).setCaption("Descripcion");
+        gridRolViewContractGrid.addColumn(RolViewContract::getRolViewContractName).setCaption("Nombre rol").setId("rolName");
+        gridRolViewContractGrid.addColumn(RolViewContract::getDescription).setCaption("Descripcion").setId("description");
+        fillFilterGridRolViewContract(gridRolViewContractGrid);
+    }
+
+    private void fillFilterGridRolViewContract(final Grid grid){
+        this.filterRolViewContract = new GridCellFilter<>(grid);
+
+        this.filterRolViewContract.setTextFilter("rolName",true,false);
+        this.filterRolViewContract.setTextFilter("description",true,false);
     }
 
     private void updateRolViewContract(){
@@ -225,7 +237,7 @@ public class RolViewContractForm extends CustomComponent implements View {
 
         gridMainLayout.addComponent(buildHorizontalLayout(),0,0,6,0);
 
-        gridRolViewContractGrid = new Grid<>();
+        gridRolViewContractGrid = new Grid<>(RolViewContract.class);
         gridRolViewContractGrid.setStyleName(ValoTheme.TABLE_COMPACT);
         gridRolViewContractGrid.setWidth("100%");
 

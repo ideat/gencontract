@@ -34,6 +34,17 @@ public class BranchOfficeService {
         }
     }
 
+    public BranchOffice findBranchOfficeById(Integer branchId){
+        SqlSession sqlSession = MyBatisSqlSessionFactory.getSqlSession("development");
+        try{
+            BranchOfficeMapper branchOfficeMapper = sqlSession.getMapper(BranchOfficeMapper.class);
+            return branchOfficeMapper.findBranchOfficeById(branchId);
+
+        }finally {
+            sqlSession.close();
+        }
+    }
+
     public void updateSignatoriesBranchOffice(BranchOffice branchOffice){
         SqlSession sqlSession = MyBatisSqlSessionFactory.getSqlSession("development");
         try{

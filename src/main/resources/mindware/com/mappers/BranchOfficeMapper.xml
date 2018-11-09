@@ -35,6 +35,13 @@
         order by  city_name
     </select>
 
+    <select id="findBranchOfficeById" resultMap="BranchOfficeResult">
+        select *
+        from branch_office
+        where branch_office_id = #{branchOfficeId}
+        order by  branch_name
+    </select>
+
     <select id="findSignatorieByBranchOffice" resultMap="BranchOfficeResult">
         select signatories
         from branch_office

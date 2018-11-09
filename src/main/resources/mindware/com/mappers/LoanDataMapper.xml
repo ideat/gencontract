@@ -180,7 +180,6 @@
         warranty = #{warranty}::json,
         extra_data = #{extraData}::json,
         saving_box = #{savingBox},
-        spread = #{spread},
         loan_line = #{loanLine},
         line_spread = #{lineSpread},
         line_rate = #{lineRate},
@@ -204,8 +203,13 @@
           teac_rate = #{teacRate},
           fee_payment =#{feePayment},
           total_payment = #{totalPayment},
-          loan_destination = #{loanDestination}
-
+          loan_destination = #{loanDestination},
+          spread = #{spread},
+          address_debtor = #{addressDebtor},
+          agency = #{agency},
+          civil_status_debtor = #{civilStatusDebtor},
+          loan_term = #{loanTerm},
+          branch_office_id = #{branchOfficeId}
         where loan_data_id = #{loanDataId}
     </update>
 

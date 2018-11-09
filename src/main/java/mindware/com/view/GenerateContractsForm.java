@@ -244,7 +244,9 @@ public class GenerateContractsForm extends CustomComponent implements View {
     private void createContract(String path, String pathGenerate) {
         OutputStream contract = null;
         try {
-            contract = new FileOutputStream(pathGenerate);
+
+           contract = new FileOutputStream(pathGenerate);
+
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
@@ -458,7 +460,7 @@ public class GenerateContractsForm extends CustomComponent implements View {
             if(parameter.getValueParameter().equals("loanMount"))
                 stringMapVariables.put(parameter.getValueParameter(),String.format("%,.2f",  loanData.getLoanMount()));
             if(parameter.getValueParameter().equals("loanTerm")) {
-                Integer plazo = loanData.getLoanTerm()/30;
+                Integer plazo = loanData.getLoanTerm();
                 stringMapVariables.put(parameter.getValueParameter(), plazo.toString());
             }
             if(parameter.getValueParameter().equals("interestRate"))
@@ -583,16 +585,17 @@ public class GenerateContractsForm extends CustomComponent implements View {
         for(Parameter parameter:listVariableContract){
             if (parameter.getValueParameter().equals("literal_monto_prestamo")){
                 stringMapVariables.put(parameter.getValueParameter(),new NumberToLiteral()
-                        .Convert(String.format("%.2f",loanData.getLoanMount()),true,"","float"));
+                        .Convert(String.format("%.2f",loanData.getLoanMount()),true,"N/A","float"));
             }else
             if (parameter.getValueParameter().equals("literal_total_pagar")){
                 stringMapVariables.put(parameter.getValueParameter(),new NumberToLiteral()
-                        .Convert(String.format("%.2f",loanData.getTotalPayment()),true,"","float"));
+                        .Convert(String.format("%.2f",loanData.getTotalPayment()),true,"N/A","float"));
             }else
             if (parameter.getValueParameter().equals("literal_plazo")){
                 Integer plazo = loanData.getLoanTerm();
                 stringMapVariables.put(parameter.getValueParameter(),new NumberToLiteral()
                         .Convert(plazo.toString(),true,"","integer"));
+
             } else
             if (parameter.getValueParameter().equals("literal_interes")){
                 stringMapVariables.put(parameter.getValueParameter(),new NumberToLiteral()
@@ -604,7 +607,7 @@ public class GenerateContractsForm extends CustomComponent implements View {
             }else
             if (parameter.getValueParameter().equals("literal_monto_linea")){
                 stringMapVariables.put(parameter.getValueParameter(),new NumberToLiteral()
-                        .Convert(String.format("%.2f", loanData.getLineMount()),true,"","float"));
+                        .Convert(String.format("%.2f", loanData.getLineMount()),true,"N/A","float"));
             }else
             if (parameter.getValueParameter().equals("literal_plazo_linea")){
                 Integer plazo = loanData.getLineTerm()/30;
@@ -642,30 +645,33 @@ public class GenerateContractsForm extends CustomComponent implements View {
             e.printStackTrace();
         }
         int i=1;
+        signatoriesList.sort(Comparator.comparing(Signatories::getPriority));
         for(Signatories signatories:signatoriesList){
-            map.put("${nameSignatorie}",signatories.getNameSignatorie());
-            map.put("${position}",signatories.getPosition());
-            map.put("${identifyCardSignatorie}",signatories.getIdentifyCardSignatorie());
-            map.put("${nroPoder}",signatories.getNroPoder());
-            map.put("${fechaPoder}",signatories.getFechaPoder());
-            map.put("${nroNotaria}",signatories.getNroNotaria());
-            map.put("${nombreNotario}",signatories.getNombreNotario());
-            map.put("${distritoJudicial}",signatories.getDistritoJudicial());
-            map.put("${nroTestimonio}",signatories.getNroTestimonio());
-            map.put("${fechaTestimonio}",signatories.getFechaTestimonio());
+            if (signatories.getStatus().equals("ACTIVO")) {
+                map.put("${nameSignatorie}", signatories.getNameSignatorie());
+                map.put("${position}", signatories.getPosition());
+                map.put("${identifyCardSignatorie}", signatories.getIdentifyCardSignatorie());
+//                map.put("${nroPoder}", signatories.getNroPoder());
+//                map.put("${fechaPoder}", signatories.getFechaPoder());
+                map.put("${nroNotaria}", signatories.getNroNotaria());
+                map.put("${nombreNotario}", signatories.getNombreNotario());
+                map.put("${distritoJudicial}", signatories.getDistritoJudicial());
+                map.put("${nroTestimonio}", signatories.getNroTestimonio());
+                map.put("${fechaTestimonio}", signatories.getFechaTestimonio());
 
-            parameterList = parameterService.findParameterByTypeAndValue("custom_variable_contract",type+i+"%");
-            for (Parameter parameter:parameterList){
-                origin = parameter.getDescriptionParameter();
-                map.forEach((k, v) -> {
-                    origin = origin.replaceAll(Pattern.quote(k), v);
-                });
-                if (data.containsKey(parameter.getValueParameter()))
-                    data.put(parameter.getValueParameter(),origin);
-                else
-                    data.put(parameter.getValueParameter(),"");
+                parameterList = parameterService.findParameterByTypeAndValue("custom_variable_contract", type + i + "%");
+                for (Parameter parameter : parameterList) {
+                    origin = parameter.getDescriptionParameter();
+                    map.forEach((k, v) -> {
+                        origin = origin.replaceAll(Pattern.quote(k), v);
+                    });
+                    if (data.containsKey(parameter.getValueParameter()))
+                        data.put(parameter.getValueParameter(), origin);
+                    else
+                        data.put(parameter.getValueParameter(), "");
+                }
+                i++;
             }
-            i++;
         }
         return data;
     }

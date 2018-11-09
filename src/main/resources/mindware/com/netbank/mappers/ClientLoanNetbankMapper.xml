@@ -31,7 +31,17 @@
 
 
     <select id="findClientLoanNetbankByCreCod" resultMap="ClientLoanNetbankResult" parameterType="int">
-        select prmprcage, prmpragen, prmprfreg, gbagendid,gbagenomb, gbageeciv, gbagesexo,
+        select prmprcage, prmpragen, prmprfreg, gbagendid,
+        case
+       	when gbdacnomb is null then '' else trim(gbdacnomb)
+       end || ' ' ||
+       case
+          when gbdacape1 is null then '' else trim(gbdacape1)
+      end || ' ' ||
+       case
+          when gbdacape2 is null then '' else trim(gbdacape2)
+      end as gbagenomb,
+        gbageeciv, gbagesexo,
         case
         	when gbagedir1 is null then ''
         	else gbagedir1
@@ -77,14 +87,13 @@
 		   when lcmlcmapr is null then 0
 		   else lcmlcmapr
           end as lcmlcmapr
-        from gbage
-        inner join prmpr on (prmprcage = gbagecage)
+        from gbdac
+        inner join prmpr on (prmprcage = gbdaccage)
+        inner join gbage on (gbdaccage = gbagecage)
         left join prtsa on (prmprnpre = prtsanpre)
         left join lcmlc on (prmprlncr = lcmlcnrlc)
         where prmprnpre = #{prmprnpre}
         and  prtsafvig = (select MAX(prtsafvig) from prtsa where prtsanpre = #{prmprnpre})
-
-
 
     </select>
 

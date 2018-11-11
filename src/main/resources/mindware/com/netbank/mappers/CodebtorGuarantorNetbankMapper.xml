@@ -21,7 +21,20 @@
 
     <select id="findCodeptorByNumberLoan" resultMap="CodeptorGuarantorNetBankResult" >
         SELECT prdeucage, prdeunpre, prdeutres, prdeufpro
-        , gbagenomb, gbagendid,
+        , case
+       	when gbdacnomb is null then '' else trim(gbdacnomb)
+       end || ' ' ||
+       case
+          when gbdacape1 is null then '' else trim(gbdacape1)
+      end || ' ' ||
+       case
+          when gbdacape2 is null then '' else trim(gbdacape2)
+      end || ' ' ||
+       case
+          when gbdacape3 is null then '' else trim(gbdacape3)
+      end   as gbagenomb,
+
+        gbagendid,
         case
         	when	gbagedir1 is null then ''
         	else gbagedir1
@@ -39,10 +52,12 @@
             else gbageddo2
           end as gbageddo
           , case
-            when gbageeciv = 1 then 'SOLTERO/A'
-            when gbageeciv = 2 then 'CASADO/A'
-            when gbageeciv = 3 then 'DIVORCIADO/A'
-            when gbageeciv = 4 then 'VIUDO/A'
+            when gbageeciv = 1 then 'SOLTERO(A)'
+            when gbageeciv = 2 then 'CASADO(A)'
+            when gbageeciv = 3 then 'DIVORCIADO(A)'
+            when gbageeciv = 4 then 'VIUDO(A)'
+            when gbageeciv = 5 then 'UNION LIBRE'
+            when gbageeciv = 6 then 'SEPARADO(A)'
             else 'DESCONOCIDO'
           end  as gbageeciv
          , case
@@ -52,13 +67,26 @@
            end as gbagesexo
         FROM prdeu
         inner join gbage on (prdeucage = gbagecage)
+        inner join gbdac on (gbdaccage = gbagecage)
         where prdeunpre = #{prdeunpre}
         and prdeutres = 1
     </select>
 
     <select id="findGuarantorByNumberLoan" resultMap="CodeptorGuarantorNetBankResult" >
         SELECT prdeucage, prdeunpre, prdeutres, prdeufpro
-        , gbagenomb, gbagendid,
+        , case
+       	when gbdacnomb is null then '' else trim(gbdacnomb)
+       end || ' ' ||
+       case
+          when gbdacape1 is null then '' else trim(gbdacape1)
+      end || ' ' ||
+       case
+          when gbdacape2 is null then '' else trim(gbdacape2)
+      end || ' ' ||
+       case
+          when gbdacape3 is null then '' else trim(gbdacape3)
+      end   as gbagenomb,
+        gbagendid,
         case
         	when	gbagedir1 is null then ''
         	else gbagedir1
@@ -76,10 +104,12 @@
             else gbageddo2
           end as gbageddo
         , case
-            when gbageeciv = 1 then 'SOLTERO/A'
-            when gbageeciv = 2 then 'CASADO/A'
-            when gbageeciv = 3 then 'DIVORCIADO/A'
-            when gbageeciv = 4 then 'VIUDO/A'
+            when gbageeciv = 1 then 'SOLTERO(A)'
+            when gbageeciv = 2 then 'CASADO(A)'
+            when gbageeciv = 3 then 'DIVORCIADO(A)'
+            when gbageeciv = 4 then 'VIUDO(A)'
+            when gbageeciv = 5 then 'UNION LIBRE'
+            when gbageeciv = 6 then 'SEPARADO(A)'
             else 'DESCONOCIDO'
           end  as gbageeciv
          , case
@@ -89,6 +119,7 @@
            end as gbagesexo
         FROM prdeu
         inner join gbage on (prdeucage = gbagecage)
+        inner join gbdac on (gbdaccage = gbagecage)
         where prdeunpre = #{prdeunpre}
         and prdeutres = 2
     </select>

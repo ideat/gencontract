@@ -40,7 +40,10 @@
       end || ' ' ||
        case
           when gbdacape2 is null then '' else trim(gbdacape2)
-      end as gbagenomb,
+      end || ' ' ||
+       case
+          when gbdacape3 is null then '' else trim(gbdacape3)
+      end   as gbagenomb,
         gbageeciv, gbagesexo,
         case
         	when gbagedir1 is null then ''
@@ -51,13 +54,7 @@
           else gbagedir2
         end as gbagedir,
         prmprnpre, prmprcmon, prmprmapt as prmprmdes,
-        case
-          when prmpruplz = 1 then prmprplzo*12
-          when prmpruplz = 2 then prmprplzo/30
-          when prmpruplz = 3 then prmprplzo
-          else prmprplzo
-         end as prmprplzo,
-
+        prmprplzo / 30 AS prmprplzo,
         prmprppgk, prmprdiap
         , case
             when prmprtsex is null then prtsatbas

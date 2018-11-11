@@ -91,7 +91,7 @@ public class ManageBranchOfficeForm extends CustomComponent implements View {
                     for(BranchOffice branchOffice1:branchOfficeListLocal){
                         if (branchOffice.getBranchOfficeId()== branchOffice1.getBranchOfficeId() ) {
                             find = true;
-                            branchOfficeService.updateAddressBranchOffice(branchOffice);
+//                            branchOfficeService.updateAddressBranchOffice(branchOffice);
                         }
                     }
                     if (find==false)
@@ -106,15 +106,22 @@ public class ManageBranchOfficeForm extends CustomComponent implements View {
         });
 
         btnAddSignatories.addClickListener(clickEvent -> {
-           SignatorieWindowForm signatorieWindowForm = new SignatorieWindowForm(branchOfficeIdSelected,currentSignatories,signatorieSelected,"INSERT");
-           signatorieWindowForm.setModal(true);
-           signatorieWindowForm.setWidth("350px");
-           signatorieWindowForm.setHeight("700px");
-           signatorieWindowForm.center();
-           UI.getCurrent().addWindow(signatorieWindowForm);
-           signatorieWindowForm.addCloseListener(closeEvent -> {
-                loadSignatorie(branchOfficeIdSelected);
-           });
+           if (branchOfficeIdSelected!=null) {
+               SignatorieWindowForm signatorieWindowForm = new SignatorieWindowForm(branchOfficeIdSelected, currentSignatories, signatorieSelected, "INSERT");
+               signatorieWindowForm.setModal(true);
+               signatorieWindowForm.setWidth("350px");
+               signatorieWindowForm.setHeight("700px");
+               signatorieWindowForm.center();
+               UI.getCurrent().addWindow(signatorieWindowForm);
+               signatorieWindowForm.addCloseListener(closeEvent -> {
+                   loadSignatorie(branchOfficeIdSelected);
+
+               });
+           }else {
+               Notification.show("Error",
+                        "Seccione una agencia ",
+                        Notification.Type.WARNING_MESSAGE);
+           }
 
         });
 
@@ -122,26 +129,6 @@ public class ManageBranchOfficeForm extends CustomComponent implements View {
             BranchOffice branchOffice =  event.getItem();
             branchOfficeIdSelected = branchOffice.getBranchOfficeId();
             loadSignatorie(branchOfficeIdSelected);
-        });
-
-        btnEditSignatorie.addClickListener(clickEvent -> {
-            if (signatorieSelected!=null) {
-                SignatorieWindowForm signatorieWindowForm = new SignatorieWindowForm(branchOfficeIdSelected, currentSignatories, signatorieSelected, "EDIT");
-                signatorieWindowForm.setModal(true);
-                signatorieWindowForm.setWidth("350px");
-                signatorieWindowForm.setHeight("740px");
-                signatorieWindowForm.setResizable(true);
-                signatorieWindowForm.center();
-                UI.getCurrent().addWindow(signatorieWindowForm);
-                signatorieWindowForm.addCloseListener(closeEvent -> {
-                    loadSignatorie(branchOfficeIdSelected);
-                });
-            }else{
-                Notification.show("Error",
-                        "Seccione un representante legal para editarlo ",
-                        Notification.Type.WARNING_MESSAGE);
-            }
-
         });
 
         gridSignatories.addItemClickListener(event -> {
@@ -232,13 +219,33 @@ public class ManageBranchOfficeForm extends CustomComponent implements View {
        gridSignatories.addColumn(Signatories::getIdentifyCardSignatorie).setCaption("Carnet");
        gridSignatories.addColumn(Signatories::getPosition).setCaption("Cargo");
        gridSignatories.addColumn(Signatories::getStatus).setCaption("Estado");
-        gridSignatories.addColumn(Signatories::getNroPoder).setCaption("Nro Poder");
-        gridSignatories.addColumn(Signatories::getFechaPoder).setCaption("Fecha Poder");
+//        gridSignatories.addColumn(Signatories::getNroPoder).setCaption("Nro Poder");
+//        gridSignatories.addColumn(Signatories::getFechaPoder).setCaption("Fecha Poder");
         gridSignatories.addColumn(Signatories::getNroNotaria).setCaption("Nro Notaria");
         gridSignatories.addColumn(Signatories::getNombreNotario).setCaption("Nombre Notario");
         gridSignatories.addColumn(Signatories::getDistritoJudicial).setCaption("Distrito Judicial");
         gridSignatories.addColumn(Signatories::getNroTestimonio).setCaption("Nro Testimonio");
         gridSignatories.addColumn(Signatories::getFechaTestimonio).setCaption("Fecha Testimonio");
+        gridSignatories.addComponentColumn(signatories -> {
+            Button button = new Button();
+            button.setIcon(VaadinIcons.PENCIL);
+            button.setStyleName(ValoTheme.BUTTON_PRIMARY);
+            button.addClickListener(clickEvent -> {
+
+                SignatorieWindowForm signatorieWindowForm = new SignatorieWindowForm(branchOfficeIdSelected, currentSignatories, signatories, "EDIT");
+                signatorieWindowForm.setModal(true);
+                signatorieWindowForm.setWidth("350px");
+                signatorieWindowForm.setHeight("740px");
+                signatorieWindowForm.setResizable(true);
+                signatorieWindowForm.center();
+                UI.getCurrent().addWindow(signatorieWindowForm);
+                signatorieWindowForm.addCloseListener(closeEvent -> {
+                    loadSignatorie(branchOfficeIdSelected);
+                });
+
+            });
+            return button;
+        });
 
     }
 
@@ -304,19 +311,19 @@ public class ManageBranchOfficeForm extends CustomComponent implements View {
         btnImport.setWidth("120px");
         gridMainLayout.addComponent(btnImport,5,0);
 
-        gridMainLayout.addComponent(buildPanelSiganotories(),0,2,4,3);
-        btnAddSignatories = new Button("Insertar");
+        gridMainLayout.addComponent(buildPanelSiganotories(),0,2,5,3);
+        btnAddSignatories = new Button("Representante Legal");
         btnAddSignatories.setStyleName(ValoTheme.BUTTON_PRIMARY);
         btnAddSignatories.setIcon(VaadinIcons.PLUS);
-        btnAddSignatories.setWidth("120px");
-        gridMainLayout.addComponent(btnAddSignatories,5,2);
+//        btnAddSignatories.setWidth("120px");
+        gridMainLayout.addComponent(btnAddSignatories,5,1);
 
-        btnEditSignatorie = new Button("Editar");
-        btnEditSignatorie.setStyleName(ValoTheme.BUTTON_FRIENDLY);
-        btnEditSignatorie.setIcon(VaadinIcons.PENCIL);
-        btnEditSignatorie.setWidth("120px");
-        gridMainLayout.addComponent(btnEditSignatorie,5,3);
-        gridMainLayout.setComponentAlignment(btnEditSignatorie,Alignment.TOP_LEFT);
+//        btnEditSignatorie = new Button("Editar");
+//        btnEditSignatorie.setStyleName(ValoTheme.BUTTON_FRIENDLY);
+//        btnEditSignatorie.setIcon(VaadinIcons.PENCIL);
+//        btnEditSignatorie.setWidth("120px");
+//        gridMainLayout.addComponent(btnEditSignatorie,5,4);
+//        gridMainLayout.setComponentAlignment(btnEditSignatorie,Alignment.TOP_LEFT);
 
 
         return gridMainLayout;
@@ -347,7 +354,7 @@ public class ManageBranchOfficeForm extends CustomComponent implements View {
         panelSignatories = new Panel("<font size=3 color=#163759> Firmantes por la Agencia <font>");
         panelSignatories.setCaptionAsHtml(true);
         panelSignatories.setStyleName(ValoTheme.PANEL_WELL);
-        panelSignatories.setHeight("170px");
+        panelSignatories.setHeight("280px");
 
         gridSignatories = new Grid();
         gridSignatories.setStyleName(ValoTheme.TABLE_SMALL);

@@ -22,6 +22,7 @@ import mindware.com.netbank.service.WarrantyNetBankService;
 import mindware.com.service.BranchOfficeService;
 import mindware.com.service.LoanDataService;
 import mindware.com.utilities.Util;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.IOException;
 import java.time.LocalDate;
@@ -34,7 +35,7 @@ import java.util.List;
 public class ImportDataForm extends CustomComponent implements View {
     private Button btnSearch;
     private Button btnImport;
-    private Button btnUpdate;
+//    private Button btnUpdate;
 
     private TextField txtLoanNumberSearch;
     private TextField txtLoanNumber;
@@ -114,11 +115,11 @@ public class ImportDataForm extends CustomComponent implements View {
                                 clientLoanNetbank = clientLoanNetBankService.findClientNetbankById(Integer.parseInt(txtLoanNumberSearch.getValue().toString()));
                                 dataFromNetBank();
                                 loanDataId = loanData.getLoanDataId();
-                                btnImport.setEnabled(true);
+//                                btnImport.setEnabled(true);
                             })
                             .withNoButton( ()->{
                                 loadLoanDataLocal(loanData);
-                                btnImport.setEnabled(false);
+//                                btnImport.setEnabled(false);
 
                             })
                             .open();
@@ -150,127 +151,136 @@ public class ImportDataForm extends CustomComponent implements View {
 
         btnImport.addClickListener(clickEvent -> {
             LoanDataService loanDataService = new LoanDataService();
-//            if (loanDataService.findLoanDataByLoanNumber(Integer.parseInt(txttxtLoanNumberSearchLoanNumberSearch.getValue()))==null ) {
-                if (validateLoanData()) {
-                    if (validateDataType().equals("OK")) {
-                        Util util = new Util();
-                        LoanData loanData = new LoanData();
-                        loanData.setDebtorName(txtDebtorName.getValue().toString().trim());
-                        loanData.setIdentityCardDebtor(txtIdentifyCardDebtor.getValue());
-                        loanData.setClientLoanId(Integer.parseInt(txtClientLoanId.getValue().toString().trim()));
-                        loanData.setAddressDebtor(txtAddressDebtor.getValue().toString().trim());
-                        loanData.setCivilStatusDebtor(txtCivilStatusDebtor.getValue().trim());
-                        loanData.setGenderDebtor(txtGenderDebtor.getValue().trim());
-                        loanData.setLoanNumber(Integer.parseInt(txtLoanNumber.getValue()));
-                        loanData.setCurrency(txtCurrency.getValue().trim());
-                        loanData.setLoanMount(Double.parseDouble(txtLoanMount.getValue().trim()));
-                        loanData.setLoanTerm(Integer.parseInt(txtLoanTerm.getValue().trim()));
-                        loanData.setInterestRate(Double.parseDouble(txtInterestRate.getValue().trim()));
-                        loanData.setCreditLifeInsurance(Double.parseDouble(txtCreditLifeInsurance.getValue().trim()));
-                        loanData.setFixedPaymentDay(Integer.parseInt(txtFixedPaymentDay.getValue().trim()));
-                        loanData.setPaymentFrecuency(txtPaymentFrecuency.getValue().trim());
-                        loanData.setBranchOfficeId(cmbAgency.getValue().getBranchOfficeId());
-                        loanData.setOfficial(txtOfficial.getValue().trim());
-                        loanData.setAgency(String.valueOf(cmbAgency.getValue().getBranchOfficeId()));
 
-                        loanData.setTeacRate(Double.parseDouble(txtTeacRate.getValue().toString().trim()));
-                        loanData.setTreRate(Double.parseDouble(txtTreRate.getValue().toString().trim()));
-                        loanData.setFeePayment(Double.parseDouble(txtFeePayment.getValue().toString().trim()));
-                        loanData.setLoanDestination(txtLoanDestination.getValue().toString().trim());
-                        loanData.setLoanDate(util.stringToDate(dateLoanDate.getValue().toString(), "yyyy-MM-dd"));
-                        loanData.setTotalPayment(Double.parseDouble(txtTotalPayment.getValue().toString().trim()));
-                        loanData.setSavingBox(txtSavingBox.getValue());
-                        loanData.setSpread(Double.parseDouble(txtSpread.getValue()));
-                        loanData.setLoanLine(Integer.parseInt(txtLoanLine.getValue()));
-                        loanData.setLineRate(Double.parseDouble(txtLineRate.getValue()));
-                        loanData.setLineSpread(Double.parseDouble(txtLineSpread.getValue()));
-                        loanData.setLineMount(Double.parseDouble(txtLineMount.getValue()));
-                        loanData.setLineTerm(Integer.parseInt(txtLineTerm.getValue()));
+            if (StringUtils.isNumeric(txtLoanNumberSearch.getValue())) {
+                LoanData result = loanDataService.findLoanDataByLoanNumber(Integer.parseInt(txtLoanNumberSearch.getValue()));
+                if (result == null) {
+                    if (validateLoanData()) {
+                        if (validateDataType().equals("OK")) {
+                            Util util = new Util();
+                            LoanData loanData = new LoanData();
+                            loanData.setDebtorName(txtDebtorName.getValue().toString().trim());
+                            loanData.setIdentityCardDebtor(txtIdentifyCardDebtor.getValue());
+                            loanData.setClientLoanId(Integer.parseInt(txtClientLoanId.getValue().toString().trim()));
+                            loanData.setAddressDebtor(txtAddressDebtor.getValue().toString().trim());
+                            loanData.setCivilStatusDebtor(txtCivilStatusDebtor.getValue().trim());
+                            loanData.setGenderDebtor(txtGenderDebtor.getValue().trim());
+                            loanData.setLoanNumber(Integer.parseInt(txtLoanNumber.getValue()));
+                            loanData.setCurrency(txtCurrency.getValue().trim());
+                            loanData.setLoanMount(Double.parseDouble(txtLoanMount.getValue().trim()));
+                            loanData.setLoanTerm(Integer.parseInt(txtLoanTerm.getValue().trim()));
+                            loanData.setInterestRate(Double.parseDouble(txtInterestRate.getValue().trim()));
+                            loanData.setCreditLifeInsurance(Double.parseDouble(txtCreditLifeInsurance.getValue().trim()));
+                            loanData.setFixedPaymentDay(Integer.parseInt(txtFixedPaymentDay.getValue().trim()));
+                            loanData.setPaymentFrecuency(txtPaymentFrecuency.getValue().trim());
+                            loanData.setBranchOfficeId(cmbAgency.getValue().getBranchOfficeId());
+                            loanData.setOfficial(txtOfficial.getValue().trim());
+                            loanData.setAgency(String.valueOf(cmbAgency.getValue().getBranchOfficeId()));
 
-                        ObjectMapper mapper = new ObjectMapper();
-                        String jsonCodebtor = null;
+                            loanData.setTeacRate(Double.parseDouble(txtTeacRate.getValue().toString().trim()));
+                            loanData.setTreRate(Double.parseDouble(txtTreRate.getValue().toString().trim()));
+                            loanData.setFeePayment(Double.parseDouble(txtFeePayment.getValue().toString().trim()));
+                            loanData.setLoanDestination(txtLoanDestination.getValue().toString().trim());
+                            loanData.setLoanDate(util.stringToDate(dateLoanDate.getValue().toString(), "yyyy-MM-dd"));
+                            loanData.setTotalPayment(Double.parseDouble(txtTotalPayment.getValue().toString().trim()));
+                            loanData.setSavingBox(txtSavingBox.getValue());
+                            loanData.setSpread(Double.parseDouble(txtSpread.getValue()));
+                            loanData.setLoanLine(Integer.parseInt(txtLoanLine.getValue()));
+                            loanData.setLineRate(Double.parseDouble(txtLineRate.getValue()));
+                            loanData.setLineSpread(Double.parseDouble(txtLineSpread.getValue()));
+                            loanData.setLineMount(Double.parseDouble(txtLineMount.getValue()));
+                            loanData.setLineTerm(Integer.parseInt(txtLineTerm.getValue()));
 
-                        try {
-                            jsonCodebtor = mapper.writeValueAsString(getCoDebtorsGuarantors("codebtor", codebtorNetbankList));
-                        } catch (JsonProcessingException e) {
-                            e.printStackTrace();
-                        }
+                            ObjectMapper mapper = new ObjectMapper();
+                            String jsonCodebtor = null;
 
-                        String jsonGuarantor = null;
-                        try {
-                            jsonGuarantor = mapper.writeValueAsString(getCoDebtorsGuarantors("guarantor", guarantorNetbankList));
-                        } catch (JsonProcessingException e) {
-                            e.printStackTrace();
-                        }
+                            try {
+                                jsonCodebtor = mapper.writeValueAsString(getCoDebtorsGuarantors("codebtor", codebtorNetbankList));
+                            } catch (JsonProcessingException e) {
+                                e.printStackTrace();
+                            }
 
-                        String jsonWarranty = null;
-                        try {
-                            jsonWarranty = mapper.writeValueAsString(getWarranty(warrantyNetbankList));
-                        } catch (JsonProcessingException e) {
-                            e.printStackTrace();
-                        }
+                            String jsonGuarantor = null;
+                            try {
+                                jsonGuarantor = mapper.writeValueAsString(getCoDebtorsGuarantors("guarantor", guarantorNetbankList));
+                            } catch (JsonProcessingException e) {
+                                e.printStackTrace();
+                            }
 
-                        loanData.setGuarantors(jsonGuarantor);
-                        loanData.setCoDebtors(jsonCodebtor);
-                        loanData.setWarranty(jsonWarranty);
+                            String jsonWarranty = null;
+                            try {
+                                jsonWarranty = mapper.writeValueAsString(getWarranty(warrantyNetbankList));
+                            } catch (JsonProcessingException e) {
+                                e.printStackTrace();
+                            }
 
-                        if (loanDataService.findLoanDataByLoanNumber(Integer.parseInt(txtLoanNumberSearch.getValue())) == null) {
-                            loanDataService.insertLoanData(loanData);
-                            Notification.show("Importacion datos",
-                                    "Datos del credito importados!",
-                                    Notification.Type.HUMANIZED_MESSAGE);
+                            loanData.setGuarantors(jsonGuarantor);
+                            loanData.setCoDebtors(jsonCodebtor);
+                            loanData.setWarranty(jsonWarranty);
+
+                            if (loanDataService.findLoanDataByLoanNumber(Integer.parseInt(txtLoanNumberSearch.getValue())) == null) {
+                                loanDataService.insertLoanData(loanData);
+                                Notification.show("Importacion datos",
+                                        "Datos del credito importados!",
+                                        Notification.Type.HUMANIZED_MESSAGE);
+                            } else {
+                                loanData.setLoanDataId(loanDataId);
+                                loanDataService.updateLoanData(loanData);
+                                Notification.show("Importacion datos",
+                                        "Datos del credito actualizados!",
+                                        Notification.Type.HUMANIZED_MESSAGE);
+                            }
+
                         } else {
-                            loanData.setLoanDataId(loanDataId);
-                            loanDataService.updateLoanData(loanData);
-                            Notification.show("Importacion datos",
-                                    "Datos del credito actualizados!",
-                                    Notification.Type.HUMANIZED_MESSAGE);
+                            Notification.show("ERROR",
+                                    validateDataType(),
+                                    Notification.Type.WARNING_MESSAGE);
                         }
-                    }else{
+                    } else {
                         Notification.show("ERROR",
-                                validateDataType(),
+                                "Datos incompeltos, complete la informacion",
                                 Notification.Type.WARNING_MESSAGE);
                     }
-                } else {
+                }
+                if (result != null && validateLoanData()) {
+                    LoanData loanData = new LoanData();
+                    loanData.setLoanDataId(loanDataId);
+                    loanData.setTeacRate(Double.parseDouble(txtTeacRate.getValue().toString().trim()));
+                    loanData.setTreRate(Double.parseDouble(txtTreRate.getValue().toString().trim()));
+                    loanData.setFeePayment(Double.parseDouble(txtFeePayment.getValue().toString().trim()));
+                    loanData.setLoanDestination(txtLoanDestination.getValue().toString().trim());
+                    loanData.setTotalPayment(Double.parseDouble(txtTotalPayment.getValue().toString().trim()));
+                    loanData.setSpread(Double.parseDouble(txtSpread.getValue().trim()));
+                    loanData.setSavingBox(txtSavingBox.getValue());
+                    loanData.setAddressDebtor(txtAddressDebtor.getValue());
+                    loanData.setCivilStatusDebtor(txtCivilStatusDebtor.getValue());
+                    loanData.setAgency(String.valueOf(cmbAgency.getValue().getBranchOfficeId()));
+                    loanData.setLoanTerm(Integer.parseInt(txtLoanTerm.getValue()));
+                    loanData.setBranchOfficeId(cmbAgency.getValue().getBranchOfficeId());
+                    loanData.setCreditLifeInsurance(Double.parseDouble(txtCreditLifeInsurance.getValue()));
+
+//                    LoanDataService loanDataService = new LoanDataService();
+
+                    loanDataService.updateInputData(loanData);
+                    Notification.show("Actualizar",
+                            "Datos actualizado!",
+                            Notification.Type.HUMANIZED_MESSAGE);
+
+                }else {
                     Notification.show("ERROR",
                             "Datos incompeltos, complete la informacion",
                             Notification.Type.WARNING_MESSAGE);
                 }
-//            } else {
-//                Notification.show("Datos credito",
-//                        "Credito ya importado",
-//                        Notification.Type.ERROR_MESSAGE);
-//                txtLoanNumberSearch.focus();
-//            }
 
-        });
-
-        btnUpdate.addClickListener(clickEvent -> {
-            if (validateLoanData()){
-                LoanData loanData = new LoanData();
-                loanData.setLoanDataId(loanDataId);
-                loanData.setTeacRate(Double.parseDouble(txtTeacRate.getValue().toString().trim()));
-                loanData.setTreRate(Double.parseDouble(txtTreRate.getValue().toString().trim()));
-                loanData.setFeePayment(Double.parseDouble(txtFeePayment.getValue().toString().trim()));
-                loanData.setLoanDestination(txtLoanDestination.getValue().toString().trim());
-                loanData.setTotalPayment(Double.parseDouble(txtTotalPayment.getValue().toString().trim()));
-                loanData.setSpread(Double.parseDouble(txtSpread.getValue().trim()));
-                loanData.setSavingBox(txtSavingBox.getValue());
-                loanData.setAddressDebtor(txtAddressDebtor.getValue());
-                loanData.setCivilStatusDebtor(txtCivilStatusDebtor.getValue());
-                loanData.setAgency(String.valueOf(cmbAgency.getValue().getBranchOfficeId()));
-                loanData.setLoanTerm(Integer.parseInt(txtLoanTerm.getValue()));
-                loanData.setBranchOfficeId(cmbAgency.getValue().getBranchOfficeId());
-
-                LoanDataService loanDataService = new LoanDataService();
-
-                loanDataService.updateInputData(loanData);
-                Notification.show("Actualizar",
-                        "Datos actualizado!",
-                        Notification.Type.HUMANIZED_MESSAGE);
-
+            }else {
+                Notification.show("Error",
+                        "Ingrese el numero de credito",
+                        Notification.Type.ERROR_MESSAGE);
+                txtLoanNumberSearch.focus();
             }
+
         });
+
     }
 
     private void fillAgency(){
@@ -301,6 +311,7 @@ public class ImportDataForm extends CustomComponent implements View {
 
 
     private boolean validateLoanData(){
+        if (txtLoanNumber.isEmpty()) return false;
         if (dateLoanDate.isEmpty()) return false;
         if (txtTreRate.isEmpty()) return false;
         if (txtTeacRate.isEmpty()) return false;
@@ -713,11 +724,11 @@ public class ImportDataForm extends CustomComponent implements View {
         gridLayout.addComponent(btnImport,2,0);
         gridLayout.setComponentAlignment(btnImport,Alignment.BOTTOM_LEFT);
 
-        btnUpdate = new Button("Actualizar");
-        btnUpdate.setStyleName(ValoTheme.BUTTON_FRIENDLY);
-        btnUpdate.setIcon(VaadinIcons.DATABASE);
-        gridLayout.addComponent(btnUpdate,3,0);
-        gridLayout.setComponentAlignment(btnUpdate,Alignment.BOTTOM_LEFT);
+//        btnUpdate = new Button("Actualizar");
+//        btnUpdate.setStyleName(ValoTheme.BUTTON_FRIENDLY);
+//        btnUpdate.setIcon(VaadinIcons.DATABASE);
+//        gridLayout.addComponent(btnUpdate,3,0);
+//        gridLayout.setComponentAlignment(btnUpdate,Alignment.BOTTOM_LEFT);
 
         gridLayout.addComponent(buildClientPanel(),0,1,9,3);
         gridLayout.addComponent(buildLoanPanel(),0,4,9,6);

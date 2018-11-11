@@ -209,7 +209,8 @@
           agency = #{agency},
           civil_status_debtor = #{civilStatusDebtor},
           loan_term = #{loanTerm},
-          branch_office_id = #{branchOfficeId}
+          branch_office_id = #{branchOfficeId},
+          credit_life_insurance = #{creditLifeInsurance}
         where loan_data_id = #{loanDataId}
     </update>
 

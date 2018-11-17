@@ -16,8 +16,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.openxml4j.opc.OPCPackage;
 import org.apache.poi.xwpf.model.XWPFHeaderFooterPolicy;
 import org.apache.poi.xwpf.usermodel.*;
+import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTNumPr;
 
 import java.io.*;
+import java.math.BigInteger;
 import java.net.URI;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -140,6 +142,8 @@ public class GenerateContractsForm extends CustomComponent implements View {
             List<Contract> contractList = new ContractService().findCotractByLoanNumber(numberLoan);
             if (contractList.size()>0)
                 txtContractId.setValue(contractList.get(0).getContractId().toString());
+            else
+                txtContractId.setValue("");
 
         });
 
@@ -278,8 +282,13 @@ public class GenerateContractsForm extends CustomComponent implements View {
             txtContractId.setValue(contract.getContractId().toString());
         }
         else {
-            contract.setContractId(Integer.parseInt(txtContractId.getValue()));
-            contractService.updateContract(contract);
+            if (txtContractId.getValue().isEmpty()){
+                contractService.insertContract(contract);
+                txtContractId.setValue(contract.getContractId().toString());
+            }else {
+                contract.setContractId(Integer.parseInt(txtContractId.getValue()));
+                contractService.updateContract(contract);
+            }
         }
     }
 
@@ -328,7 +337,7 @@ public class GenerateContractsForm extends CustomComponent implements View {
                 try {
                      if (key.equals("dateContract")){
                          x = data.get(key).trim();
-                         SimpleDateFormat dt = new SimpleDateFormat("yyyyy-mm-dd");
+                         SimpleDateFormat dt = new SimpleDateFormat("yyyy-MM-dd", new Locale("bo", "BO"));
                          Date date = dt.parse(x);
                          x = new SimpleDateFormat("dd 'de' MMMM yyyy").format(date);
                      }else {
@@ -400,18 +409,27 @@ public class GenerateContractsForm extends CustomComponent implements View {
                             found3 = true;
                         }
                         if (partDocument.equals("body")) {
-
                             if (txt.contains("\n")) {
-
                                     String[] strings = txt.split("\n");
                                     int i = 0;
-                                    for (String string : strings) {
-                                        r.setText(string, i);
-                                        if (i!=strings.length-1)
-                                            r.addCarriageReturn();
-                                        i++;
-                                        p.insertNewRun(i);
+                                    switch (key){
+                                        case "#codeudor_nombres" :
+                                            fillAnd(p, strings, i, r);
+                                            break;
+                                        case "#garante_nombres" :
+                                            fillAnd(p, strings, i, r);
+                                            break;
+                                            default:
+                                                for (String string : strings) {
+                                                r.setText(string, i);
+                                                if (i != strings.length - 1) {
+                                                    r.addCarriageReturn();
+                                                }
+                                                i++;
+                                                p.insertNewRun(i);
+                                            }
                                     }
+
 
                             } else {
                                 r.setText(txt, k);
@@ -424,6 +442,32 @@ public class GenerateContractsForm extends CustomComponent implements View {
                 }
             }
             System.out.println(p.getText());
+        }
+    }
+
+    private void fillAnd(XWPFParagraph p, String[] strings, int i, XWPFRun r) {
+        for (String string : strings) {
+
+            if (strings.length == 1) {
+                r.setText(string.trim(), i);
+            }
+            if (strings.length == 2) {
+                if (i != strings.length - 1) {
+                    r.setText(string + " y ", i);
+                } else {
+                    r.setText(string, i);
+                }
+            } else {
+                if (i != strings.length - 1) {
+                    r.setText(string + ", ", i);
+                } else if (i == strings.length - 1) {
+                    r.setText(string.trim() + " y ", i);
+                } else {
+                    r.setText(string.trim(), i);
+                }
+            }
+            i++;
+            p.insertNewRun(i);
         }
     }
 
@@ -613,6 +657,10 @@ public class GenerateContractsForm extends CustomComponent implements View {
                 Integer plazo = loanData.getLineTerm()/30;
                 stringMapVariables.put(parameter.getValueParameter(),new NumberToLiteral()
                         .Convert(plazo.toString(),true,"","integer"));
+            }else
+            if (parameter.getValueParameter().equals("literal_tasa_base_tre")) {
+                stringMapVariables.put(parameter.getValueParameter(), new NumberToLiteral()
+                        .Convert(loanData.getTreRate().toString(), true, "", "float"));
             }
             else
                 stringMapVariables.put(parameter.getValueParameter(),parameter.getDescriptionParameter());
@@ -761,7 +809,7 @@ public class GenerateContractsForm extends CustomComponent implements View {
             List<Parameter> parameterList = new ArrayList<>();
             parameterList = parameterService.findParameterByTypeAndValue("custom_variable_contract",type);
             if (coDebtorGuarantorList.size()>0){
-
+               coDebtorGuarantorList.sort(Comparator.comparing(CoDebtorGuarantor::getPrioridad).reversed());
                 for(CoDebtorGuarantor coDebtorGuarantor : coDebtorGuarantorList) {
                     map.put("${name}",coDebtorGuarantor.getName());
                     map.put("${addressHome}",coDebtorGuarantor.getAddressHome());
@@ -770,6 +818,7 @@ public class GenerateContractsForm extends CustomComponent implements View {
                     map.put("${gender}",coDebtorGuarantor.getGender());
                     map.put("${civilStatus}",coDebtorGuarantor.getCivilStatus());
                     map.put("${codeMebership}",coDebtorGuarantor.getCodeMebership().toString());
+
 
                     for (Parameter parameter : parameterList) {
                         origin = parameter.getDescriptionParameter();
@@ -787,7 +836,7 @@ public class GenerateContractsForm extends CustomComponent implements View {
                            if (value.contains("${")){
                                data.replace(parameter.getValueParameter(),value,origin);
                            }else{
-                               origin = origin +"\n" +value;
+                               origin = origin +"\n"  +value;
                                data.replace(parameter.getValueParameter(),value,origin);
                            }
                         }

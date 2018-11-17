@@ -206,7 +206,7 @@ public class MyUI extends UI implements DetachListener {
 		notiCenter.setNotificationButton(notiButton);
 
 		TopMenuLabel label = TopMenuLabelBuilder.get()
-				.setCaption("<b>Generador contratos</b>" + "<font size=1 color=white> Ver. 1.8<font>")
+				.setCaption("<b>Generador contratos</b>" + "<font size=1 color=white> Ver. 1.9.1<font>")
 				.setIcon(new ThemeResource("images/Logo.png"))
                 .setAlignment(Alignment.TOP_LEFT)
 				.build(hybridMenu);

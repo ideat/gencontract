@@ -5,7 +5,7 @@ import java.util.regex.Pattern;
 public class NumberToLiteral {
     private final String[] UNIT = {"", "un ", "dos ", "tres ", "cuatro ", "cinco ", "seis ", "siete ", "ocho ", "nueve "};
     private final String[] TENS = {"diez ", "once ", "doce ", "trece ", "catorce ", "quince ", "dieciseis ",
-            "diecisiete ", "dieciocho ", "diecinueve", "veinte ", "veintiuno ", "veintidos ","veintitres ","veinticuatro ",
+            "diecisiete ", "dieciocho ", "diecinueve ", "veinte ", "veintiuno ", "veintidos ","veintitres ","veinticuatro ",
             "veinticinco ","veintiseis ", "veintisiete ", "veintiocho ", "veintinueve ", "treinta ", "cuarenta ",
             "cincuenta ", "sesenta ", "setenta ", "ochenta ", "noventa "};
     private final String[] HUNDREDS = {"", "ciento ", "doscientos ", "trecientos ", "cuatrocientos ", "quinientos ", "seiscientos ",

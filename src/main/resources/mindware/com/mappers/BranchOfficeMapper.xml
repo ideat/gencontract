@@ -81,7 +81,10 @@
     <update id="updateAddressBranchOffice" parameterType="branchoffice">
         update branch_office
         set
-        address = #{address}
+        address = #{address},
+        city_name = #{cityName},
+        province_name = #{provinceName}
+
         where branch_office_id = #{branchOfficeId}
     </update>
 

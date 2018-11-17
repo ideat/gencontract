@@ -15,6 +15,7 @@
         <result property="gbageddo" column="gbageddo"/>
         <result property="gbageeciv" column="gbageeciv"/>
         <result property="gbagesexo" column="gbagesexo"/>
+        <result property="prioridad" column="prioridad"/>
 
     </resultMap>
 
@@ -65,9 +66,14 @@
             when gbagesexo = 2 then 'FEMENINO'
             else 'DESCONOCIDO'
            end as gbagesexo
+        , case
+		    when prmprcage = prdeucage then 1
+		    else 2
+          end prioridad
         FROM prdeu
         inner join gbage on (prdeucage = gbagecage)
         inner join gbdac on (gbdaccage = gbagecage)
+        inner join prmpr on (prdeunpre = prmprnpre)
         where prdeunpre = #{prdeunpre}
         and prdeutres = 1
     </select>
@@ -89,11 +95,11 @@
         gbagendid,
         case
         	when	gbagedir1 is null then ''
-        	else gbagedir1
+        	else trim(gbagedir1)
         end || ' ' ||
         case
           when  gbagedir2 is null then ''
-          else gbagedir2
+          else trim(gbagedir2)
         end as gbagedir
         , case
             when gbageddo1 is null then ''
@@ -117,6 +123,7 @@
             when gbagesexo = 2 then 'FEMENINO'
             else 'DESCONOCIDO'
            end as gbagesexo
+         , 1 as prioridad
         FROM prdeu
         inner join gbage on (prdeucage = gbagecage)
         inner join gbdac on (gbdaccage = gbagecage)

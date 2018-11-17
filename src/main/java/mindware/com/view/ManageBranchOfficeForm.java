@@ -257,11 +257,24 @@ public class ManageBranchOfficeForm extends CustomComponent implements View {
         gridBranchOffice.setItems(branchOfficeList);
         gridBranchOffice.addColumn(BranchOffice::getBranchOfficeId).setCaption("Cod. Agencia");
         gridBranchOffice.addColumn(BranchOffice::getBranchName).setCaption("Nombre").setId("branchName");
-        gridBranchOffice.addColumn(BranchOffice::getCityName).setCaption("Departamento").setId("cityName");
-        gridBranchOffice.addColumn(BranchOffice::getProvinceName).setCaption("Provincia").setId("provinceName");
+//        gridBranchOffice.addColumn(BranchOffice::getCityName).setCaption("Departamento").setId("cityName");
+//        gridBranchOffice.addColumn(BranchOffice::getProvinceName).setCaption("Provincia").setId("provinceName");
 //        gridBranchOffice.addColumn(BranchOffice::getAddress).setCaption("Direccion");
 
         Binder<BranchOffice> binder = gridBranchOffice.getEditor().getBinder();
+
+        gridBranchOffice.addColumn(BranchOffice::getCityName,new TextRenderer())
+                .setEditorBinding(binder
+                        .forField(new TextField())
+                        .bind(BranchOffice::getCityName, BranchOffice::setCityName)
+                ).setCaption("Departamento").setId("cityName");
+
+        gridBranchOffice.addColumn(BranchOffice::getProvinceName,new TextRenderer())
+                .setEditorBinding(binder
+                        .forField(new TextField())
+                        .bind(BranchOffice::getProvinceName, BranchOffice::setProvinceName)
+                ).setCaption("Provincia").setId("provinceName");
+
         gridBranchOffice.addColumn(BranchOffice::getAddress,new TextRenderer())
                 .setEditorBinding(binder
                         .forField(new TextField())

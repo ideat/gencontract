@@ -1,6 +1,6 @@
 package mindware.com.model;
 
-public class CoDebtorGuarantor {
+public class CoDebtorGuarantor implements Comparable<CoDebtorGuarantor>{
     private String name;
     private String addressHome;
     private String addressOffice;
@@ -12,6 +12,7 @@ public class CoDebtorGuarantor {
     private Integer codeMebership;
     private Integer id;
     private String insured;
+    private Integer prioridad;
 
     public String getInsured() {
         return insured;
@@ -99,5 +100,21 @@ public class CoDebtorGuarantor {
 
     public void setId(Integer id) {
         this.id = id;
+    }
+
+    public Integer getPrioridad() {
+        return prioridad;
+    }
+
+    public void setPrioridad(Integer prioridad) {
+        this.prioridad = prioridad;
+    }
+
+    @Override
+    public int compareTo(CoDebtorGuarantor o) {
+        if (getPrioridad() == null || o.getPrioridad() == null) {
+            return 0;
+        }
+        return getPrioridad().compareTo(o.getPrioridad());
     }
 }

@@ -2,6 +2,8 @@ package mindware.com.view;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.vaadin.data.Binder;
+import com.vaadin.data.provider.ListDataProvider;
 import com.vaadin.ui.renderers.TextRenderer;
 import de.steinwedel.messagebox.MessageBox;
 import mindware.com.model.BranchOffice;
@@ -27,10 +29,7 @@ import org.apache.commons.lang3.StringUtils;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.ZoneId;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 public class ImportDataForm extends CustomComponent implements View {
     private Button btnSearch;
@@ -241,7 +240,7 @@ public class ImportDataForm extends CustomComponent implements View {
                                 "Datos incompeltos, complete la informacion",
                                 Notification.Type.WARNING_MESSAGE);
                     }
-                }
+                }else
                 if (result != null && validateLoanData()) {
                     LoanData loanData = new LoanData();
                     loanData.setLoanDataId(loanDataId);
@@ -259,7 +258,28 @@ public class ImportDataForm extends CustomComponent implements View {
                     loanData.setBranchOfficeId(cmbAgency.getValue().getBranchOfficeId());
                     loanData.setCreditLifeInsurance(Double.parseDouble(txtCreditLifeInsurance.getValue()));
 
-//                    LoanDataService loanDataService = new LoanDataService();
+                    ObjectMapper mapper = new ObjectMapper();
+                    String jsonGuarantor = null;
+
+                    ListDataProvider<CoDebtorGuarantor> gurantorGuarantorList =  (ListDataProvider<CoDebtorGuarantor>) gridGuarantor.getDataProvider();
+                    List<CoDebtorGuarantor> guarantorList2= (List<CoDebtorGuarantor>) gurantorGuarantorList.getItems();
+                    try {
+                        jsonGuarantor = mapper.writeValueAsString(guarantorList2);
+                    } catch (JsonProcessingException e) {
+                        e.printStackTrace();
+                    }
+                    loanData.setGuarantors(jsonGuarantor);
+
+                    String jsonCodebtor = null;
+
+                    ListDataProvider<CoDebtorGuarantor> coDebtorGuarantorList =  (ListDataProvider<CoDebtorGuarantor>) gridCoDebtor.getDataProvider();
+                    List<CoDebtorGuarantor> coDebtorGuarantorList2= (List<CoDebtorGuarantor>) coDebtorGuarantorList.getItems();
+                    try {
+                        jsonCodebtor = mapper.writeValueAsString(coDebtorGuarantorList2);
+                    } catch (JsonProcessingException e) {
+                        e.printStackTrace();
+                    }
+                    loanData.setCoDebtors(jsonCodebtor);
 
                     loanDataService.updateInputData(loanData);
                     Notification.show("Actualizar",
@@ -281,6 +301,71 @@ public class ImportDataForm extends CustomComponent implements View {
 
         });
 
+        gridGuarantor.getEditor().addOpenListener(event -> {
+
+        });
+
+
+
+        gridGuarantor.getEditor().addSaveListener(editorSaveEvent -> {
+           if (guarantorNetbankList!=null) {
+               ListDataProvider<CodebtorGuarantorNetbank> guarantorListDataProvider = (ListDataProvider<CodebtorGuarantorNetbank>) gridGuarantor.getDataProvider();
+               ObjectMapper mapper = new ObjectMapper();
+               Collection<CodebtorGuarantorNetbank> coDebtorListDataProvider2= guarantorListDataProvider.getItems();
+               for (CodebtorGuarantorNetbank codebtorGuarantorNetbank1: coDebtorListDataProvider2){
+                   if (codebtorGuarantorNetbank1.getGbagedir().isEmpty()){
+                       Notification.show("Error",
+                               "Direccion domicilio es obligatoria",
+                               Notification.Type.ERROR_MESSAGE);
+                       codebtorGuarantorNetbank1.setGbagedir("Ingrese direccion!");
+                   }
+               }
+
+           }else{
+               ListDataProvider<CoDebtorGuarantor> guarantorListDataProvider = (ListDataProvider<CoDebtorGuarantor>) gridGuarantor.getDataProvider();
+               ObjectMapper mapper = new ObjectMapper();
+               Collection<CoDebtorGuarantor> coDebtorListDataProvider2= guarantorListDataProvider.getItems();
+               for (CoDebtorGuarantor coDebtorGuarantor: coDebtorListDataProvider2){
+                   if (coDebtorGuarantor.getAddressHome().isEmpty()){
+                       Notification.show("Error",
+                               "Direccion domicilio es obligatoria",
+                               Notification.Type.ERROR_MESSAGE);
+                       coDebtorGuarantor.setAddressHome("Ingrese direccion!");
+                   }
+               }
+           }
+
+        });
+
+        gridCoDebtor.getEditor().addSaveListener(editorSaveEvent ->{
+            if (codebtorNetbankList!=null) {
+                ListDataProvider<CodebtorGuarantorNetbank> codebtorListDataProvider = (ListDataProvider<CodebtorGuarantorNetbank>) gridCoDebtor.getDataProvider();
+                ObjectMapper mapper = new ObjectMapper();
+                Collection<CodebtorGuarantorNetbank> coDebtorListDataProvider2= codebtorListDataProvider.getItems();
+                for (CodebtorGuarantorNetbank codebtorGuarantorNetbank1: coDebtorListDataProvider2){
+                    if (codebtorGuarantorNetbank1.getGbagedir().isEmpty()){
+                        Notification.show("Error",
+                                "Direccion domicilio es obligatoria",
+                                Notification.Type.ERROR_MESSAGE);
+                        codebtorGuarantorNetbank1.setGbagedir("Ingrese direccion!");
+                    }
+                }
+
+            }else{
+                ListDataProvider<CoDebtorGuarantor> codebtorListDataProvider = (ListDataProvider<CoDebtorGuarantor>) gridCoDebtor.getDataProvider();
+                ObjectMapper mapper = new ObjectMapper();
+                Collection<CoDebtorGuarantor> coDebtorListDataProvider2= codebtorListDataProvider.getItems();
+                for (CoDebtorGuarantor coDebtorGuarantor: coDebtorListDataProvider2){
+                    if (coDebtorGuarantor.getAddressHome().isEmpty()){
+                        Notification.show("Error",
+                                "Direccion domicilio es obligatoria",
+                                Notification.Type.ERROR_MESSAGE);
+                        coDebtorGuarantor.setAddressHome("Ingrese direccion!");
+                    }
+                }
+            }
+        });
+
     }
 
     private void fillAgency(){
@@ -296,11 +381,30 @@ public class ImportDataForm extends CustomComponent implements View {
     }
 
     private void dataFromNetBank() {
+
         WarrantyNetBankService warrantyNetBankService = new WarrantyNetBankService();
         warrantyNetbankList = warrantyNetBankService.findWarrantyNetbankByCreCod(Integer.parseInt(txtLoanNumberSearch.getValue().toString()));
         CodebtorGuarantorNetbankService codebtorGuarantorNetbankService = new CodebtorGuarantorNetbankService();
         codebtorNetbankList = codebtorGuarantorNetbankService.findCodeptorByNumberLoan(Integer.parseInt(txtLoanNumberSearch.getValue().toString()));
         guarantorNetbankList = codebtorGuarantorNetbankService.findGuarantorByNumberLoan(Integer.parseInt(txtLoanNumberSearch.getValue().toString()));
+
+        gridGuarantor = null;
+        gridGuarantor = new Grid();
+        gridGuarantor.setStyleName(ValoTheme.TABLE_SMALL);
+        gridGuarantor.setSizeFull();
+        gridGuarantor.getEditor().setEnabled(true);
+        gridGuarantor.getEditor().setCancelCaption("Cancelar");
+        gridGuarantor.getEditor().setSaveCaption("Guardar");
+        panelGuarantor.setContent(gridGuarantor);
+
+        gridCoDebtor = null;
+        gridCoDebtor = new Grid();
+        gridCoDebtor.setStyleName(ValoTheme.TABLE_SMALL);
+        gridCoDebtor.setSizeFull();
+        gridCoDebtor.getEditor().setEnabled(true);
+        gridCoDebtor.getEditor().setCancelCaption("Cancelar");
+        gridCoDebtor.getEditor().setSaveCaption("Guardar");
+        panelCoDebtor.setContent(gridCoDebtor);
 
         loadCodebtorGuarantorNetbank(codebtorNetbankList, (Grid<CodebtorGuarantorNetbank>) gridCoDebtor);
         loadCodebtorGuarantorNetbank(guarantorNetbankList, (Grid<CodebtorGuarantorNetbank>) gridGuarantor);
@@ -308,7 +412,6 @@ public class ImportDataForm extends CustomComponent implements View {
         loadNetBankData(clientLoanNetbank);
         loadWarrantyNetBank(warrantyNetbankList, (Grid<WarrantyNetbank>) gridWarranty);
     }
-
 
     private boolean validateLoanData(){
         if (txtLoanNumber.isEmpty()) return false;
@@ -328,7 +431,7 @@ public class ImportDataForm extends CustomComponent implements View {
 
     private String validateDataType(){
         Util util = new Util();
-        if (!util.isNumber(txtTreRate.getValue())) return "Tasa TRE no es valida";
+        if (!util.isNumber(txtTreRate.getValue())) return "Tasa Base no es valida";
         if (!util.isNumber(txtTeacRate.getValue())) return "Tasa TEAC no es valida";
         if (!util.isNumber(txtFeePayment.getValue())) return "Monto cuota no es valido";
         if(!util.isNumber(txtTotalPayment.getValue())) return "Total a pagar no es valido";
@@ -377,12 +480,32 @@ public class ImportDataForm extends CustomComponent implements View {
         gridCoDebtor.removeAllColumns();
         gridGuarantor.removeAllColumns();
         gridWarranty.removeAllColumns();
+
+
+        gridGuarantor = null;
+        gridGuarantor = new Grid();
+        gridGuarantor.setStyleName(ValoTheme.TABLE_SMALL);
+        gridGuarantor.setSizeFull();
+        gridGuarantor.getEditor().setEnabled(true);
+        gridGuarantor.getEditor().setCancelCaption("Cancelar");
+        gridGuarantor.getEditor().setSaveCaption("Guardar");
+        panelGuarantor.setContent(gridGuarantor);
+
+        gridCoDebtor = null;
+        gridCoDebtor = new Grid();
+        gridCoDebtor.setStyleName(ValoTheme.TABLE_SMALL);
+        gridCoDebtor.setSizeFull();
+        gridCoDebtor.getEditor().setEnabled(true);
+        gridCoDebtor.getEditor().setCancelCaption("Cancelar");
+        gridCoDebtor.getEditor().setSaveCaption("Guardar");
+        panelCoDebtor.setContent(gridCoDebtor);
+
         loadDataCoDebtors(loanData.getCoDebtors(), (Grid<CoDebtorGuarantor>) gridCoDebtor);
         loadDataCoDebtors(loanData.getGuarantors(), (Grid<CoDebtorGuarantor>) gridGuarantor);
         loadWarranty(loanData.getWarranty(), (Grid<Warranty>) gridWarranty);
     }
 
-    private void loadDataCoDebtors(String coDebtorGuarantor, Grid<CoDebtorGuarantor> gridCoDebtorGurantor) {
+    private void loadDataCoDebtors(String coDebtorGuarantor, Grid<CoDebtorGuarantor> gridCoDebtorGuarantor) {
         if (!coDebtorGuarantor.equals("[]")){
             ObjectMapper mapper = new ObjectMapper();
             List<CoDebtorGuarantor> coDebtorLocalList = new ArrayList<>();
@@ -390,7 +513,7 @@ public class ImportDataForm extends CustomComponent implements View {
             try {
                 coDebtorLocalList = Arrays.asList(mapper.readValue(coDebtorGuarantor,CoDebtorGuarantor[].class));
 
-               fillGridCoDebtorGuarantor(coDebtorLocalList,gridCoDebtorGurantor);
+               fillGridCoDebtorGuarantor(coDebtorLocalList,gridCoDebtorGuarantor);
 
             } catch (IOException e) {
                 e.printStackTrace();
@@ -432,15 +555,28 @@ public class ImportDataForm extends CustomComponent implements View {
     private void fillGridCoDebtorGuarantor(List<CoDebtorGuarantor> coDebtorGuarantorList, Grid<CoDebtorGuarantor> gridCoDebtorGuarantor){
 
         gridCoDebtorGuarantor.removeAllColumns();
+
         gridCoDebtorGuarantor.setItems(coDebtorGuarantorList);
         gridCoDebtorGuarantor.addColumn(CoDebtorGuarantor::getNumberLoan).setCaption("Nro Prestamo");
         gridCoDebtorGuarantor.addColumn(CoDebtorGuarantor::getCodeMebership).setCaption("Nro agenda");
         gridCoDebtorGuarantor.addColumn(CoDebtorGuarantor::getName).setCaption("Nombre");
         gridCoDebtorGuarantor.addColumn(CoDebtorGuarantor::getIdentifyCard).setCaption("Carnet");
-        gridCoDebtorGuarantor.addColumn(CoDebtorGuarantor::getAddressHome).setCaption("Dir. domicilio");
+        Binder<CoDebtorGuarantor> binder = gridCoDebtorGuarantor.getEditor().getBinder();
+        gridCoDebtorGuarantor.addColumn(CoDebtorGuarantor::getCivilStatus,new TextRenderer())
+                .setEditorBinding(binder
+                        .forField(new TextField())
+                        .bind(CoDebtorGuarantor::getCivilStatus,CoDebtorGuarantor::setCivilStatus)
+                ).setCaption("Estado civil");
+
+        gridCoDebtorGuarantor.addColumn(CoDebtorGuarantor::getAddressHome,new TextRenderer())
+                .setEditorBinding(binder
+                        .forField(new TextField())
+                        .bind(CoDebtorGuarantor::getAddressHome, CoDebtorGuarantor::setAddressHome)
+                ).setCaption("Dir. domicilio");
+
         gridCoDebtorGuarantor.addColumn(CoDebtorGuarantor::getAddressOffice).setCaption("Dir. oficina");
-        gridCoDebtorGuarantor.addColumn(CoDebtorGuarantor::getCivilStatus).setCaption("Estado civil");
         gridCoDebtorGuarantor.addColumn(CoDebtorGuarantor::getGender).setCaption("Genero");
+        gridCoDebtorGuarantor.addColumn(CoDebtorGuarantor::getPrioridad).setCaption("Prioridad");
 
     }
 
@@ -491,8 +627,8 @@ public class ImportDataForm extends CustomComponent implements View {
             coDebtorGuarantor.setCivilStatus(codebtorGuarantorNetbank.getGbageeciv().trim());
             coDebtorGuarantor.setGender(codebtorGuarantorNetbank.getGbagesexo().trim());
             coDebtorGuarantor.setInsured(type.equals("codebtor")?"asegurado":"noAsegurado");
+            coDebtorGuarantor.setPrioridad(codebtorGuarantorNetbank.getPrioridad());
             coDebtorGuarantor.setId(i);
-
 
             i++;
 
@@ -523,47 +659,33 @@ public class ImportDataForm extends CustomComponent implements View {
 
 
     private void loadCodebtorGuarantorNetbank(List<CodebtorGuarantorNetbank> coDebtorList, Grid<CodebtorGuarantorNetbank> gridCoDebtor){
-//        if (type.equals("codebtor")) {
-            gridCoDebtor.removeAllColumns();
-            gridCoDebtor.setItems(coDebtorList);
 
-            gridCoDebtor.addColumn(CodebtorGuarantorNetbank::getPrdeunpre).setCaption("Nro prestamo");
-            gridCoDebtor.addColumn(CodebtorGuarantorNetbank::getPrdeucage).setCaption("Nro agenda");
-            gridCoDebtor.addColumn(CodebtorGuarantorNetbank::getGbagenomb).setCaption("Nombre");
-            gridCoDebtor.addColumn(CodebtorGuarantorNetbank::getGbagendid).setCaption("Carnet");
-            gridCoDebtor.addColumn(CodebtorGuarantorNetbank::getGbagedir).setCaption("Dir. domicilio");
-            gridCoDebtor.addColumn(CodebtorGuarantorNetbank::getGbageddo).setCaption("Dir. oficina");
-            gridCoDebtor.addColumn(CodebtorGuarantorNetbank::getGbageeciv).setCaption("Estado civil");
-            gridCoDebtor.addColumn(CodebtorGuarantorNetbank::getGbagesexo).setCaption("Genero");
-//        } else {
-//            gridGuarantor.removeAllColumns();
-//            gridGuarantor.setItems(coDebtorList);
-//
-//            gridGuarantor.addColumn(CodebtorGuarantorNetbank::getPrdeunpre).setCaption("Nro prestamo");
-//            gridGuarantor.addColumn(CodebtorGuarantorNetbank::getPrdeucage).setCaption("Nro agenda");
-//            gridGuarantor.addColumn(CodebtorGuarantorNetbank::getGbagenomb).setCaption("Nombre");
-//            gridGuarantor.addColumn(CodebtorGuarantorNetbank::getGbagendid).setCaption("Carnet");
-//            gridGuarantor.addColumn(CodebtorGuarantorNetbank::getGbagedir).setCaption("Dir. domicilio");
-//            gridGuarantor.addColumn(CodebtorGuarantorNetbank::getGbageddo).setCaption("Dir. oficina");
-//            gridGuarantor.addColumn(CodebtorGuarantorNetbank::getGbageeciv).setCaption("Estado civil");
-//            gridGuarantor.addColumn(CodebtorGuarantorNetbank::getGbagesexo).setCaption("Genero");
-//        }
+        gridCoDebtor.removeAllColumns();
+        gridCoDebtor.setItems(coDebtorList);
+
+        gridCoDebtor.addColumn(CodebtorGuarantorNetbank::getPrdeunpre).setCaption("Nro prestamo");
+        gridCoDebtor.addColumn(CodebtorGuarantorNetbank::getPrdeucage).setCaption("Nro agenda");
+        gridCoDebtor.addColumn(CodebtorGuarantorNetbank::getGbagenomb).setCaption("Nombre");
+        gridCoDebtor.addColumn(CodebtorGuarantorNetbank::getGbagendid).setCaption("Carnet");
+        Binder<CodebtorGuarantorNetbank> binder = gridCoDebtor.getEditor().getBinder();
+
+        gridCoDebtor.addColumn(CodebtorGuarantorNetbank::getGbageeciv,new TextRenderer())
+                .setEditorBinding(binder
+                        .forField(new TextField())
+                        .bind(CodebtorGuarantorNetbank::getGbageeciv,CodebtorGuarantorNetbank::setGbageeciv)
+                ).setCaption("Estado civil");
+
+        gridCoDebtor.addColumn(CodebtorGuarantorNetbank::getGbagedir,new TextRenderer())
+                .setEditorBinding(binder
+                        .forField(new TextField())
+                        .bind(CodebtorGuarantorNetbank::getGbagedir, CodebtorGuarantorNetbank::setGbagedir)
+                ).setCaption("Dir. domicilio");
+
+        gridCoDebtor.addColumn(CodebtorGuarantorNetbank::getGbageddo).setCaption("Dir. oficina");
+        gridCoDebtor.addColumn(CodebtorGuarantorNetbank::getGbagesexo).setCaption("Genero");
+        gridCoDebtor.addColumn(CodebtorGuarantorNetbank::getPrioridad).setCaption("Prioridad");
 
     }
-
-//    private void loadGuarantorNetbank(List<CodebtorGuarantorNetbank> guarantorList){
-//        gridGuarantor.removeAllColumns();
-//        gridGuarantor.setItems(guarantorList);
-//
-//        gridGuarantor.addColumn(CodebtorGuarantorNetbank::getPrdeunpre).setCaption("Nro prestamo");
-//        gridGuarantor.addColumn(CodebtorGuarantorNetbank::getPrdeucage).setCaption("Nro agenda");
-//        gridGuarantor.addColumn(CodebtorGuarantorNetbank::getGbagenomb).setCaption("Nombre");
-//        gridGuarantor.addColumn(CodebtorGuarantorNetbank::getGbagendid).setCaption("Carnet");
-//        gridGuarantor.addColumn(CodebtorGuarantorNetbank::getGbagedir).setCaption("Dir. domicilio");
-//        gridGuarantor.addColumn(CodebtorGuarantorNetbank::getGbageddo).setCaption("Dir. oficina");
-//        gridGuarantor.addColumn(CodebtorGuarantorNetbank::getGbageeciv).setCaption("Estado civil");
-//        gridGuarantor.addColumn(CodebtorGuarantorNetbank::getGbagesexo).setCaption("Genero");
-//    }
 
     private void loadNetBankData(ClientLoanNetbank clientLoanNetbank){
         fieldClientStatus(false);
@@ -771,7 +893,7 @@ public class ImportDataForm extends CustomComponent implements View {
         txtLoanTerm.setReadOnly(false);;
         gridLayoutLoan.addComponent(txtLoanTerm,3,0);
 
-        txtInterestRate = new TextField("Tasa:");
+        txtInterestRate = new TextField("Tasa inicial :");
         txtInterestRate.setStyleName(ValoTheme.TEXTFIELD_TINY);
         txtInterestRate.setReadOnly(true);;
 
@@ -943,7 +1065,7 @@ public class ImportDataForm extends CustomComponent implements View {
         dateLoanDate.setDateFormat("dd-MM-yyyy");
         gridLayoutSupplementaryData.addComponent(dateLoanDate,0,0);
 
-        txtTreRate = new TextField("Tasa TRE:");
+        txtTreRate = new TextField("Tasa Base:");
         txtTreRate.setStyleName(ValoTheme.TEXTFIELD_TINY);
         txtTreRate.addStyleName("my_bg_style");
         gridLayoutSupplementaryData.addComponent(txtTreRate,1,0);
@@ -1008,6 +1130,9 @@ public class ImportDataForm extends CustomComponent implements View {
         gridCoDebtor = new Grid();
         gridCoDebtor.setStyleName(ValoTheme.TABLE_SMALL);
         gridCoDebtor.setSizeFull();
+        gridCoDebtor.getEditor().setEnabled(true);
+        gridCoDebtor.getEditor().setCancelCaption("Cancelar");
+        gridCoDebtor.getEditor().setSaveCaption("Guardar");
 
         panelCoDebtor.setContent(gridCoDebtor);
 
@@ -1023,6 +1148,10 @@ public class ImportDataForm extends CustomComponent implements View {
         gridGuarantor = new Grid();
         gridGuarantor.setStyleName(ValoTheme.TABLE_SMALL);
         gridGuarantor.setSizeFull();
+        gridGuarantor.getEditor().setEnabled(true);
+        gridGuarantor.getEditor().setCancelCaption("Cancelar");
+        gridGuarantor.getEditor().setSaveCaption("Guardar");
+
 
         panelGuarantor.setContent(gridGuarantor);
         return panelGuarantor;

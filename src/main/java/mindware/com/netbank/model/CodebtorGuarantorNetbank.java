@@ -11,6 +11,7 @@ public class CodebtorGuarantorNetbank {
     private String gbageddo;
     private String gbageeciv;
     private String gbagesexo;
+    private Integer prioridad;
 
 
     public Integer getPrdeucage() {
@@ -83,5 +84,13 @@ public class CodebtorGuarantorNetbank {
 
     public void setGbagesexo(String gbagesexo) {
         this.gbagesexo = gbagesexo;
+    }
+
+    public Integer getPrioridad() {
+        return prioridad;
+    }
+
+    public void setPrioridad(Integer prioridad) {
+        this.prioridad = prioridad;
     }
 }

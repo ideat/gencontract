@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.vaadin.data.Binder;
 import com.vaadin.data.provider.ListDataProvider;
+import com.vaadin.event.Action;
 import com.vaadin.ui.renderers.TextRenderer;
 import de.steinwedel.messagebox.MessageBox;
 import mindware.com.model.BranchOffice;
@@ -24,6 +25,7 @@ import mindware.com.netbank.service.WarrantyNetBankService;
 import mindware.com.service.BranchOfficeService;
 import mindware.com.service.LoanDataService;
 import mindware.com.utilities.Util;
+import org.apache.commons.lang.math.NumberUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.IOException;
@@ -102,7 +104,7 @@ public class ImportDataForm extends CustomComponent implements View {
 
         btnSearch.addClickListener(clickEvent -> {
             LoanDataService loanDataService = new LoanDataService();
-            if (!txtLoanNumberSearch.isEmpty()) {
+            if (validateLoanNumber()) {
                 LoanData loanData = loanDataService.findLoanDataByLoanNumber(Integer.parseInt(txtLoanNumberSearch.getValue()));
                 if (loanData != null){
                     MessageBox.createQuestion()
@@ -134,13 +136,13 @@ public class ImportDataForm extends CustomComponent implements View {
                     } else {
                         Notification.show("Datos credito",
                                 "Credito no encontrado",
-                                Notification.Type.ERROR_MESSAGE);
+                                Notification.Type.WARNING_MESSAGE);
                     }
                 }
             }
             else {
                 Notification.show("Buscar credito",
-                        "Ingrese un numero de credito",
+                        "Ingrese un numero de credito valido",
                         Notification.Type.ERROR_MESSAGE);
                 txtLoanNumberSearch.focus();
 
@@ -261,10 +263,21 @@ public class ImportDataForm extends CustomComponent implements View {
                     ObjectMapper mapper = new ObjectMapper();
                     String jsonGuarantor = null;
 
-                    ListDataProvider<CoDebtorGuarantor> gurantorGuarantorList =  (ListDataProvider<CoDebtorGuarantor>) gridGuarantor.getDataProvider();
-                    List<CoDebtorGuarantor> guarantorList2= (List<CoDebtorGuarantor>) gurantorGuarantorList.getItems();
+//                    ListDataProvider<CoDebtorGuarantor> gurantorGuarantorList = (ListDataProvider<CoDebtorGuarantor>) gridGuarantor.getDataProvider();
+                    List<?> gurantorGuarantorList = new ArrayList<>();
+
+                        gurantorGuarantorList = (List<?>) gridGuarantor.getDataCommunicator().fetchItemsWithRange(0, gridGuarantor.getDataCommunicator().getDataProviderSize());
+                        if (gurantorGuarantorList.size()>0)
+                        if (gurantorGuarantorList.get(0).getClass().toString().contains("Netbank")){
+                            gurantorGuarantorList = getCoDebtorsGuarantors("guarantor", (List<CodebtorGuarantorNetbank>) gurantorGuarantorList);
+                        }
+//                        else
+//                            gurantorGuarantorList =  getCoDebtorsGuarantors("guarantor", (List<CodebtorGuarantorNetbank>) gridGuarantor.getDataCommunicator().fetchItemsWithRange(0,gridGuarantor.getDataCommunicator().getDataProviderSize()));
+
+
+//                    List<CoDebtorGuarantor> guarantorList2= (List<CoDebtorGuarantor>) gurantorGuarantorList.getItems();
                     try {
-                        jsonGuarantor = mapper.writeValueAsString(guarantorList2);
+                        jsonGuarantor = mapper.writeValueAsString(gurantorGuarantorList);
                     } catch (JsonProcessingException e) {
                         e.printStackTrace();
                     }
@@ -272,15 +285,22 @@ public class ImportDataForm extends CustomComponent implements View {
 
                     String jsonCodebtor = null;
 
-                    ListDataProvider<CoDebtorGuarantor> coDebtorGuarantorList =  (ListDataProvider<CoDebtorGuarantor>) gridCoDebtor.getDataProvider();
-                    List<CoDebtorGuarantor> coDebtorGuarantorList2= (List<CoDebtorGuarantor>) coDebtorGuarantorList.getItems();
+                    List<?> coDebtorGuarantorList = new ArrayList<>();
+                    coDebtorGuarantorList = (List<?>) gridCoDebtor.getDataCommunicator().fetchItemsWithRange(0,gridCoDebtor.getDataCommunicator().getDataProviderSize());
+                    if (coDebtorGuarantorList.size()>0)
+                    if ( coDebtorGuarantorList.get(0).getClass().toString().contains("Netbank"))
+                        coDebtorGuarantorList = getCoDebtorsGuarantors("codebtor",  (List<CodebtorGuarantorNetbank>) coDebtorGuarantorList);
+//
+
+
+//                    List<CoDebtorGuarantor> coDebtorGuarantorList2= (List<CoDebtorGuarantor>) coDebtorGuarantorList.getItems();
                     try {
-                        jsonCodebtor = mapper.writeValueAsString(coDebtorGuarantorList2);
+                        jsonCodebtor = mapper.writeValueAsString(coDebtorGuarantorList);
                     } catch (JsonProcessingException e) {
                         e.printStackTrace();
                     }
                     loanData.setCoDebtors(jsonCodebtor);
-
+                    loanData.setLoanDataId(result.getLoanDataId());
                     loanDataService.updateInputData(loanData);
                     Notification.show("Actualizar",
                             "Datos actualizado!",
@@ -300,11 +320,6 @@ public class ImportDataForm extends CustomComponent implements View {
             }
 
         });
-
-        gridGuarantor.getEditor().addOpenListener(event -> {
-
-        });
-
 
 
         gridGuarantor.getEditor().addSaveListener(editorSaveEvent -> {
@@ -365,6 +380,19 @@ public class ImportDataForm extends CustomComponent implements View {
                 }
             }
         });
+
+
+    }
+
+    private boolean validateLoanNumber(){
+        try {
+           if (NumberUtils.toInt(txtLoanNumberSearch.getValue())==0)
+           return false;
+           else return true;
+
+        }catch (Exception e){
+            return false;
+        }
 
     }
 
@@ -557,22 +585,61 @@ public class ImportDataForm extends CustomComponent implements View {
         gridCoDebtorGuarantor.removeAllColumns();
 
         gridCoDebtorGuarantor.setItems(coDebtorGuarantorList);
+        gridCoDebtorGuarantor.addComponentColumn(codebtorGuarantor ->{
+           Button button = new Button();
+           button.setIcon(VaadinIcons.PENCIL);
+           button.setStyleName(ValoTheme.BUTTON_PRIMARY);
+           button.addClickListener(clickEvent ->{
+
+               CodebtorGuarantorWindowForm codebtorGuarantorWindowForm = new CodebtorGuarantorWindowForm(codebtorGuarantor,coDebtorGuarantorList,"");
+               codebtorGuarantorWindowForm.setModal(true);
+               codebtorGuarantorWindowForm.setWidth("650px");
+               codebtorGuarantorWindowForm.setHeight("350px");
+               codebtorGuarantorWindowForm.setResizable(true);
+               codebtorGuarantorWindowForm.center();
+               UI.getCurrent().addWindow(codebtorGuarantorWindowForm);
+               codebtorGuarantorWindowForm.addCloseListener(closeEvent ->{
+                    gridCoDebtorGuarantor.setItems(coDebtorGuarantorList);
+              });
+           });
+           return button;
+        });
+
         gridCoDebtorGuarantor.addColumn(CoDebtorGuarantor::getNumberLoan).setCaption("Nro Prestamo");
         gridCoDebtorGuarantor.addColumn(CoDebtorGuarantor::getCodeMebership).setCaption("Nro agenda");
         gridCoDebtorGuarantor.addColumn(CoDebtorGuarantor::getName).setCaption("Nombre");
         gridCoDebtorGuarantor.addColumn(CoDebtorGuarantor::getIdentifyCard).setCaption("Carnet");
-        Binder<CoDebtorGuarantor> binder = gridCoDebtorGuarantor.getEditor().getBinder();
-        gridCoDebtorGuarantor.addColumn(CoDebtorGuarantor::getCivilStatus,new TextRenderer())
-                .setEditorBinding(binder
-                        .forField(new TextField())
-                        .bind(CoDebtorGuarantor::getCivilStatus,CoDebtorGuarantor::setCivilStatus)
-                ).setCaption("Estado civil");
+        gridCoDebtorGuarantor.addColumn(CoDebtorGuarantor::getCivilStatus).setCaption("Estado civil");
+        gridCoDebtorGuarantor.addComponentColumn(item -> {
+            Label label = new Label();
+            label.setValue(item.getAddressHome());
+            label.setWidthUndefined();
+            label.setStyleName(ValoTheme.LAYOUT_HORIZONTAL_WRAPPING);
+            return label;
+        })
+                .setCaption("Dir. domicilio")
+                .setWidth(280.0);
 
-        gridCoDebtorGuarantor.addColumn(CoDebtorGuarantor::getAddressHome,new TextRenderer())
-                .setEditorBinding(binder
-                        .forField(new TextField())
-                        .bind(CoDebtorGuarantor::getAddressHome, CoDebtorGuarantor::setAddressHome)
-                ).setCaption("Dir. domicilio");
+        gridCoDebtorGuarantor.addColumn(CoDebtorGuarantor::getAdyacentes).setCaption("Adyacentes");
+        gridCoDebtorGuarantor.addColumn(CoDebtorGuarantor::getZona).setCaption("Zona/Barrio");
+        gridCoDebtorGuarantor.addColumn(CoDebtorGuarantor::getCiudad).setCaption("Ciudad/Localidad");
+        gridCoDebtorGuarantor.addColumn(CoDebtorGuarantor::getProvincia).setCaption("Provincia");
+        gridCoDebtorGuarantor.addColumn(CoDebtorGuarantor::getDepartamento).setCaption("Departamento");
+        gridCoDebtorGuarantor.addColumn(CoDebtorGuarantor::getTipoDireccion).setCaption("Tipo direccion");
+
+
+//        Binder<CoDebtorGuarantor> binder = gridCoDebtorGuarantor.getEditor().getBinder();
+//        gridCoDebtorGuarantor.addColumn(CoDebtorGuarantor::getCivilStatus,new TextRenderer())
+//                .setEditorBinding(binder
+//                        .forField(new TextField())
+//                        .bind(CoDebtorGuarantor::getCivilStatus,CoDebtorGuarantor::setCivilStatus)
+//                ).setCaption("Estado civil");
+//
+//        gridCoDebtorGuarantor.addColumn(CoDebtorGuarantor::getAddressHome,new TextRenderer())
+//                .setEditorBinding(binder
+//                        .forField(new TextField())
+//                        .bind(CoDebtorGuarantor::getAddressHome, CoDebtorGuarantor::setAddressHome)
+//                ).setCaption("Dir. domicilio");
 
         gridCoDebtorGuarantor.addColumn(CoDebtorGuarantor::getAddressOffice).setCaption("Dir. oficina");
         gridCoDebtorGuarantor.addColumn(CoDebtorGuarantor::getGender).setCaption("Genero");
@@ -661,25 +728,63 @@ public class ImportDataForm extends CustomComponent implements View {
     private void loadCodebtorGuarantorNetbank(List<CodebtorGuarantorNetbank> coDebtorList, Grid<CodebtorGuarantorNetbank> gridCoDebtor){
 
         gridCoDebtor.removeAllColumns();
+
         gridCoDebtor.setItems(coDebtorList);
+
+        gridCoDebtor.addComponentColumn(codebtorGuarantorNetbank -> {
+            Button button = new Button();
+            button.setIcon(VaadinIcons.PENCIL);
+            button.setStyleName(ValoTheme.BUTTON_PRIMARY);
+            button.addClickListener(clickEvent ->{
+                CodebtorGuarantorWindowForm codebtorGuarantorWindowForm = new CodebtorGuarantorWindowForm(codebtorGuarantorNetbank, coDebtorList,"netbank");
+                codebtorGuarantorWindowForm.setModal(true);
+                codebtorGuarantorWindowForm.setWidth("650px");
+                codebtorGuarantorWindowForm.setHeight("350px");
+                codebtorGuarantorWindowForm.setResizable(true);
+                codebtorGuarantorWindowForm.center();
+                UI.getCurrent().addWindow(codebtorGuarantorWindowForm);
+                codebtorGuarantorWindowForm.addCloseListener(closeEvent ->{
+                    gridCoDebtor.setItems(coDebtorList);
+                });
+            });
+            return button;
+        });
 
         gridCoDebtor.addColumn(CodebtorGuarantorNetbank::getPrdeunpre).setCaption("Nro prestamo");
         gridCoDebtor.addColumn(CodebtorGuarantorNetbank::getPrdeucage).setCaption("Nro agenda");
-        gridCoDebtor.addColumn(CodebtorGuarantorNetbank::getGbagenomb).setCaption("Nombre");
+        gridCoDebtor.addColumn(CodebtorGuarantorNetbank::getGbagenomb).setCaption("Nombre").toString().replace("¥","Ñ");
         gridCoDebtor.addColumn(CodebtorGuarantorNetbank::getGbagendid).setCaption("Carnet");
-        Binder<CodebtorGuarantorNetbank> binder = gridCoDebtor.getEditor().getBinder();
+        gridCoDebtor.addColumn(CodebtorGuarantorNetbank::getGbageeciv).setCaption("Estado civil");
+        gridCoDebtor.addComponentColumn(item -> {
+            Label label = new Label();
+            label.setValue(item.getGbagedir());
+            label.setWidthUndefined();
+            label.setStyleName(ValoTheme.LAYOUT_HORIZONTAL_WRAPPING);
+            return label;
+        })
+                .setCaption("Dir. domicilio")
+                .setWidth(280.0);
 
-        gridCoDebtor.addColumn(CodebtorGuarantorNetbank::getGbageeciv,new TextRenderer())
-                .setEditorBinding(binder
-                        .forField(new TextField())
-                        .bind(CodebtorGuarantorNetbank::getGbageeciv,CodebtorGuarantorNetbank::setGbageeciv)
-                ).setCaption("Estado civil");
+        gridCoDebtor.addColumn(CodebtorGuarantorNetbank::getAdyacentes).setCaption("Adyacentes");
+        gridCoDebtor.addColumn(CodebtorGuarantorNetbank::getZona).setCaption("Zona/Barrio");
+        gridCoDebtor.addColumn(CodebtorGuarantorNetbank::getCiudad).setCaption("Ciudad/Localidad");
+        gridCoDebtor.addColumn(CodebtorGuarantorNetbank::getProvincia).setCaption("Provincia");
+        gridCoDebtor.addColumn(CodebtorGuarantorNetbank::getDepartamento).setCaption("Departamento");
+        gridCoDebtor.addColumn(CodebtorGuarantorNetbank::getTipoDireccion).setCaption("Tipo direccion");
 
-        gridCoDebtor.addColumn(CodebtorGuarantorNetbank::getGbagedir,new TextRenderer())
-                .setEditorBinding(binder
-                        .forField(new TextField())
-                        .bind(CodebtorGuarantorNetbank::getGbagedir, CodebtorGuarantorNetbank::setGbagedir)
-                ).setCaption("Dir. domicilio");
+//        gridCoDebtor.addColumn(CodebtorGuarantorNetbank::getGbagedir).setCaption("Dir. domicilio");
+//        Binder<CodebtorGuarantorNetbank> binder = gridCoDebtor.getEditor().getBinder();
+//        gridCoDebtor.addColumn(CodebtorGuarantorNetbank::getGbageeciv,new TextRenderer())
+//                .setEditorBinding(binder
+//                        .forField(new TextField())
+//                        .bind(CodebtorGuarantorNetbank::getGbageeciv,CodebtorGuarantorNetbank::setGbageeciv)
+//                ).setCaption("Estado civil");
+//
+//        gridCoDebtor.addColumn(CodebtorGuarantorNetbank::getGbagedir,new TextRenderer())
+//                .setEditorBinding(binder
+//                        .forField(new TextField())
+//                        .bind(CodebtorGuarantorNetbank::getGbagedir, CodebtorGuarantorNetbank::setGbagedir)
+//                ).setCaption("Dir. domicilio");
 
         gridCoDebtor.addColumn(CodebtorGuarantorNetbank::getGbageddo).setCaption("Dir. oficina");
         gridCoDebtor.addColumn(CodebtorGuarantorNetbank::getGbagesexo).setCaption("Genero");
@@ -692,7 +797,7 @@ public class ImportDataForm extends CustomComponent implements View {
 
         txtClientLoanId.setValue(clientLoanNetbank.getPrmprcage().toString());
         txtIdentifyCardDebtor.setValue(String.valueOf(clientLoanNetbank.getGbagendid()));
-        txtDebtorName.setValue(String.valueOf(clientLoanNetbank.getGbagenomb()));
+        txtDebtorName.setValue(String.valueOf(clientLoanNetbank.getGbagenomb().toString().replace("¥","Ñ")));
         String civilStatus = null;
         switch (Integer.parseInt(clientLoanNetbank.getGbageeciv() == null ? "0" : clientLoanNetbank.getGbageeciv().toString())) {
             case 1:
@@ -832,6 +937,7 @@ public class ImportDataForm extends CustomComponent implements View {
         txtLoanNumberSearch =new TextField("Numero credito:");
         txtLoanNumberSearch.setStyleName(ValoTheme.TEXTFIELD_SMALL);
         txtLoanNumberSearch.setPlaceholder("Ingrese credito");
+
         gridLayout.addComponent(txtLoanNumberSearch,0,0);
 
         btnSearch =new Button("Buscar");

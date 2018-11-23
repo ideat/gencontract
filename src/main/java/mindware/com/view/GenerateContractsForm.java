@@ -304,7 +304,11 @@ public class GenerateContractsForm extends CustomComponent implements View {
         XWPFHeaderFooterPolicy policy = new XWPFHeaderFooterPolicy(doc);
         //read header
         XWPFHeader header = policy.getDefaultHeader();
-        replace2(header.getParagraphArray(0), data, "body",doc);
+        for (XWPFParagraph w : header.getListParagraph()){
+            replace2(w, data, "body",doc);
+        }
+//        replace2(header.getParagraphArray(0), data, "body",doc);
+//        replace2(header.getParagraphArray(1), data, "body",doc);
 
         for (XWPFParagraph p : doc.getParagraphs()) {
             replace2(p, data, "body",doc);
@@ -424,9 +428,12 @@ public class GenerateContractsForm extends CustomComponent implements View {
                                                 r.setText(string, i);
                                                 if (i != strings.length - 1) {
                                                     r.addCarriageReturn();
+
                                                 }
                                                 i++;
+//
                                                 p.insertNewRun(i);
+
                                             }
                                     }
 
@@ -732,6 +739,7 @@ public class GenerateContractsForm extends CustomComponent implements View {
 
         try {
             coDebtorGuarantorList = Arrays.asList(mapper.readValue(json,CoDebtorGuarantor[].class));
+
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -739,6 +747,7 @@ public class GenerateContractsForm extends CustomComponent implements View {
         if (coDebtorGuarantorList.size()>0){
             List<Parameter> parameterList = new ArrayList<>();
             int i=1;
+            coDebtorGuarantorList.sort(Comparator.comparing(CoDebtorGuarantor::getPrioridad));
             for(CoDebtorGuarantor coDebtorGuarantor : coDebtorGuarantorList) {
                 map.put("${name}",coDebtorGuarantor.getName());
                 map.put("${identifyCard}",coDebtorGuarantor.getIdentifyCard());
@@ -809,10 +818,21 @@ public class GenerateContractsForm extends CustomComponent implements View {
             List<Parameter> parameterList = new ArrayList<>();
             parameterList = parameterService.findParameterByTypeAndValue("custom_variable_contract",type);
             if (coDebtorGuarantorList.size()>0){
-               coDebtorGuarantorList.sort(Comparator.comparing(CoDebtorGuarantor::getPrioridad).reversed());
+
+                coDebtorGuarantorList.sort(Comparator.comparing(CoDebtorGuarantor::getPrioridad).reversed());
                 for(CoDebtorGuarantor coDebtorGuarantor : coDebtorGuarantorList) {
                     map.put("${name}",coDebtorGuarantor.getName());
-                    map.put("${addressHome}",coDebtorGuarantor.getAddressHome());
+                    if (coDebtorGuarantor.getTipoDireccion().equals("URBANA")) {
+                        map.put("${addressHome}", coDebtorGuarantor.getAddressHome() + ", " + coDebtorGuarantor.getAdyacentes()
+                                + ", ZONA " + coDebtorGuarantor.getZona() + ", DE LA CIUDAD DE " + coDebtorGuarantor.getCiudad()
+                                + ", DEL DEPARTAMENTO DE " + coDebtorGuarantor.getDepartamento()
+                        );
+                    }else{
+                        map.put("${addressHome}", coDebtorGuarantor.getAddressHome() + ", " + coDebtorGuarantor.getAdyacentes()
+                                + ", BARRIO " + coDebtorGuarantor.getZona() + ", DE LA LOCALIDAD DE " + coDebtorGuarantor.getCiudad()
+                                + ", PROVINCIA " + coDebtorGuarantor.getProvincia() +  ", DEL DEPARTAMENTO DE " + coDebtorGuarantor.getDepartamento()
+                        );
+                    }
                     map.put("${addressOffice}",coDebtorGuarantor.getAddressOffice());
                     map.put("${identifyCard}",coDebtorGuarantor.getIdentifyCard());
                     map.put("${gender}",coDebtorGuarantor.getGender());
@@ -911,8 +931,8 @@ public class GenerateContractsForm extends CustomComponent implements View {
         ParameterService parameterService = new ParameterService();
         gridContractTemplate.removeAllColumns();
         gridContractTemplate.setItems(parameterService.findParameterByType("contract"));
-        gridContractTemplate.addColumn(Parameter::getParameterId).setCaption("ID");
-        gridContractTemplate.addColumn(Parameter::getValueParameter).setCaption("Contrato");
+        gridContractTemplate.addColumn(Parameter::getParameterId).setCaption("ID").setHidden(true);
+        gridContractTemplate.addColumn(Parameter::getValueParameter).setCaption("Contrato").setHidden(true);
         gridContractTemplate.addColumn(Parameter::getDescriptionParameter).setCaption("Descripcion");
         gridContractTemplate.addComponentColumn(parameter -> {
             Button button = new Button();

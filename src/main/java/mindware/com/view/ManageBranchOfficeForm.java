@@ -214,19 +214,8 @@ public class ManageBranchOfficeForm extends CustomComponent implements View {
 
     private void fillGridSignatories(List<Signatories> signatoriesList){
        gridSignatories.setItems(signatoriesList);
-       gridSignatories.addColumn(Signatories::getSignatorieId).setCaption("ID");
-       gridSignatories.addColumn(Signatories::getNameSignatorie).setCaption("Nombre");
-       gridSignatories.addColumn(Signatories::getIdentifyCardSignatorie).setCaption("Carnet");
-       gridSignatories.addColumn(Signatories::getPosition).setCaption("Cargo");
-       gridSignatories.addColumn(Signatories::getStatus).setCaption("Estado");
-//        gridSignatories.addColumn(Signatories::getNroPoder).setCaption("Nro Poder");
-//        gridSignatories.addColumn(Signatories::getFechaPoder).setCaption("Fecha Poder");
-        gridSignatories.addColumn(Signatories::getNroNotaria).setCaption("Nro Notaria");
-        gridSignatories.addColumn(Signatories::getNombreNotario).setCaption("Nombre Notario");
-        gridSignatories.addColumn(Signatories::getDistritoJudicial).setCaption("Distrito Judicial");
-        gridSignatories.addColumn(Signatories::getNroTestimonio).setCaption("Nro Testimonio");
-        gridSignatories.addColumn(Signatories::getFechaTestimonio).setCaption("Fecha Testimonio");
-        gridSignatories.addComponentColumn(signatories -> {
+
+       gridSignatories.addComponentColumn(signatories -> {
             Button button = new Button();
             button.setIcon(VaadinIcons.PENCIL);
             button.setStyleName(ValoTheme.BUTTON_PRIMARY);
@@ -245,7 +234,21 @@ public class ManageBranchOfficeForm extends CustomComponent implements View {
 
             });
             return button;
-        });
+       });
+       gridSignatories.addColumn(Signatories::getSignatorieId).setCaption("ID");
+       gridSignatories.addColumn(Signatories::getNameSignatorie).setCaption("Nombre");
+       gridSignatories.addColumn(Signatories::getIdentifyCardSignatorie).setCaption("Carnet");
+       gridSignatories.addColumn(Signatories::getPosition).setCaption("Cargo");
+       gridSignatories.addColumn(Signatories::getStatus).setCaption("Estado");
+//        gridSignatories.addColumn(Signatories::getNroPoder).setCaption("Nro Poder");
+//        gridSignatories.addColumn(Signatories::getFechaPoder).setCaption("Fecha Poder");
+        gridSignatories.addColumn(Signatories::getNroNotaria).setCaption("Nro Notaria");
+        gridSignatories.addColumn(Signatories::getNombreNotario).setCaption("Nombre Notario");
+        gridSignatories.addColumn(Signatories::getDistritoJudicial).setCaption("Distrito Judicial");
+        gridSignatories.addColumn(Signatories::getNroTestimonio).setCaption("Nro Testimonio");
+        gridSignatories.addColumn(Signatories::getFechaTestimonio).setCaption("Fecha Testimonio");
+
+        gridSignatories.setFrozenColumnCount(1);
 
     }
 

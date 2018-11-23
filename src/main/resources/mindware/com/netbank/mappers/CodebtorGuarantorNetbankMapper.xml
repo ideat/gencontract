@@ -16,6 +16,13 @@
         <result property="gbageeciv" column="gbageeciv"/>
         <result property="gbagesexo" column="gbagesexo"/>
         <result property="prioridad" column="prioridad"/>
+        <result property="adyacentes" column="adyacentes"/>
+        <result property="zona" column="zona"/>
+        <result property="ciudad" column="ciudad"/>
+        <result property="provincia" column="provincia"/>
+        <result property="departamento" column="departamento"/>
+        <result property="tipoDireccion" column="tipoDireccion"/>
+
 
     </resultMap>
 
@@ -69,7 +76,13 @@
         , case
 		    when prmprcage = prdeucage then 1
 		    else 2
-          end prioridad
+          end prioridad,
+          '' as adyacentes,
+          '' as zona,
+          '' as ciudad,
+          '' as provincia,
+          '' as departamento,
+          '' as tipoDireccion
         FROM prdeu
         inner join gbage on (prdeucage = gbagecage)
         inner join gbdac on (gbdaccage = gbagecage)
@@ -122,8 +135,14 @@
             when gbagesexo = 1 then 'MASCULINO'
             when gbagesexo = 2 then 'FEMENINO'
             else 'DESCONOCIDO'
-           end as gbagesexo
-         , 1 as prioridad
+           end as gbagesexo,
+          1 as prioridad,
+         '' as adyacentes,
+          '' as zona,
+          '' as ciudad,
+          '' as provincia,
+          '' as departamento,
+          '' as tipoDireccion
         FROM prdeu
         inner join gbage on (prdeucage = gbagecage)
         inner join gbdac on (gbdaccage = gbagecage)

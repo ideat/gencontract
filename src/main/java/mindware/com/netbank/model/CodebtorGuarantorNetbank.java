@@ -12,7 +12,60 @@ public class CodebtorGuarantorNetbank {
     private String gbageeciv;
     private String gbagesexo;
     private Integer prioridad;
+    private String adyacentes;
+    private String zona;
+    private String ciudad;
+    private String provincia;
+    private String departamento;
+    private String tipoDireccion;
 
+    public String getAdyacentes() {
+        return adyacentes;
+    }
+
+    public void setAdyacentes(String adyacentes) {
+        this.adyacentes = adyacentes;
+    }
+
+    public String getZona() {
+        return zona;
+    }
+
+    public void setZona(String zona) {
+        this.zona = zona;
+    }
+
+    public String getCiudad() {
+        return ciudad;
+    }
+
+    public void setCiudad(String ciudad) {
+        this.ciudad = ciudad;
+    }
+
+    public String getProvincia() {
+        return provincia;
+    }
+
+    public void setProvincia(String provincia) {
+        this.provincia = provincia;
+    }
+
+    public String getDepartamento() {
+        return departamento;
+    }
+
+    public void setDepartamento(String departamento) {
+        this.departamento = departamento;
+    }
+
+    public String getTipoDireccion() {
+        return tipoDireccion;
+    }
+
+    public void setTipoDireccion(String tipoDireccion) {
+        this.tipoDireccion = tipoDireccion;
+    }
 
     public Integer getPrdeucage() {
         return prdeucage;

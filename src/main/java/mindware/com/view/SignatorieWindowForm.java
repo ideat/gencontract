@@ -81,8 +81,6 @@ public class SignatorieWindowForm extends Window {
             signatorie.setIdentifyCardSignatorie(txtIdentifyCardSignatorie.getValue());
             signatorie.setPosition(txtPosition.getValue());
             signatorie.setStatus(cmbStatus.getValue().toString());
-//            signatorie.setNroPoder(txtNroPoder.getValue());
-//            signatorie.setFechaPoder(txtFechaPoder.getValue());
             signatorie.setNroNotaria(txtNroNotaria.getValue());
             signatorie.setNombreNotario(txtNombreNotario.getValue());
             signatorie.setDistritoJudicial(txtDistritoJudicial.getValue());

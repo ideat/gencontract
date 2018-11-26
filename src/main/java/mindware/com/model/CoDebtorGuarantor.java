@@ -13,12 +13,21 @@ public class CoDebtorGuarantor implements Comparable<CoDebtorGuarantor>{
     private Integer id;
     private String insured;
     private Integer prioridad;
+    private String numeroCasa;
     private String adyacentes;
     private String zona;
     private String ciudad;
     private String provincia;
     private String departamento;
     private String tipoDireccion;
+
+    public String getNumeroCasa() {
+        return numeroCasa;
+    }
+
+    public void setNumeroCasa(String numeroCasa) {
+        this.numeroCasa = numeroCasa;
+    }
 
     public String getTipoDireccion() {
         return tipoDireccion;

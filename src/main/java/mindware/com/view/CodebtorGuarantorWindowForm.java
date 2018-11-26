@@ -20,7 +20,9 @@ public class CodebtorGuarantorWindowForm extends Window {
     private TextField txtProvincia;
     private ComboBox cmbDepartamento;
     private ComboBox cmbTipoDireccion;
+    private TextField txtCivilStatus;
     private TextField txtName;
+    private TextField txtNumeroCasa;
     private Label lblTitulo;
 
     private Button btnSave;
@@ -47,6 +49,7 @@ public class CodebtorGuarantorWindowForm extends Window {
     }
 
     private void postBuild(Object codebtorGuarantorSelected, String origen, List<?> codebtorGuarantorList ){
+
         btnSave.addClickListener(clickEvent ->{
             String result = validateData(cmbTipoDireccion.getValue().toString());
             if (result.equals("OK")){
@@ -86,8 +89,10 @@ public class CodebtorGuarantorWindowForm extends Window {
 
     private void saveDataNetBank(CodebtorGuarantorNetbank codebtorGuarantorNetbank, List<CodebtorGuarantorNetbank> codebtorGuarantorNetbankList){
         codebtorGuarantorNetbank.setGbagenomb(txtName.getValue());
+        codebtorGuarantorNetbank.setGbageeciv(txtCivilStatus.getValue());
         codebtorGuarantorNetbank.setTipoDireccion(cmbTipoDireccion.getValue().toString());
         codebtorGuarantorNetbank.setGbagedir(txtDireccion.getValue());
+        codebtorGuarantorNetbank.setNumeroCasa(txtNumeroCasa.getValue());
         codebtorGuarantorNetbank.setAdyacentes(txtAdyacentes.getValue());
         codebtorGuarantorNetbank.setZona(txtZona.getValue());
         codebtorGuarantorNetbank.setCiudad(txtCiudad.getValue());
@@ -106,8 +111,10 @@ public class CodebtorGuarantorWindowForm extends Window {
 
     private void saveData(CoDebtorGuarantor coDebtorGuarantor , List<CoDebtorGuarantor> coDebtorGuarantorList){
         coDebtorGuarantor.setName(txtName.getValue());
+        coDebtorGuarantor.setCivilStatus(txtCivilStatus.getValue());
         coDebtorGuarantor.setTipoDireccion(cmbTipoDireccion.getValue().toString());
         coDebtorGuarantor.setAddressHome(txtDireccion.getValue());
+        coDebtorGuarantor.setNumeroCasa(txtNumeroCasa.getValue());
         coDebtorGuarantor.setAdyacentes(txtAdyacentes.getValue());
         coDebtorGuarantor.setZona(txtZona.getValue());
         coDebtorGuarantor.setProvincia(txtProvincia.getValue());
@@ -127,7 +134,9 @@ public class CodebtorGuarantorWindowForm extends Window {
 
     private void fillDataNetBank(CodebtorGuarantorNetbank codebtorGuarantorNetbank){
         txtName.setValue(codebtorGuarantorNetbank.getGbagenomb());
+        txtCivilStatus.setValue(codebtorGuarantorNetbank.getGbageeciv());
         cmbTipoDireccion.setValue(codebtorGuarantorNetbank.getTipoDireccion());
+        txtNumeroCasa.setValue(codebtorGuarantorNetbank.getNumeroCasa());
         txtDireccion.setValue(codebtorGuarantorNetbank.getGbagedir());
         txtAdyacentes.setValue(codebtorGuarantorNetbank.getAdyacentes());
         txtZona.setValue(codebtorGuarantorNetbank.getZona());
@@ -137,9 +146,11 @@ public class CodebtorGuarantorWindowForm extends Window {
     }
 
     private void fillData(CoDebtorGuarantor coDebtorGuarantor){
-        txtName.setValue(coDebtorGuarantor.getName());
-        cmbTipoDireccion.setValue(coDebtorGuarantor.getTipoDireccion());
-        txtDireccion.setValue(coDebtorGuarantor.getAddressHome());
+        txtName.setValue(coDebtorGuarantor.getName() == null ? "" : String.valueOf(coDebtorGuarantor.getName()));
+        txtCivilStatus.setValue(coDebtorGuarantor.getCivilStatus() == null ? "":String.valueOf(coDebtorGuarantor.getCivilStatus()));
+        cmbTipoDireccion.setValue(coDebtorGuarantor.getTipoDireccion() == null ? "" :String.valueOf(coDebtorGuarantor.getTipoDireccion()));
+        txtDireccion.setValue(coDebtorGuarantor.getAddressHome() == null ? "": String.valueOf(coDebtorGuarantor.getAddressHome()) );
+        txtNumeroCasa.setValue(coDebtorGuarantor.getNumeroCasa() == null ? "":String.valueOf(coDebtorGuarantor.getNumeroCasa()));
         txtAdyacentes.setValue(coDebtorGuarantor.getAdyacentes()==null ? "":String.valueOf(coDebtorGuarantor.getAdyacentes()));
         txtZona.setValue(coDebtorGuarantor.getZona() == null ? "":String.valueOf(coDebtorGuarantor.getZona()));
         txtCiudad.setValue(coDebtorGuarantor.getCiudad()== null ? "":String.valueOf(coDebtorGuarantor.getCiudad()));
@@ -148,8 +159,10 @@ public class CodebtorGuarantorWindowForm extends Window {
     }
 
     private String validateData(String tipoDireccion){
-        if (cmbTipoDireccion.isEmpty()) return "Tipo de direccion, no puede omitirse";
-        if (txtDireccion.isEmpty()) return "Calle de la direccion no puede ser omitia";
+        if (txtCivilStatus.isEmpty()) return "Estado civil no puede ser omitido";
+        if (cmbTipoDireccion.isEmpty() || cmbTipoDireccion.getValue().equals("")) return "Tipo de direccion, no puede omitirse";
+        if (txtDireccion.isEmpty()) return "Calle de la direccion no puede ser omitida";
+        if (txtNumeroCasa.isEmpty()) return "Nro de docicilio no puede ser omitido";
         if (txtAdyacentes.isEmpty()) return "Adyacentes no puede se omitida";
         if (txtZona.isEmpty()) return "Zona no puede ser omitida";
         if (txtCiudad.isEmpty()) return "Ciudad no puede ser omitida";
@@ -164,46 +177,57 @@ public class CodebtorGuarantorWindowForm extends Window {
     private GridLayout buildGridMainLayout(){
         mainGridLayout = new GridLayout();
         mainGridLayout.setColumns(3);
-        mainGridLayout.setRows(4);
+        mainGridLayout.setRows(5);
         mainGridLayout.setWidth("100%");
         mainGridLayout.setSpacing(true);
         mainGridLayout.setMargin(true);
 
         txtName = new TextField("Nombre completo:");
         txtName.setStyleName(ValoTheme.TEXTFIELD_TINY);
+        txtName.setReadOnly(true);
         mainGridLayout.addComponent(txtName,0,0);
+
+        txtCivilStatus = new TextField("Estado civil:");
+        txtCivilStatus.setStyleName(ValoTheme.TEXTFIELD_TINY);
+        mainGridLayout.addComponent(txtCivilStatus,1,0);
 
         cmbTipoDireccion = new ComboBox("Tipo direccion:");
         cmbTipoDireccion.setStyleName(ValoTheme.COMBOBOX_TINY);
         cmbTipoDireccion.setItems("RURAL","URBANA");
         cmbTipoDireccion.setEmptySelectionAllowed(false);
         cmbTipoDireccion.setRequiredIndicatorVisible(true);
-        mainGridLayout.addComponent(cmbTipoDireccion,1,0);
+        mainGridLayout.addComponent(cmbTipoDireccion,2,0);
 
 
         txtDireccion = new TextField("Calle:");
         txtDireccion.setStyleName(ValoTheme.TEXTFIELD_TINY);
         txtDireccion.setRequiredIndicatorVisible(true);
+
         mainGridLayout.addComponent(txtDireccion,0,1);
+
+        txtNumeroCasa = new TextField("Nro. domicilio");
+        txtNumeroCasa.setStyleName(ValoTheme.TEXTFIELD_TINY);
+        txtNumeroCasa.setRequiredIndicatorVisible(true);
+        mainGridLayout.addComponent(txtNumeroCasa,1,1);
 
         txtAdyacentes = new TextField("Adyacentes:");
         txtAdyacentes.setStyleName(ValoTheme.TEXTFIELD_TINY);
         txtAdyacentes.setRequiredIndicatorVisible(true);
-        mainGridLayout.addComponent(txtAdyacentes,1,1);
+        mainGridLayout.addComponent(txtAdyacentes,2,1);
 
         txtZona = new TextField("Zona/Barrio:");
         txtZona.setStyleName(ValoTheme.TEXTFIELD_TINY);
         txtZona.setRequiredIndicatorVisible(true);
-        mainGridLayout.addComponent(txtZona,2,1);
+        mainGridLayout.addComponent(txtZona,0,2);
 
         txtCiudad = new TextField("Ciudad/Localidad:");
         txtCiudad.setStyleName(ValoTheme.TEXTFIELD_TINY);
         txtCiudad.setRequiredIndicatorVisible(true);
-        mainGridLayout.addComponent(txtCiudad,0,2);
+        mainGridLayout.addComponent(txtCiudad,1,2);
 
         txtProvincia = new TextField("Provincia:");
         txtProvincia.setStyleName(ValoTheme.TEXTFIELD_TINY);
-        mainGridLayout.addComponent(txtProvincia,1,2);
+        mainGridLayout.addComponent(txtProvincia,2,2);
 
         cmbDepartamento = new ComboBox("Departamento:");
         cmbDepartamento.setStyleName(ValoTheme.COMBOBOX_TINY);
@@ -211,17 +235,17 @@ public class CodebtorGuarantorWindowForm extends Window {
         cmbDepartamento.setRequiredIndicatorVisible(true);
         cmbDepartamento.setItems("LA PAZ","SANTA CRUZ", "COCHABAMBA",
                 "ORURO","POTOSI","TARIJA","CHUQUISACA","PANDO","BENI");
-        mainGridLayout.addComponent(cmbDepartamento,2,2);
+        mainGridLayout.addComponent(cmbDepartamento,0,3);
 
         btnSave = new Button("Guardar");
         btnSave.setStyleName(ValoTheme.BUTTON_PRIMARY);
         btnSave.setIcon(VaadinIcons.STORAGE);
-        mainGridLayout.addComponent(btnSave,0,3);
+        mainGridLayout.addComponent(btnSave,0,4);
 
         btnExit = new Button("Salir");
         btnExit.setStyleName(ValoTheme.BUTTON_DANGER);
         btnExit.setIcon(VaadinIcons.EXIT);
-        mainGridLayout.addComponent(btnExit,1,3);
+        mainGridLayout.addComponent(btnExit,1,4);
 
         return mainGridLayout;
 

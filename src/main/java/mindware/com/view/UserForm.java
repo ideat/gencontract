@@ -298,10 +298,11 @@ public class UserForm extends CustomComponent implements View{
         panelGridUser = new Panel();
         panelGridUser.setStyleName(ValoTheme.PANEL_WELL);
         panelGridUser.setWidth("100%");
-        panelGridUser.setHeight("200px");
+        panelGridUser.setHeight("350px");
         gridUser = new Grid<>(User.class);
         gridUser.setStyleName(ValoTheme.TABLE_SMALL);
         gridUser.setWidth("100%");
+        gridUser.setHeight("330px");
         panelGridUser.setContent(gridUser);
         return panelGridUser;
     }

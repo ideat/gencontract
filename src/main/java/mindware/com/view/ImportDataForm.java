@@ -434,11 +434,23 @@ public class ImportDataForm extends CustomComponent implements View {
         gridCoDebtor.getEditor().setSaveCaption("Guardar");
         panelCoDebtor.setContent(gridCoDebtor);
 
+        replaceCharacters(codebtorNetbankList);
+        replaceCharacters(guarantorNetbankList);
         loadCodebtorGuarantorNetbank(codebtorNetbankList, (Grid<CodebtorGuarantorNetbank>) gridCoDebtor);
         loadCodebtorGuarantorNetbank(guarantorNetbankList, (Grid<CodebtorGuarantorNetbank>) gridGuarantor);
 
         loadNetBankData(clientLoanNetbank);
         loadWarrantyNetBank(warrantyNetbankList, (Grid<WarrantyNetbank>) gridWarranty);
+    }
+
+    private void replaceCharacters(List<CodebtorGuarantorNetbank> codebtorGuarantorNetbankList) {
+        List<CodebtorGuarantorNetbank> aux = new ArrayList<>();
+        for (CodebtorGuarantorNetbank cn:codebtorGuarantorNetbankList){
+            cn.setGbagenomb( cn.getGbagenomb().replace("¥","Ñ").trim());
+            cn.setGbagedir(cn.getGbagedir().replace("¥","Ñ").trim());
+            aux.add(cn);
+        }
+        codebtorGuarantorNetbankList = aux;
     }
 
     private boolean validateLoanData(){
@@ -585,6 +597,7 @@ public class ImportDataForm extends CustomComponent implements View {
         gridCoDebtorGuarantor.removeAllColumns();
 
         gridCoDebtorGuarantor.setItems(coDebtorGuarantorList);
+
         gridCoDebtorGuarantor.addComponentColumn(codebtorGuarantor ->{
            Button button = new Button();
            button.setIcon(VaadinIcons.PENCIL);
@@ -619,7 +632,7 @@ public class ImportDataForm extends CustomComponent implements View {
         })
                 .setCaption("Dir. domicilio")
                 .setWidth(280.0);
-
+        gridCoDebtorGuarantor.addColumn(CoDebtorGuarantor::getNumeroCasa).setCaption("Nro domicilio");
         gridCoDebtorGuarantor.addColumn(CoDebtorGuarantor::getAdyacentes).setCaption("Adyacentes");
         gridCoDebtorGuarantor.addColumn(CoDebtorGuarantor::getZona).setCaption("Zona/Barrio");
         gridCoDebtorGuarantor.addColumn(CoDebtorGuarantor::getCiudad).setCaption("Ciudad/Localidad");
@@ -645,6 +658,7 @@ public class ImportDataForm extends CustomComponent implements View {
         gridCoDebtorGuarantor.addColumn(CoDebtorGuarantor::getGender).setCaption("Genero");
         gridCoDebtorGuarantor.addColumn(CoDebtorGuarantor::getPrioridad).setCaption("Prioridad");
 
+        gridCoDebtorGuarantor.setFrozenColumnCount(1);
     }
 
 
@@ -695,6 +709,14 @@ public class ImportDataForm extends CustomComponent implements View {
             coDebtorGuarantor.setGender(codebtorGuarantorNetbank.getGbagesexo().trim());
             coDebtorGuarantor.setInsured(type.equals("codebtor")?"asegurado":"noAsegurado");
             coDebtorGuarantor.setPrioridad(codebtorGuarantorNetbank.getPrioridad());
+            coDebtorGuarantor.setAdyacentes(codebtorGuarantorNetbank.getAdyacentes());
+            coDebtorGuarantor.setZona(codebtorGuarantorNetbank.getZona());
+            coDebtorGuarantor.setCiudad(codebtorGuarantorNetbank.getCiudad());
+            coDebtorGuarantor.setProvincia(codebtorGuarantorNetbank.getProvincia());
+            coDebtorGuarantor.setDepartamento(codebtorGuarantorNetbank.getDepartamento());
+            coDebtorGuarantor.setTipoDireccion(codebtorGuarantorNetbank.getTipoDireccion());
+            coDebtorGuarantor.setNumeroCasa(codebtorGuarantorNetbank.getNumeroCasa());
+
             coDebtorGuarantor.setId(i);
 
             i++;
@@ -750,27 +772,20 @@ public class ImportDataForm extends CustomComponent implements View {
             return button;
         });
 
-        gridCoDebtor.addColumn(CodebtorGuarantorNetbank::getPrdeunpre).setCaption("Nro prestamo");
-        gridCoDebtor.addColumn(CodebtorGuarantorNetbank::getPrdeucage).setCaption("Nro agenda");
-        gridCoDebtor.addColumn(CodebtorGuarantorNetbank::getGbagenomb).setCaption("Nombre").toString().replace("¥","Ñ");
-        gridCoDebtor.addColumn(CodebtorGuarantorNetbank::getGbagendid).setCaption("Carnet");
-        gridCoDebtor.addColumn(CodebtorGuarantorNetbank::getGbageeciv).setCaption("Estado civil");
-        gridCoDebtor.addComponentColumn(item -> {
-            Label label = new Label();
-            label.setValue(item.getGbagedir());
-            label.setWidthUndefined();
-            label.setStyleName(ValoTheme.LAYOUT_HORIZONTAL_WRAPPING);
-            return label;
-        })
-                .setCaption("Dir. domicilio")
-                .setWidth(280.0);
+        gridCoDebtor.addColumn(CodebtorGuarantorNetbank::getPrdeunpre).setCaption("Nro prestamo").toString().trim();
+        gridCoDebtor.addColumn(CodebtorGuarantorNetbank::getPrdeucage).setCaption("Nro agenda").toString().trim();
+        gridCoDebtor.addColumn(CodebtorGuarantorNetbank::getGbagenomb).setCaption("Nombre").toString().replace("¥","Ñ").trim();
+        gridCoDebtor.addColumn(CodebtorGuarantorNetbank::getGbagendid).setCaption("Carnet").toString().trim();
+        gridCoDebtor.addColumn(CodebtorGuarantorNetbank::getGbageeciv).setCaption("Estado civil").toString().trim();
+        gridCoDebtor.addColumn(CodebtorGuarantorNetbank::getGbagedir).setCaption("Dir. domicilio").toString().trim().replace("¥","Ñ").trim();;
 
-        gridCoDebtor.addColumn(CodebtorGuarantorNetbank::getAdyacentes).setCaption("Adyacentes");
-        gridCoDebtor.addColumn(CodebtorGuarantorNetbank::getZona).setCaption("Zona/Barrio");
-        gridCoDebtor.addColumn(CodebtorGuarantorNetbank::getCiudad).setCaption("Ciudad/Localidad");
-        gridCoDebtor.addColumn(CodebtorGuarantorNetbank::getProvincia).setCaption("Provincia");
-        gridCoDebtor.addColumn(CodebtorGuarantorNetbank::getDepartamento).setCaption("Departamento");
-        gridCoDebtor.addColumn(CodebtorGuarantorNetbank::getTipoDireccion).setCaption("Tipo direccion");
+        gridCoDebtor.addColumn(CodebtorGuarantorNetbank::getNumeroCasa).setCaption("Nro domicilio").toString().trim();
+        gridCoDebtor.addColumn(CodebtorGuarantorNetbank::getAdyacentes).setCaption("Adyacentes").toString().trim();
+        gridCoDebtor.addColumn(CodebtorGuarantorNetbank::getZona).setCaption("Zona/Barrio").toString().trim();
+        gridCoDebtor.addColumn(CodebtorGuarantorNetbank::getCiudad).setCaption("Ciudad/Localidad").toString().trim();
+        gridCoDebtor.addColumn(CodebtorGuarantorNetbank::getProvincia).setCaption("Provincia").toString().trim();
+        gridCoDebtor.addColumn(CodebtorGuarantorNetbank::getDepartamento).setCaption("Departamento").toString().trim();
+        gridCoDebtor.addColumn(CodebtorGuarantorNetbank::getTipoDireccion).setCaption("Tipo direccion").toString().trim();
 
 //        gridCoDebtor.addColumn(CodebtorGuarantorNetbank::getGbagedir).setCaption("Dir. domicilio");
 //        Binder<CodebtorGuarantorNetbank> binder = gridCoDebtor.getEditor().getBinder();
@@ -786,9 +801,10 @@ public class ImportDataForm extends CustomComponent implements View {
 //                        .bind(CodebtorGuarantorNetbank::getGbagedir, CodebtorGuarantorNetbank::setGbagedir)
 //                ).setCaption("Dir. domicilio");
 
-        gridCoDebtor.addColumn(CodebtorGuarantorNetbank::getGbageddo).setCaption("Dir. oficina");
-        gridCoDebtor.addColumn(CodebtorGuarantorNetbank::getGbagesexo).setCaption("Genero");
+        gridCoDebtor.addColumn(CodebtorGuarantorNetbank::getGbageddo).setCaption("Dir. oficina").toString().trim().replace("¥","Ñ").trim();;
+        gridCoDebtor.addColumn(CodebtorGuarantorNetbank::getGbagesexo).setCaption("Genero").toString().trim();
         gridCoDebtor.addColumn(CodebtorGuarantorNetbank::getPrioridad).setCaption("Prioridad");
+        gridCoDebtor.setFrozenColumnCount(1);
 
     }
 
@@ -1084,17 +1100,20 @@ public class ImportDataForm extends CustomComponent implements View {
         txtCivilStatusDebtor.setStyleName(ValoTheme.TEXTFIELD_TINY);
         txtCivilStatusDebtor.addStyleName("my_bg_style");
         txtCivilStatusDebtor.setReadOnly(false);
+        txtCivilStatusDebtor.setVisible(false);
         gridLayoutClient.addComponent(txtCivilStatusDebtor,3,0);
 
         txtGenderDebtor = new TextField("Genero:");
         txtGenderDebtor.setStyleName(ValoTheme.TEXTFIELD_TINY);
         txtGenderDebtor.setReadOnly(true);
+        txtGenderDebtor.setVisible(false);
         gridLayoutClient.addComponent(txtGenderDebtor,4,0);
 
         txtAddressDebtor = new TextField("Direccion:");
         txtAddressDebtor.setStyleName(ValoTheme.TEXTFIELD_TINY);
         txtAddressDebtor.addStyleName("my_bg_style");
         txtAddressDebtor.setReadOnly(false);
+        txtAddressDebtor.setVisible(false);
         gridLayoutClient.addComponent(txtAddressDebtor,5,0);
 
         panelClient.setContent(gridLayoutClient);

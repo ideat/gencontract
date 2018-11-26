@@ -262,7 +262,8 @@ public class GenerateContractsForm extends CustomComponent implements View {
                     "Verifique lo siguiente:\n" +
                             "1. Que existan los representantes legales de la agencia\n" +
                             " 2. Si el contrato es con garantes que el credito, tenga registrado garantes\n" +
-                            " 3. "+ e +"\n" ,
+                            " 3. Tener registradas correctamente las direcciones de los Codeudores y Garantes\n" +
+                            " 4. "+ e +"\n" ,
                     Notification.Type.ERROR_MESSAGE);
 
         }
@@ -751,6 +752,12 @@ public class GenerateContractsForm extends CustomComponent implements View {
             for(CoDebtorGuarantor coDebtorGuarantor : coDebtorGuarantorList) {
                 map.put("${name}",coDebtorGuarantor.getName());
                 map.put("${identifyCard}",coDebtorGuarantor.getIdentifyCard());
+                map.put("${adyacentes}",coDebtorGuarantor.getAdyacentes());
+                map.put("${zona}",coDebtorGuarantor.getZona());
+                map.put("${ciudad}",coDebtorGuarantor.getCiudad());
+                map.put("${provincia}",coDebtorGuarantor.getProvincia());
+                map.put("${departamento}",coDebtorGuarantor.getDepartamento());
+                map.put("${numeroCasa}", coDebtorGuarantor.getNumeroCasa());
 
                 parameterList = parameterService.findParameterByTypeAndValue("custom_variable_contract",type+i+"%");
 
@@ -823,21 +830,27 @@ public class GenerateContractsForm extends CustomComponent implements View {
                 for(CoDebtorGuarantor coDebtorGuarantor : coDebtorGuarantorList) {
                     map.put("${name}",coDebtorGuarantor.getName());
                     if (coDebtorGuarantor.getTipoDireccion().equals("URBANA")) {
-                        map.put("${addressHome}", coDebtorGuarantor.getAddressHome() + ", " + coDebtorGuarantor.getAdyacentes()
-                                + ", ZONA " + coDebtorGuarantor.getZona() + ", DE LA CIUDAD DE " + coDebtorGuarantor.getCiudad()
+                        map.put("${addressHome}", coDebtorGuarantor.getAddressHome() + " " + coDebtorGuarantor.getNumeroCasa() + ", " + coDebtorGuarantor.getAdyacentes()
+                                + ", " + coDebtorGuarantor.getZona() + ", " + coDebtorGuarantor.getCiudad()
                                 + ", DEL DEPARTAMENTO DE " + coDebtorGuarantor.getDepartamento()
                         );
                     }else{
-                        map.put("${addressHome}", coDebtorGuarantor.getAddressHome() + ", " + coDebtorGuarantor.getAdyacentes()
-                                + ", BARRIO " + coDebtorGuarantor.getZona() + ", DE LA LOCALIDAD DE " + coDebtorGuarantor.getCiudad()
-                                + ", PROVINCIA " + coDebtorGuarantor.getProvincia() +  ", DEL DEPARTAMENTO DE " + coDebtorGuarantor.getDepartamento()
+                        map.put("${addressHome}", coDebtorGuarantor.getAddressHome() + " " + coDebtorGuarantor.getNumeroCasa()+ ", "  + coDebtorGuarantor.getAdyacentes()
+                                + ", " + coDebtorGuarantor.getZona() + ", " + coDebtorGuarantor.getCiudad()
+                                + ", " + coDebtorGuarantor.getProvincia() +  ", DEL DEPARTAMENTO DE " + coDebtorGuarantor.getDepartamento()
                         );
                     }
+                    map.put("${addressHomeStreet}",coDebtorGuarantor.getAddressHome());
                     map.put("${addressOffice}",coDebtorGuarantor.getAddressOffice());
                     map.put("${identifyCard}",coDebtorGuarantor.getIdentifyCard());
                     map.put("${gender}",coDebtorGuarantor.getGender());
                     map.put("${civilStatus}",coDebtorGuarantor.getCivilStatus());
                     map.put("${codeMebership}",coDebtorGuarantor.getCodeMebership().toString());
+                    map.put("${adyacentes}",coDebtorGuarantor.getAdyacentes());
+                    map.put("${zona}",coDebtorGuarantor.getZona());
+                    map.put("${ciudad}",coDebtorGuarantor.getCiudad());
+                    map.put("${provincia}",coDebtorGuarantor.getProvincia());
+                    map.put("${departamento}",coDebtorGuarantor.getDepartamento());
 
 
                     for (Parameter parameter : parameterList) {

@@ -22,6 +22,7 @@
         <result property="provincia" column="provincia"/>
         <result property="departamento" column="departamento"/>
         <result property="tipoDireccion" column="tipoDireccion"/>
+        <result property="numeroCasa" column="numeroCasa"/>
 
 
     </resultMap>
@@ -82,7 +83,8 @@
           '' as ciudad,
           '' as provincia,
           '' as departamento,
-          '' as tipoDireccion
+          '' as tipoDireccion,
+          '' as numeroCasa
         FROM prdeu
         inner join gbage on (prdeucage = gbagecage)
         inner join gbdac on (gbdaccage = gbagecage)
@@ -142,7 +144,8 @@
           '' as ciudad,
           '' as provincia,
           '' as departamento,
-          '' as tipoDireccion
+          '' as tipoDireccion,
+          '' as numeroCasa
         FROM prdeu
         inner join gbage on (prdeucage = gbagecage)
         inner join gbdac on (gbdaccage = gbagecage)

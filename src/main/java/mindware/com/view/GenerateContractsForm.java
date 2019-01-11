@@ -418,6 +418,9 @@ public class GenerateContractsForm extends CustomComponent implements View {
                                     String[] strings = txt.split("\n");
                                     int i = 0;
                                     switch (key){
+//                                        case "#warranty_dpf_redaccion":
+//                                            fillAnd(p, strings, i, r);
+//                                            break;
                                         case "#codeudor_nombres" :
                                             fillAnd(p, strings, i, r);
                                             break;
@@ -635,6 +638,8 @@ public class GenerateContractsForm extends CustomComponent implements View {
         listVariableContract = parameterService.findParameterByType("custom_variable_contract");
 
         for(Parameter parameter:listVariableContract){
+
+
             if (parameter.getValueParameter().equals("literal_monto_prestamo")){
                 stringMapVariables.put(parameter.getValueParameter(),new NumberToLiteral()
                         .Convert(String.format("%.2f",loanData.getLoanMount()),true,"N/A","float"));
@@ -676,8 +681,10 @@ public class GenerateContractsForm extends CustomComponent implements View {
         if (!loanData.getGuarantors().equals("[]")) {
             stringMapVariables = replaceCicleVariables(stringMapVariables, loanData.getGuarantors(), "#garante%");
             stringMapVariables = replaceSignantGuarantorCodebtor(stringMapVariables,loanData.getGuarantors(),"garante");
-        }else{
+        }
 
+        if (!loanData.getWarranty().equals("[]")){
+            stringMapVariables = replaceCicleVariablesWarranty(stringMapVariables,loanData.getWarranty(),"#warranty%");
         }
         stringMapVariables= replaceCicleVariables(stringMapVariables,loanData.getCoDebtors(),"#codeudor%");
         stringMapVariables= replaceCicleInsured(stringMapVariables,loanData.getCoDebtors());
@@ -812,6 +819,69 @@ public class GenerateContractsForm extends CustomComponent implements View {
         data.put("#lista_asegurados",insuredCodebtors);
         return data;
 
+    }
+
+    private Map<String, String> replaceCicleVariablesWarranty(Map<String,String> data, String json, String type){
+        ObjectMapper mapper = new ObjectMapper();
+        List<Warranty> warrantyList = new ArrayList<>();
+        Map<String,String> map = new HashMap<>();
+
+        try{
+            ParameterService parameterService = new ParameterService();
+            warrantyList = Arrays.asList(mapper.readValue(json,Warranty[].class));
+            List<Parameter> parameterList = new ArrayList<>();
+            parameterList = parameterService.findParameterByTypeAndValue("custom_variable_contract",type);
+
+            if(warrantyList.size()>0){
+                for(Warranty warranty : warrantyList){
+                    if (warranty.getCodeGuarantee().equals("BM2") || warranty.getCodeGuarantee().equals("BE2")){
+                       map.put("${numeroDpf}",warranty.getMortageNumber());
+                       map.put("${numeroPizarra}",warranty.getNumeroPizarra());
+                       map.put("${numeroCui}",warranty.getNumeroCUI());
+                       map.put("${entidadEmisora}",warranty.getEntidadEmisora());
+                       map.put("${titular}",warranty.getTitular());
+                       map.put("${currency}",warranty.getCurrency());
+                       map.put("${literalMoneda}",warranty.getCurrency().equals("BS")?"BOLIVIANOS":"DOLARES");
+                       map.put("${assessmentEntity}",String.format("%,.2f", warranty.getAssessmentEntity()));
+                       map.put("${literalMontoDpf}", new NumberToLiteral()
+                               .Convert(String.format("%.2f",warranty.getAssessmentEntity()),true,"N/A","float"));
+
+                    }
+                }
+                try {
+                    for (Parameter parameter : parameterList) {
+                        origin = parameter.getDescriptionParameter();
+//                        data.forEach((k, v) -> {
+//                            String key = "${" + k + "}";
+//                            origin = origin.replaceAll(Pattern.quote(key), v);
+//                        });
+                        map.forEach((k, v) -> {
+                            origin = origin.replaceAll(Pattern.quote(k), v);
+                        });
+                        if (!data.containsKey(parameter.getValueParameter()))
+                            data.put(parameter.getValueParameter(), origin);
+                        else {
+                            String value = data.get(parameter.getValueParameter());
+                            if (value.contains("${")) {
+                                data.replace(parameter.getValueParameter(), value, origin);
+                            } else {
+                                origin = origin + " y " + value;
+                                data.replace(parameter.getValueParameter(), value, origin);
+                            }
+                        }
+
+                    }
+                }catch (Exception e){
+                    System.out.println(e);
+                }
+
+            }
+
+        }catch (Exception e){
+
+        }
+
+        return data;
     }
 
     private Map<String,String> replaceCicleVariables(Map<String,String> data, String json, String type){

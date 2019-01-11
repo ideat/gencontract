@@ -30,8 +30,8 @@
     <select id="findWarrantyNetbankByCreCod" resultMap="WarrantyNetBankResult" parameterType="int">
         select prgarnpre, prgarcorr, gbtgadesc,gbtgacsup,
         case
-          when prgarcmon = 1 then "Bs"
-          WHEN prgarcmon = 2 then "$us"
+          when prgarcmon = 1 then "BS"
+          WHEN prgarcmon = 2 then "USD"
         end as prgarcmon,
         prgargfin, prgarfvto, prgarnpar
         ,prgarfpar, prgarnhip, prgarfhip, prgardesc,prgarsufl

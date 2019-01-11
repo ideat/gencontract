@@ -924,7 +924,7 @@ public class ImportDataForm extends CustomComponent implements View {
                 currency = "BS";
                 break;
             case 2:
-                currency ="$us";
+                currency ="USD";
                 break;
         }
 

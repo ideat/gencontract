@@ -101,7 +101,10 @@ public class NumberToLiteral {
         } else if (n > 19) {//para 20...99
             String u = getUnits(num);
             if (u.equals("")) { //para 20,30,40,50,60,70,80,90
-                return TENS[Integer.parseInt(num.substring(0, 1)) + 8];
+                if (Integer.parseInt(num.substring(0,1))==2)
+                    return TENS[Integer.parseInt(num.substring(0, 1)) + 8];
+                else
+                    return TENS[Integer.parseInt(num.substring(0, 1)) + 17];
             } else {
                 if (n > 20 && n < 30)
                     return TENS[n-10];

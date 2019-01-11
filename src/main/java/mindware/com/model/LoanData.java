@@ -39,6 +39,15 @@ public class LoanData {
     private Double lineSpread;
     private Integer lineTerm;
     private Double lineMount;
+    private String warrantyDpf;
+
+    public String getWarrantyDpf() {
+        return warrantyDpf;
+    }
+
+    public void setWarrantyDpf(String warrantyDpf) {
+        this.warrantyDpf = warrantyDpf;
+    }
 
     public Double getLineMount() {
         return lineMount;

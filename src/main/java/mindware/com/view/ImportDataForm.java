@@ -577,6 +577,33 @@ public class ImportDataForm extends CustomComponent implements View {
     private void fillGridWarranty(List<Warranty> warrantyList, Grid<Warranty> gridWarranty){
         gridWarranty.removeAllColumns();
         gridWarranty.setItems(warrantyList);
+
+        gridWarranty.addComponentColumn(warranty -> {
+            Button button = new Button();
+            button.setIcon(VaadinIcons.PENCIL);
+            button.setStyleName(ValoTheme.BUTTON_PRIMARY);
+            button.addClickListener(clickEvent -> {
+                if(warranty.getCodeGuarantee()!=null)
+                if (warranty.getCodeGuarantee().equals("BM2") || warranty.getCodeGuarantee().equals("BE2") ) {
+                    WarrantyWindowForm warrantyWindowForm = new WarrantyWindowForm(warranty, warrantyList, "local");
+                    warrantyWindowForm.setModal(true);
+                    warrantyWindowForm.setWidth("550px");
+                    warrantyWindowForm.setHeight("250px");
+                    warrantyWindowForm.setResizable(true);
+                    warrantyWindowForm.center();
+                    UI.getCurrent().addWindow(warrantyWindowForm);
+                    warrantyWindowForm.addCloseListener(closeEvent -> {
+                        gridWarranty.setItems(warrantyList);
+                    });
+                }else{
+                    Notification.show("DATOS GARANTIA",
+                            "La garantia no es un DPF, no se puede editar",
+                            Notification.Type.ERROR_MESSAGE);
+                }
+            });
+            return button;
+        });
+
         gridWarranty.addColumn(Warranty::getLoanNumber).setCaption("Nro prestamo");
         gridWarranty.addColumn(Warranty::getTypeGuarantee).setCaption("Tipo garantia");
         gridWarranty.addColumn(Warranty::getCurrency).setCaption("Moneda");
@@ -686,6 +713,18 @@ public class ImportDataForm extends CustomComponent implements View {
                 warranty.setDescription(warrantyNetbank.getPrgardesc().trim());
             if (warrantyNetbank.getPrgarsufl()!= null)
                 warranty.setEnoughGuarante(warrantyNetbank.getPrgarsufl().trim());
+
+            if (warrantyNetbank.getGbtgacsup() != null)
+                warranty.setCodeGuarantee(warrantyNetbank.getGbtgacsup().trim());
+            if (warrantyNetbank.getEntidadEmisora() != null)
+                warranty.setEntidadEmisora(warrantyNetbank.getEntidadEmisora().trim());
+            if (warrantyNetbank.getNumeroCUI() != null)
+                warranty.setNumeroCUI(warrantyNetbank.getNumeroCUI().trim());
+            if (warrantyNetbank.getNumeroPizarra() != null)
+                warranty.setNumeroPizarra(warrantyNetbank.getNumeroPizarra().trim());
+            if (warrantyNetbank.getTitular() != null)
+                warranty.setTitular(warrantyNetbank.getTitular().trim());
+
             warrantyList.add(warranty);
 
         }
@@ -731,6 +770,32 @@ public class ImportDataForm extends CustomComponent implements View {
     private Grid loadWarrantyNetBank(List<WarrantyNetbank> warrantyNetbankList, Grid<WarrantyNetbank> gridWarranty){
         gridWarranty.removeAllColumns();
         gridWarranty.setItems(warrantyNetbankList);
+
+        gridWarranty.addComponentColumn(warrantyNetbank -> {
+           Button button = new Button();
+           button.setIcon(VaadinIcons.PENCIL);
+           button.setStyleName(ValoTheme.BUTTON_PRIMARY);
+           button.addClickListener(clickEvent -> {
+               if (warrantyNetbank.getGbtgacsup()!=null)
+               if (warrantyNetbank.getGbtgacsup().equals("BM2") || warrantyNetbank.getGbtgacsup().equals("BE2") ) {
+                   WarrantyWindowForm warrantyWindowForm = new WarrantyWindowForm(warrantyNetbank, warrantyNetbankList, "netbank");
+                   warrantyWindowForm.setModal(true);
+                   warrantyWindowForm.setWidth("550px");
+                   warrantyWindowForm.setHeight("250px");
+                   warrantyWindowForm.setResizable(true);
+                   warrantyWindowForm.center();
+                   UI.getCurrent().addWindow(warrantyWindowForm);
+                   warrantyWindowForm.addCloseListener(closeEvent -> {
+                       gridWarranty.setItems(warrantyNetbankList);
+                   });
+               }else{
+                   Notification.show("DATOS GARANTIA",
+                           "La garantia no es un DPF, no se puede editar",
+                           Notification.Type.ERROR_MESSAGE);
+               }
+           });
+           return button;
+        });
         gridWarranty.addColumn(WarrantyNetbank::getPrgarnpre).setCaption("Nro prestamo");
         gridWarranty.addColumn(WarrantyNetbank::getGbtgadesc).setCaption("Tipo garantia");
         gridWarranty.addColumn(WarrantyNetbank::getPrgarcmon).setCaption("Moneda");

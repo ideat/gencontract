@@ -18,18 +18,24 @@
         <result property="prgarfhip" column="prgarfhip"/>
         <result property="prgardesc" column="prgardesc"/>
         <result property="prgarsufl" column="prgarsufl"/>
+        <result property="gbtgacsup" column="gbtgacsup"/>
+        <result property="numeroPizarra" column="numeroPizarra"/>
+        <result property="numeroCUI" column="numeroCUI"/>
+        <result property="entidadEmisora" column="entidadEmisora"/>
+        <result property="titular" column="titular"/>
 
     </resultMap>
 
 
     <select id="findWarrantyNetbankByCreCod" resultMap="WarrantyNetBankResult" parameterType="int">
-        select prgarnpre, prgarcorr, gbtgadesc,
+        select prgarnpre, prgarcorr, gbtgadesc,gbtgacsup,
         case
           when prgarcmon = 1 then "Bs"
           WHEN prgarcmon = 2 then "$us"
         end as prgarcmon,
         prgargfin, prgarfvto, prgarnpar
         ,prgarfpar, prgarnhip, prgarfhip, prgardesc,prgarsufl
+        ,'' as numeroPizarra, '' as numeroCUI, '' as entidadEmisora, '' as titular
         from prgar
         inner join gbtga on (prgartgar = gbtgactga)
         where prgarnpre = #{prgarnpre}

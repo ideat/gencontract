@@ -16,6 +16,53 @@ public class Warranty {
     private String description;
     private String enoughGuarante;
 
+    private String codeGuarantee;
+    private String numeroPizarra;
+    private String numeroCUI;
+    private String entidadEmisora;
+    private String titular;
+
+
+    public String getNumeroPizarra() {
+        return numeroPizarra;
+    }
+
+    public void setNumeroPizarra(String numeroPizarra) {
+        this.numeroPizarra = numeroPizarra;
+    }
+
+    public String getNumeroCUI() {
+        return numeroCUI;
+    }
+
+    public void setNumeroCUI(String numeroCUI) {
+        this.numeroCUI = numeroCUI;
+    }
+
+    public String getEntidadEmisora() {
+        return entidadEmisora;
+    }
+
+    public void setEntidadEmisora(String entidadEmisora) {
+        this.entidadEmisora = entidadEmisora;
+    }
+
+    public String getTitular() {
+        return titular;
+    }
+
+    public void setTitular(String titular) {
+        this.titular = titular;
+    }
+
+    public String getCodeGuarantee() {
+        return codeGuarantee;
+    }
+
+    public void setCodeGuarantee(String codeGuarantee) {
+        this.codeGuarantee = codeGuarantee;
+    }
+
     public Integer getId() {
         return id;
     }

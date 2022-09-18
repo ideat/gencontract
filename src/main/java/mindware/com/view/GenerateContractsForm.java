@@ -1,5 +1,8 @@
 package mindware.com.view;
 
+import com.documents4j.api.DocumentType;
+import com.documents4j.api.IConverter;
+import com.documents4j.job.LocalConverter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.navigator.View;
@@ -83,8 +86,9 @@ public class GenerateContractsForm extends CustomComponent implements View {
             if (validateData()) {
                 if (validateSignatoryEntity()) {
                     Path paths = Paths.get(System.getProperties().get("user.home").toString());
-                    String path = paths.toString() + "/template/" + txtFileNameContract.getValue();
-                    pathGenerate = paths.toString() + "/generated/" + numberLoan.toString() + ".docx";
+                    String separator = System.getProperty("file.separator");
+                    String path = paths.toString() + separator+"template"+separator + txtFileNameContract.getValue();
+                    pathGenerate = paths.toString() + separator+"generated"+separator + numberLoan.toString() + ".docx";
                     if (verifyExistFileContract(path)) {
                         if (verifyExistFileContract(pathGenerate)) {
 
@@ -258,14 +262,33 @@ public class GenerateContractsForm extends CustomComponent implements View {
             replace(path, getFieldValuesLoanData(numberLoan), contract);
 
         } catch (Exception e) {
+            System.out.println("ERROR :" + e);
+            e.printStackTrace();
             Notification.show("ERROR",
                     "Verifique lo siguiente:\n" +
-                            "1. Que existan los representantes legales de la agencia\n" +
+                            " 1. Que existan los representantes legales de la agencia\n" +
                             " 2. Si el contrato es con garantes que el credito, tenga registrado garantes\n" +
                             " 3. Tener registradas correctamente las direcciones de los Codeudores y Garantes\n" +
                             " 4. "+ e +"\n" ,
                     Notification.Type.ERROR_MESSAGE);
+        }
 
+        try{
+            File inputWord = new File(pathGenerate);
+            File outputFile = new File(pathGenerate.replace(".docx",".pdf"));
+
+            InputStream docxInputStream = new FileInputStream(inputWord);
+            OutputStream outputStream = new FileOutputStream(outputFile);
+            IConverter converter = LocalConverter.builder().build();
+
+            converter.convert(docxInputStream).as(DocumentType.DOCX).to(outputStream).as(DocumentType.PDF).execute();
+            outputStream.close();
+        }catch (Exception e){
+            System.out.println("ERROR :" + e);
+            e.printStackTrace();
+            Notification.show("ERROR",
+                    "Error creado archivo PDF \n" +
+                         e.getMessage(), Notification.Type.ERROR_MESSAGE);
         }
     }
 
@@ -299,7 +322,13 @@ public class GenerateContractsForm extends CustomComponent implements View {
 
     }
 
-    private void replace(String inFile, Map<String, String> data, OutputStream out) throws Exception {
+    private void replace(String inFile, Map<String, String> data , OutputStream out) throws Exception {
+
+//        ClassLoader classloader = org.apache.poi.openxml4j.opc.ZipPackage.class.getClassLoader();
+//        java.net.URL res = classloader.getResource("org/apache/poi/openxml4j/opc/ZipPackage.class");
+//        String path = res.getPath();
+//        System.out.println("ZipPackage came from " + path);
+
         XWPFDocument doc = new XWPFDocument(OPCPackage.open(inFile));
 
         XWPFHeaderFooterPolicy policy = new XWPFHeaderFooterPolicy(doc);
@@ -324,7 +353,10 @@ public class GenerateContractsForm extends CustomComponent implements View {
                 }
             }
         }
+
         doc.write(out);
+        out.close();
+
     }
 
     private void replace2(XWPFParagraph p, Map<String, String> data, String partDocument, XWPFDocument doc) throws Exception{
@@ -452,7 +484,7 @@ public class GenerateContractsForm extends CustomComponent implements View {
                     }
                 }
             }
-            System.out.println(p.getText());
+//            System.out.println(p.getText());
         }
     }
 
@@ -900,15 +932,31 @@ public class GenerateContractsForm extends CustomComponent implements View {
                 for(CoDebtorGuarantor coDebtorGuarantor : coDebtorGuarantorList) {
                     map.put("${name}",coDebtorGuarantor.getName());
                     if (coDebtorGuarantor.getTipoDireccion().equals("URBANA")) {
-                        map.put("${addressHome}", coDebtorGuarantor.getAddressHome() + " " + coDebtorGuarantor.getNumeroCasa() + ", " + coDebtorGuarantor.getAdyacentes()
-                                + ", " + coDebtorGuarantor.getZona() + ", " + coDebtorGuarantor.getCiudad()
-                                + ", DEL DEPARTAMENTO DE " + coDebtorGuarantor.getDepartamento()
-                        );
+                        if( coDebtorGuarantor.getAdyacentes().equals("")){
+                            map.put("${addressHome}", coDebtorGuarantor.getAddressHome() + " " + coDebtorGuarantor.getNumeroCasa()
+                                    + ", " + coDebtorGuarantor.getZona() + ", " + coDebtorGuarantor.getCiudad()
+                                    + ", DEL DEPARTAMENTO DE " + coDebtorGuarantor.getDepartamento()
+                            );
+                        }else {
+                            map.put("${addressHome}", coDebtorGuarantor.getAddressHome() + " " + coDebtorGuarantor.getNumeroCasa() + ", " + coDebtorGuarantor.getAdyacentes()
+                                    + ", " + coDebtorGuarantor.getZona() + ", " + coDebtorGuarantor.getCiudad()
+                                    + ", DEL DEPARTAMENTO DE " + coDebtorGuarantor.getDepartamento()
+                            );
+                        }
                     }else{
-                        map.put("${addressHome}", coDebtorGuarantor.getAddressHome() + " " + coDebtorGuarantor.getNumeroCasa()+ ", "  + coDebtorGuarantor.getAdyacentes()
-                                + ", " + coDebtorGuarantor.getZona() + ", " + coDebtorGuarantor.getCiudad()
-                                + ", " + coDebtorGuarantor.getProvincia() +  ", DEL DEPARTAMENTO DE " + coDebtorGuarantor.getDepartamento()
-                        );
+                        if( coDebtorGuarantor.getAdyacentes().equals("")){
+                            map.put("${addressHome}", coDebtorGuarantor.getAddressHome() + " " + coDebtorGuarantor.getNumeroCasa()
+                                    + ", " + coDebtorGuarantor.getZona() + ", " + coDebtorGuarantor.getCiudad()
+                                    + ", " + coDebtorGuarantor.getProvincia() +  ", DEL DEPARTAMENTO DE " + coDebtorGuarantor.getDepartamento()
+                            );
+                        }else{
+                            map.put("${addressHome}", coDebtorGuarantor.getAddressHome() + " " + coDebtorGuarantor.getNumeroCasa()+ ", "  + coDebtorGuarantor.getAdyacentes()
+                                    + ", " + coDebtorGuarantor.getZona() + ", " + coDebtorGuarantor.getCiudad()
+                                    + ", " + coDebtorGuarantor.getProvincia() +  ", DEL DEPARTAMENTO DE " + coDebtorGuarantor.getDepartamento() );
+                        }
+
+
+
                     }
                     map.put("${addressHomeStreet}",coDebtorGuarantor.getAddressHome());
                     map.put("${addressOffice}",coDebtorGuarantor.getAddressOffice());

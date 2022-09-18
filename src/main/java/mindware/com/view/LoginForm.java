@@ -1,6 +1,7 @@
 package mindware.com.view;
 
 
+import com.vaadin.server.VaadinSession;
 import mindware.com.MyUI;
 
 import com.vaadin.data.HasValue;
@@ -82,6 +83,7 @@ public class LoginForm extends CustomComponent {
                 return false;
             else {
                 if (user.getPassword().equals(encripted)) {
+                    VaadinSession.getCurrent().setAttribute("rol",user.getRol().getRolName());
                     return true;
                 } else {
                     return false;

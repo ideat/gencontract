@@ -48,14 +48,16 @@ public class MyBatisSqlSessionFactory {
 
                 Path path = Paths.get(System.getProperties().get("user.home").toString());
 
+
                 String file_private = path.toString()+ "/rsa_postgres.pri";
                 String file_public = path.toString()+ "/rsa_postgres.pub";
 
                 RSA rsa2 = new RSA();
 
-                rsa2.openFromDiskPrivateKey(file_private);
-                rsa2.openFromDiskPublicKey(file_public);
-                String unsecure = rsa2.Decrypt(properties.getProperty("password2"));
+//                rsa2.openFromDiskPrivateKey(file_private);
+//                rsa2.openFromDiskPublicKey(file_public);
+//                String unsecure = rsa2.Decrypt(properties.getProperty("password2"));
+                String unsecure = properties.getProperty("password2");
 
                 jdbcProp = properties;
                 jdbcProp.setProperty("password", unsecure);
@@ -103,9 +105,10 @@ public class MyBatisSqlSessionFactory {
                 //A diferencia de la anterior aca no creamos
                 //un nuevo par de claves, sino que cargamos
                 //el juego de claves que habiamos guadado
-                rsa2.openFromDiskPrivateKey(file_private);
-                rsa2.openFromDiskPublicKey(file_public);
-                String unsecure = rsa2.Decrypt(properties.getProperty("password"));
+//                rsa2.openFromDiskPrivateKey(file_private);
+//                rsa2.openFromDiskPublicKey(file_public);
+//                String unsecure = rsa2.Decrypt(properties.getProperty("password"));
+                String unsecure =properties.getProperty("password");
 
                 jdbcProp = properties;
                 jdbcProp.setProperty("password", unsecure);
@@ -115,19 +118,20 @@ public class MyBatisSqlSessionFactory {
             }catch (IOException e)
             {
                 throw new RuntimeException(e.getCause());
-            } catch (NoSuchAlgorithmException e) {
-                e.printStackTrace();
-            } catch (InvalidKeyException e) {
-                e.printStackTrace();
-            } catch (NoSuchPaddingException e) {
-                e.printStackTrace();
-            } catch (BadPaddingException e) {
-                e.printStackTrace();
-            } catch (InvalidKeySpecException e) {
-                e.printStackTrace();
-            } catch (IllegalBlockSizeException e) {
-                e.printStackTrace();
-            } finally {
+            } //catch (NoSuchAlgorithmException e) {
+                //e.printStackTrace();
+//            } catch (InvalidKeyException e) {
+//                e.printStackTrace();
+//            } catch (NoSuchPaddingException e) {
+//                e.printStackTrace();
+//            } catch (BadPaddingException e) {
+//                e.printStackTrace();
+//            } catch (InvalidKeySpecException e) {
+//                e.printStackTrace();
+//            } catch (IllegalBlockSizeException e) {
+//                e.printStackTrace();
+//            }
+            finally {
                 if(inputStream != null){
                     try {
                         inputStream.close();

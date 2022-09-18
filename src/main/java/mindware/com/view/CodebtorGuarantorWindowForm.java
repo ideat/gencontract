@@ -93,7 +93,7 @@ public class CodebtorGuarantorWindowForm extends Window {
         codebtorGuarantorNetbank.setTipoDireccion(cmbTipoDireccion.getValue().toString());
         codebtorGuarantorNetbank.setGbagedir(txtDireccion.getValue());
         codebtorGuarantorNetbank.setNumeroCasa(txtNumeroCasa.getValue());
-        codebtorGuarantorNetbank.setAdyacentes(txtAdyacentes.getValue());
+        codebtorGuarantorNetbank.setAdyacentes(txtAdyacentes.getValue()==null?"":txtAdyacentes.getValue());
         codebtorGuarantorNetbank.setZona(txtZona.getValue());
         codebtorGuarantorNetbank.setCiudad(txtCiudad.getValue());
         codebtorGuarantorNetbank.setProvincia(txtProvincia.getValue());
@@ -115,7 +115,7 @@ public class CodebtorGuarantorWindowForm extends Window {
         coDebtorGuarantor.setTipoDireccion(cmbTipoDireccion.getValue().toString());
         coDebtorGuarantor.setAddressHome(txtDireccion.getValue());
         coDebtorGuarantor.setNumeroCasa(txtNumeroCasa.getValue());
-        coDebtorGuarantor.setAdyacentes(txtAdyacentes.getValue());
+        coDebtorGuarantor.setAdyacentes(txtAdyacentes.getValue()==null?"":txtAdyacentes.getValue());
         coDebtorGuarantor.setZona(txtZona.getValue());
         coDebtorGuarantor.setProvincia(txtProvincia.getValue());
         coDebtorGuarantor.setCiudad(txtCiudad.getValue());
@@ -163,7 +163,7 @@ public class CodebtorGuarantorWindowForm extends Window {
         if (cmbTipoDireccion.isEmpty() || cmbTipoDireccion.getValue().equals("")) return "Tipo de direccion, no puede omitirse";
         if (txtDireccion.isEmpty()) return "Calle de la direccion no puede ser omitida";
         if (txtNumeroCasa.isEmpty()) return "Nro de docicilio no puede ser omitido";
-        if (txtAdyacentes.isEmpty()) return "Adyacentes no puede se omitida";
+//        if (txtAdyacentes.isEmpty()) return "Adyacentes no puede se omitida";
         if (txtZona.isEmpty()) return "Zona no puede ser omitida";
         if (txtCiudad.isEmpty()) return "Ciudad no puede ser omitida";
         if (tipoDireccion.equals("RURAL"))
@@ -212,7 +212,7 @@ public class CodebtorGuarantorWindowForm extends Window {
 
         txtAdyacentes = new TextField("Adyacentes:");
         txtAdyacentes.setStyleName(ValoTheme.TEXTFIELD_TINY);
-        txtAdyacentes.setRequiredIndicatorVisible(true);
+        txtAdyacentes.setRequiredIndicatorVisible(false);
         mainGridLayout.addComponent(txtAdyacentes,2,1);
 
         txtZona = new TextField("Zona/Barrio:");

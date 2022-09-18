@@ -78,39 +78,77 @@ public class ListContractsForm extends CustomComponent implements View {
 
 
         gridListContract.setItems(getListContract(rolViewContract));
-        gridListContract.addComponentColumn(listContract ->{
-            Button button = new Button();
-            button.setIcon(VaadinIcons.DOWNLOAD);
-            button.setStyleName(ValoTheme.BUTTON_FRIENDLY);
-            button.addClickListener(clickEvent -> {
+
+        if(!VaadinSession.getCurrent().getAttribute("rol").toString().equals("user")) {
+            gridListContract.addComponentColumn(listContract -> {
+                Link link = null;
 
                 File file = new File(listContract.getFileNameContract());
                 if (file.exists()) {
+                    FileResource resource = new FileResource(new File(listContract.getFileNameContract()));
+                    link = new Link("DOCX", resource);
 
-                    final FileResource res = new FileResource(new File(listContract.getFileNameContract()));
-                    res.setCacheTime(0);
-                    FileDownloader fd = new FileDownloader(res) {
-                        @Override
-                        public boolean handleConnectorRequest(VaadinRequest request,
-                                                              VaadinResponse response, String path) throws IOException {
-
-                            boolean result = super.handleConnectorRequest(request, response, path);
-
-                            return result;
-                        }
-                    };
-
-                    fd.extend(button);
-                }else {
-                    Notification.show("Contrato",
-                            "No existe el contrato generado",
-                            Notification.Type.ERROR_MESSAGE);
+                } else {
+//                Notification.show("Contrato",
+//                            "No existe el contrato generado",
+//                            Notification.Type.ERROR_MESSAGE);
                 }
-            });
 
-            return button;
+                return link;
+            }).setWidth(80);
+        }
+        gridListContract.addComponentColumn(listContract -> {
+            Link link = null;
 
-        });
+            File file = new File(listContract.getFileNameContract().replace(".docx",".pdf"));
+            if (file.exists()) {
+                FileResource resource = new FileResource(new File(listContract.getFileNameContract().replace(".docx",".pdf")));
+                link = new Link("PDF",resource);
+                link.setTargetName("_blank");
+
+            }else {
+//                Notification.show("Contrato",
+//                            "No existe el contrato generado",
+//                            Notification.Type.ERROR_MESSAGE);
+            }
+
+            return link;
+        }).setWidth(80);
+
+
+//        gridListContract.addComponentColumn(listContract ->{
+//            Button button = new Button();
+//            button.setIcon(VaadinIcons.DOWNLOAD);
+//            button.setStyleName(ValoTheme.BUTTON_FRIENDLY);
+//            button.addClickListener(clickEvent -> {
+//
+//                File file = new File(listContract.getFileNameContract());
+//                if (file.exists()) {
+//
+//                    final FileResource res = new FileResource(new File(listContract.getFileNameContract()));
+//                    res.setCacheTime(0);
+//                    FileDownloader fd = new FileDownloader(res) {
+//                        @Override
+//                        public boolean handleConnectorRequest(VaadinRequest request,
+//                                                              VaadinResponse response, String path) throws IOException {
+//
+//                            boolean result = super.handleConnectorRequest(request, response, path);
+//
+//                            return result;
+//                        }
+//                    };
+//
+//                    fd.extend(button);
+//                }else {
+//                    Notification.show("Contrato",
+//                            "No existe el contrato generado",
+//                            Notification.Type.ERROR_MESSAGE);
+//                }
+//            });
+//
+//            return button;
+//
+//        });
     }
 
 

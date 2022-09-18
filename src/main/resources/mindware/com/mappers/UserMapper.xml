@@ -47,6 +47,7 @@
     <select id="findUserByLogin" resultMap="UserResult" parameterType="string">
         select *
         from public.user u
+        inner join public.rol r on (u.rol_id = r.rol_id)
         where u.login = #{login}
 
     </select>

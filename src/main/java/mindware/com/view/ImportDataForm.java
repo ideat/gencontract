@@ -25,7 +25,7 @@ import mindware.com.netbank.service.WarrantyNetBankService;
 import mindware.com.service.BranchOfficeService;
 import mindware.com.service.LoanDataService;
 import mindware.com.utilities.Util;
-import org.apache.commons.lang.math.NumberUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.IOException;
@@ -508,7 +508,11 @@ public class ImportDataForm extends CustomComponent implements View {
         Date date =  loanData.getLoanDate();
         dateLoanDate.setValue(date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate());
         txtTotalPayment.setValue(loanData.getTotalPayment().toString());
-        dateLoanDate.setValue(new Util().stringToLocalDate(loanData.getLoanDate().toString(),"dd-MM-yyyy"));
+        LocalDate localDate = loanData.getLoanDate().toInstant()
+                .atZone(ZoneId.systemDefault())
+                .toLocalDate();
+//        dateLoanDate.setValue(new Util().stringToLocalDate(loanData.getLoanDate().toString(),"dd-MM-yyyy"));
+        dateLoanDate.setValue(localDate);
         txtSavingBox.setValue(String.valueOf(loanData.getSavingBox()));
         txtSpread.setValue(loanData.getSpread().toString());
         txtLoanLine.setValue(loanData.getLoanLine().toString());
@@ -934,7 +938,12 @@ public class ImportDataForm extends CustomComponent implements View {
         txtInterestRate.setValue(clientLoanNetbank.getPrtsatbas().toString());
         txtFixedPaymentDay.setValue(clientLoanNetbank.getPrmprdiap() == null ? "0" : clientLoanNetbank.getPrmprdiap().toString());
         txtPaymentFrecuency.setValue(clientLoanNetbank.getPrmprppgk().toString());
-        dateLoanDate.setValue(new Util().stringToLocalDate(clientLoanNetbank.getPrmprfreg().toString(),"dd-MM-yyyy"));
+
+        LocalDate localDate = clientLoanNetbank.getPrmprfreg().toInstant()
+                .atZone(ZoneId.systemDefault())
+                .toLocalDate();
+        dateLoanDate.setValue(localDate);
+//        dateLoanDate.setValue(new Util().stringToLocalDate(clientLoanNetbank.getPrmprfreg().toString(),"dd-MM-yyyy"));
         txtCreditLifeInsurance.setValue("0");
         txtSpread.setValue("0");
         txtOfficial.setValue("");

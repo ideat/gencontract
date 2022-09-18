@@ -27,20 +27,36 @@
     </resultMap>
 
 
+<!--    <select id="findWarrantyNetbankByCreCod" resultMap="WarrantyNetBankResult" parameterType="int">-->
+<!--        select prgarnpre, prgarcorr, gbtgadesc,gbtgacsup,-->
+<!--        case-->
+<!--          when prgarcmon = 1 then "BS"-->
+<!--          WHEN prgarcmon = 2 then "USD"-->
+<!--        end as prgarcmon,-->
+<!--        prgargfin, prgarfvto, prgarnpar-->
+<!--        ,prgarfpar, prgarnhip, prgarfhip, prgardesc,prgarsufl-->
+<!--        ,'' as numeroPizarra, '' as numeroCUI, '' as entidadEmisora, '' as titular-->
+<!--        from prgar-->
+<!--        inner join gbtga on (prgartgar = gbtgactga)-->
+<!--        where prgarnpre = #{prgarnpre}-->
+
+<!--    </select>-->
+
     <select id="findWarrantyNetbankByCreCod" resultMap="WarrantyNetBankResult" parameterType="int">
-        select prgarnpre, prgarcorr, gbtgadesc,gbtgacsup,
-        case
-          when prgarcmon = 1 then "BS"
-          WHEN prgarcmon = 2 then "USD"
-        end as prgarcmon,
-        prgargfin, prgarfvto, prgarnpar
-        ,prgarfpar, prgarnhip, prgarfhip, prgardesc,prgarsufl
-        ,'' as numeroPizarra, '' as numeroCUI, '' as entidadEmisora, '' as titular
-        from prgar
-        inner join gbtga on (prgartgar = gbtgactga)
-        where prgarnpre = #{prgarnpre}
+        select gagopnopr as prgarnpre, gagarngar as prgarcorr, gbtgadesc,gbtgacsup,
+            case
+                when gagarcmon = 1 then "BS"
+                WHEN gagarcmon = 2 then "USD"
+                end as prgarcmon,
+            gagargfin as prgargfin, gagarfvto as prgarfvto, gagarnpar as prgarnpar
+             ,gagarfpar as prgarfpar, gardrnhip as prgarnhip, gardrfins as prgarfhip
+             ,gagardesc as  prgardesc, gagarsufl as prgarsufl
+             ,'' as numeroPizarra, '' as numeroCUI, '' as entidadEmisora, '' as titular
+        from gagar
+                 inner join gbtga on (gagartgar = gbtgactga)
+                 left join gardr on (gardrngar = gagarngar)
+                 inner join gagop on (gagopngar = gagarngar)
+        where gagopnopr  = #{prgarnpre}
 
     </select>
-
-
 </mapper>

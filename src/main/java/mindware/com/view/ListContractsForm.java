@@ -87,7 +87,7 @@ public class ListContractsForm extends CustomComponent implements View {
                 if (file.exists()) {
                     FileResource resource = new FileResource(new File(listContract.getFileNameContract()));
                     link = new Link("DOCX", resource);
-
+//                    link.setTargetName("_blank");
                 } else {
 //                Notification.show("Contrato",
 //                            "No existe el contrato generado",

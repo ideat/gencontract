@@ -1,28 +1,52 @@
 package mindware.com.view;
 
-import com.documents4j.api.DocumentType;
-import com.documents4j.api.IConverter;
-import com.documents4j.job.LocalConverter;
+//import com.documents4j.api.DocumentType;
+//import com.documents4j.api.IConverter;
+//import com.documents4j.job.LocalConverter;
 import com.fasterxml.jackson.databind.ObjectMapper;
+//import com.lowagie.text.Font;
+//import com.lowagie.text.pdf.BaseFont;
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.navigator.View;
 import com.vaadin.server.*;
 import com.vaadin.ui.*;
 import com.vaadin.ui.themes.ValoTheme;
 import de.steinwedel.messagebox.MessageBox;
+//import fr.opensagres.poi.xwpf.converter.pdf.PdfConverter;
+//import fr.opensagres.poi.xwpf.converter.pdf.PdfOptions;
 import mindware.com.model.*;
 import mindware.com.service.*;
 import mindware.com.utilities.NumberToLiteral;
 
 import mindware.com.utilities.Util;
 import org.apache.commons.lang3.StringUtils;
+//import org.apache.poi.hwpf.HWPFDocument;
+import org.apache.ibatis.io.Resources;
 import org.apache.poi.openxml4j.opc.OPCPackage;
 import org.apache.poi.xwpf.model.XWPFHeaderFooterPolicy;
 import org.apache.poi.xwpf.usermodel.*;
-import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTNumPr;
+import org.checkerframework.checker.nullness.qual.NonNull;
+import org.docx4j.Docx4J;
+import org.docx4j.openpackaging.packages.WordprocessingMLPackage;
+import org.docx4j.openpackaging.parts.WordprocessingML.MainDocumentPart;
+import org.jodconverter.core.DocumentConverter;
+import org.jodconverter.core.document.DocumentFormatRegistry;
+import org.jodconverter.core.job.ConversionJobWithOptionalSourceFormatUnspecified;
+import org.jodconverter.core.office.OfficeException;
+import org.jodconverter.core.office.OfficeManager;
+import org.jodconverter.core.office.OfficeUtils;
+import org.jodconverter.local.JodConverter;
+import org.jodconverter.local.office.LocalOfficeManager;
+//import org.jodconverter.core.office.OfficeException;
+//import org.jodconverter.core.office.OfficeUtils;
+//import org.jodconverter.local.JodConverter;
+//import org.jodconverter.local.office.LocalOfficeManager;
+//import org.docx4j.Docx4J;
+//import org.docx4j.openpackaging.packages.WordprocessingMLPackage;
+//import org.docx4j.openpackaging.parts.WordprocessingML.MainDocumentPart;
 
 import java.io.*;
-import java.math.BigInteger;
+
 import java.net.URI;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -32,6 +56,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class GenerateContractsForm extends CustomComponent implements View {
+
+
     private GridLayout gridMainLayout;
     private HorizontalLayout horizontalLayout;
     private Panel panelGridLoanData;
@@ -245,7 +271,6 @@ public class GenerateContractsForm extends CustomComponent implements View {
 //
 //        Page.getCurrent().open(ref.getURL(), null);
 
-
     }
 
 
@@ -273,23 +298,94 @@ public class GenerateContractsForm extends CustomComponent implements View {
                     Notification.Type.ERROR_MESSAGE);
         }
 
-        try{
-            File inputWord = new File(pathGenerate);
-            File outputFile = new File(pathGenerate.replace(".docx",".pdf"));
+//        try {
+//
+////
+//            com.aspose.words.Document doc = new com.aspose.words.Document(pathGenerate);
+//            doc.save(pathGenerate.replace(".docx",".pdf"));
+//
+//        } catch (Exception e) {
+//            throw new RuntimeException(e);
+//        }
 
-            InputStream docxInputStream = new FileInputStream(inputWord);
-            OutputStream outputStream = new FileOutputStream(outputFile);
-            IConverter converter = LocalConverter.builder().build();
+//        try{
+//
+//
+//            ConvertToPDF(pathGenerate,pathGenerate.replace(".docx",".pdf"));
+//
+//        }catch (Exception e){
+//            System.out.println("ERROR :" + e);
+//            e.printStackTrace();
+//            Notification.show("ERROR",
+//                    "Error creado archivo PDF \n" +
+//                         e.getMessage(), Notification.Type.ERROR_MESSAGE);
+//        }
 
-            converter.convert(docxInputStream).as(DocumentType.DOCX).to(outputStream).as(DocumentType.PDF).execute();
-            outputStream.close();
-        }catch (Exception e){
-            System.out.println("ERROR :" + e);
-            e.printStackTrace();
-            Notification.show("ERROR",
-                    "Error creado archivo PDF \n" +
-                         e.getMessage(), Notification.Type.ERROR_MESSAGE);
+//        try {
+//            InputStream templateInputStream = new FileInputStream(pathGenerate);
+//            WordprocessingMLPackage wordMLPackage = WordprocessingMLPackage.load(templateInputStream);
+////            wordMLPackage.getProtectionSettings().removeEnforcement();
+//
+//            MainDocumentPart documentPart = wordMLPackage.getMainDocumentPart();
+//
+//            documentPart.getEndNotesPart().remove();
+//
+//
+//            String outputfilepath = pathGenerate.replace(".docx",".pdf");
+//            FileOutputStream os = new FileOutputStream(outputfilepath);
+//
+//            Docx4J.toPDF(wordMLPackage,os);
+//            os.flush();
+//            os.close();
+//        } catch (Throwable e) {
+//
+//            System.out.println("ERROR :" + e);
+//            e.printStackTrace();
+//            Notification.show("ERROR",
+//                    "Error creado archivo PDF \n" +
+//                            e.getMessage(), Notification.Type.ERROR_MESSAGE);
+//        }
+        String outputfilepath = pathGenerate.replace(".docx",".pdf");
+        try {
+            convertToPDF(pathGenerate,outputfilepath);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        } catch (OfficeException e) {
+            throw new RuntimeException(e);
         }
+    }
+
+    private void convertToPDF(String docPath, String pdfPath) throws IOException, OfficeException {
+//        try {
+//            InputStream doc = new FileInputStream(new File(docPath));
+//            XWPFDocument document = new XWPFDocument(doc);
+//            PdfOptions options = PdfOptions.create();
+//            OutputStream out = new FileOutputStream(new File(pdfPath));
+//            PdfConverter.getInstance().convert(document, out, options);
+//            document.close();
+//        } catch (IOException ex) {
+//            System.out.println(ex.getMessage());
+//        }
+        InputStream fileInputStream =  Resources.getResourceAsStream("application.properties");
+        Properties properties = new Properties();
+        properties.load(fileInputStream);
+        fileInputStream.close();
+        OfficeManager officeManager = LocalOfficeManager.builder()
+                .install()
+                .officeHome(properties.getProperty("jodconverter.local.office-home"))
+                .build();
+        File inputFile = new File(docPath);
+        File outputFile = new File(pdfPath);
+        try {
+            officeManager.start();
+            JodConverter
+                    .convert(inputFile)
+                    .to(outputFile)
+                    .execute();
+        }finally {
+            OfficeUtils.stopQuietly(officeManager);
+        }
+
     }
 
     private void insertUpdateContract(String nameContract, String type){
@@ -328,6 +424,8 @@ public class GenerateContractsForm extends CustomComponent implements View {
 //        java.net.URL res = classloader.getResource("org/apache/poi/openxml4j/opc/ZipPackage.class");
 //        String path = res.getPath();
 //        System.out.println("ZipPackage came from " + path);
+
+
 
         XWPFDocument doc = new XWPFDocument(OPCPackage.open(inFile));
 
@@ -664,6 +762,15 @@ public class GenerateContractsForm extends CustomComponent implements View {
             if(parameter.getValueParameter().equals("lineMount"))
                 stringMapVariables.put(parameter.getValueParameter(),loanData.getLineMount().toString());
 
+            if(parameter.getValueParameter().equals("unemploymentInsurance")){
+                stringMapVariables.put(parameter.getValueParameter(),loanData.getUnemploymentInsurance().toString());
+            }
+            if(parameter.getValueParameter().equals("amountUnemploymentInsurance")){
+                stringMapVariables.put(parameter.getValueParameter(),loanData.getAmountUnemploymentInsurance().toString());
+            }
+            if(parameter.getValueParameter().equals("beneficiaryName")){
+                stringMapVariables.put(parameter.getValueParameter(),loanData.getBeneficiaryName());
+            }
         }
 
         listVariableContract.removeAll(listVariableContract);

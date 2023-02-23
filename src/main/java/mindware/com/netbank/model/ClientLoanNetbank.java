@@ -25,6 +25,9 @@ public class ClientLoanNetbank {
     private Integer lcmlcplzo;
     private Double lcmlcmapr;
 
+    private Double prcgcmont;
+
+
     public Double getLcmlcmapr() {
         return lcmlcmapr;
     }
@@ -191,6 +194,14 @@ public class ClientLoanNetbank {
 
     public void setPrmprfreg(Date prmprfreg) {
         this.prmprfreg = prmprfreg;
+    }
+
+    public Double getPrcgcmont() {
+        return prcgcmont;
+    }
+
+    public void setPrcgcmont(Double prcgcmont) {
+        this.prcgcmont = prcgcmont;
     }
 }
 

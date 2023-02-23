@@ -27,6 +27,7 @@
         <result property="lcmlctasa" column="lcmlctasa"/>
         <result property="lcmlcplzo" column="lcmlcplzo"/>
         <result property="lcmlcmapr" column="lcmlcmapr"/>
+        <result property="prcgcmont" column="prcgcmont"/>
     </resultMap>
 
 
@@ -83,12 +84,14 @@
           case
 		   when lcmlcmapr is null then 0
 		   else lcmlcmapr
-          end as lcmlcmapr
+          end as lcmlcmapr,
+          prcgcmont
         from gbdac
         inner join prmpr on (prmprcage = gbdaccage)
         inner join gbage on (gbdaccage = gbagecage)
         left join prtsa on (prmprnpre = prtsanpre)
         left join lcmlc on (prmprlncr = lcmlcnrlc)
+        left join prcgc on (prcgcnpre = prmprnpre and prcgccarg=170 and prcgcmrcb=0)
         where prmprnpre = #{prmprnpre}
         and  prtsafvig = (select MAX(prtsafvig) from prtsa where prtsanpre = #{prmprnpre})
 

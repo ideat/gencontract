@@ -41,6 +41,12 @@ public class LoanData {
     private Double lineMount;
     private String warrantyDpf;
 
+    private Double unemploymentInsurance;
+
+    private Double amountUnemploymentInsurance;
+
+    private String beneficiaryName;
+
     public String getWarrantyDpf() {
         return warrantyDpf;
     }
@@ -335,6 +341,30 @@ public class LoanData {
 
     public void setExtraData(String extraData) {
         this.extraData = extraData;
+    }
+
+    public Double getUnemploymentInsurance() {
+        return unemploymentInsurance;
+    }
+
+    public void setUnemploymentInsurance(Double unemploymentInsurance) {
+        this.unemploymentInsurance = unemploymentInsurance;
+    }
+
+    public Double getAmountUnemploymentInsurance() {
+        return amountUnemploymentInsurance;
+    }
+
+    public void setAmountUnemploymentInsurance(Double amountUnemploymentInsurance) {
+        this.amountUnemploymentInsurance = amountUnemploymentInsurance;
+    }
+
+    public String getBeneficiaryName() {
+        return beneficiaryName;
+    }
+
+    public void setBeneficiaryName(String beneficiaryName) {
+        this.beneficiaryName = beneficiaryName;
     }
 }
 

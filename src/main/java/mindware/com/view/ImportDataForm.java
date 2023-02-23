@@ -70,6 +70,12 @@ public class ImportDataForm extends CustomComponent implements View {
     private TextField txtLineTerm;
     private ComboBox<BranchOffice> cmbAgency;
 
+    private TextField txtUnemploymentInsurance;
+
+    private TextField txtAmountUnemploymentInsurance;
+
+    private TextField txtBeneficiaryName;
+
     private Grid<?> gridCoDebtor;
     private Grid<?> gridGuarantor;
 
@@ -192,6 +198,10 @@ public class ImportDataForm extends CustomComponent implements View {
                             loanData.setLineMount(Double.parseDouble(txtLineMount.getValue()));
                             loanData.setLineTerm(Integer.parseInt(txtLineTerm.getValue()));
 
+                            loanData.setUnemploymentInsurance(txtUnemploymentInsurance.getValue().equals("")?0.0: Double.parseDouble(txtUnemploymentInsurance.getValue()));
+                            loanData.setAmountUnemploymentInsurance(txtAmountUnemploymentInsurance.getValue().equals("")?0.0: Double.parseDouble(txtAmountUnemploymentInsurance.getValue()));
+                            loanData.setBeneficiaryName(txtBeneficiaryName.getValue());
+
                             ObjectMapper mapper = new ObjectMapper();
                             String jsonCodebtor = null;
 
@@ -259,6 +269,10 @@ public class ImportDataForm extends CustomComponent implements View {
                     loanData.setLoanTerm(Integer.parseInt(txtLoanTerm.getValue()));
                     loanData.setBranchOfficeId(cmbAgency.getValue().getBranchOfficeId());
                     loanData.setCreditLifeInsurance(Double.parseDouble(txtCreditLifeInsurance.getValue()));
+
+                    loanData.setUnemploymentInsurance(Double.parseDouble(txtUnemploymentInsurance.getValue()));
+                    loanData.setAmountUnemploymentInsurance(Double.parseDouble(txtAmountUnemploymentInsurance.getValue()));
+                    loanData.setBeneficiaryName(txtBeneficiaryName.getValue());
 
                     ObjectMapper mapper = new ObjectMapper();
                     String jsonGuarantor = null;
@@ -478,6 +492,8 @@ public class ImportDataForm extends CustomComponent implements View {
         if (!util.isNumber(txtCreditLifeInsurance.getValue())) return "Seguro desgravamen no es valido";
         if (!util.isNumber(txtSpread.getValue())) return "Spread no es valido";
         if (!util.isNumber(txtLoanTerm.getValue())) return "Plazo no es valido";
+        if (!util.isNumber(txtUnemploymentInsurance.getValue())) return "Cesantia no es valido";
+        if (!util.isNumber(txtAmountUnemploymentInsurance.getValue())) return "Monto prima no es valido";
 
         return "OK";
     }
@@ -501,6 +517,10 @@ public class ImportDataForm extends CustomComponent implements View {
         txtOfficial.setValue(loanData.getOfficial());
         cmbAgency.setValue(getBranchOffice(Integer.parseInt(loanData.getAgency())));
 
+        txtUnemploymentInsurance.setValue(loanData.getUnemploymentInsurance()==null?"0.0": loanData.getUnemploymentInsurance().toString());
+        txtAmountUnemploymentInsurance.setValue(loanData.getAmountUnemploymentInsurance()==null?"0.0": loanData.getAmountUnemploymentInsurance().toString());
+        txtBeneficiaryName.setValue(loanData.getBeneficiaryName()==null?"":loanData.getBeneficiaryName());
+
         txtTeacRate.setValue(loanData.getTeacRate().toString());
         txtTreRate.setValue(loanData.getTreRate().toString());
         txtFeePayment.setValue(loanData.getFeePayment().toString());
@@ -520,6 +540,8 @@ public class ImportDataForm extends CustomComponent implements View {
         txtLineSpread.setValue(loanData.getLineSpread().toString());
         txtLineRate.setValue(loanData.getLineRate().toString());
         txtLineMount.setValue(loanData.getLineMount().toString());
+
+
 
         gridCoDebtor.removeAllColumns();
         gridGuarantor.removeAllColumns();
@@ -955,6 +977,8 @@ public class ImportDataForm extends CustomComponent implements View {
         txtLineMount.setValue(clientLoanNetbank.getLcmlcmapr().toString());
         txtLineSpread.setValue(clientLoanNetbank.getLcmlcsprd().toString());
         txtLineTerm.setValue(clientLoanNetbank.getLcmlcplzo().toString());
+        txtUnemploymentInsurance.setValue(clientLoanNetbank.getPrcgcmont() == null?"0.0": clientLoanNetbank.getPrcgcmont().toString());
+        txtAmountUnemploymentInsurance.setValue("0.0");
         fieldClientStatus(true);
 
     }
@@ -982,6 +1006,10 @@ public class ImportDataForm extends CustomComponent implements View {
         dateLoanDate.clear();
         txtTotalPayment.clear();
         txtSavingBox.clear();
+
+        txtUnemploymentInsurance.clear();
+        txtAmountUnemploymentInsurance.clear();
+        txtBeneficiaryName.clear();
 
         txtLoanLine.clear();
         txtLineRate.clear();
@@ -1289,11 +1317,26 @@ public class ImportDataForm extends CustomComponent implements View {
         txtSavingBox.addStyleName("my_bg_style");
         gridLayoutSupplementaryData.addComponent(txtSavingBox,5,0);
 
+        txtUnemploymentInsurance = new TextField("Seguro Cesantia:");
+        txtUnemploymentInsurance.setStyleName(ValoTheme.TEXTFIELD_TINY);
+//        txtUnemploymentInsurance.addStyleName("my_bg_style");
+        gridLayoutSupplementaryData.addComponent(txtUnemploymentInsurance,0,1);
+
+        txtAmountUnemploymentInsurance = new TextField("Monto Prima Cesantia:");
+        txtAmountUnemploymentInsurance.setStyleName(ValoTheme.TEXTFIELD_TINY);
+//        txtAmountUnemploymentInsurance.addStyleName("my_bg_style");
+        gridLayoutSupplementaryData.addComponent(txtAmountUnemploymentInsurance,1,1);
+
+        txtBeneficiaryName = new TextField("Nombre beneficiairo:");
+        txtBeneficiaryName.setStyleName(ValoTheme.TEXTFIELD_TINY);
+//        txtBeneficiaryName.addStyleName("my_bg_style");
+        gridLayoutSupplementaryData.addComponent(txtBeneficiaryName,2,1);
+
         txtLoanDestination = new TextField("Destino del credito:");
         txtLoanDestination.setStyleName(ValoTheme.TEXTFIELD_TINY);
         txtLoanDestination.setWidth("360px");
         txtLoanDestination.addStyleName("my_bg_style");
-        gridLayoutSupplementaryData.addComponent(txtLoanDestination,0,1,3,1);
+        gridLayoutSupplementaryData.addComponent(txtLoanDestination,3,1,6,1);
 
 //        btnSaveSupplementaryData = new Button("Guardar");
 //        btnSaveSupplementaryData.setStyleName(ValoTheme.BUTTON_PRIMARY);

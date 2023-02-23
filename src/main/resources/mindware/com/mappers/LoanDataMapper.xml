@@ -41,6 +41,9 @@
         <result property="lineTerm" column="line_term"/>
         <result property="lineRate" column="line_rate"/>
         <result property="lineMount" column="line_mount"/>
+        <result property="unemploymentInsurance" column="unemployment_insurance"/>
+        <result property="amountUnemploymentInsurance" column="amount_unemployment_insurance"/>
+        <result property="beneficiaryName" column="beneficiary_name"/>
         <association property="branchOffice"  column="branch_office_id" javaType="branchoffice" resultMap="BranchOfficeResult" />
 
     </resultMap>
@@ -110,7 +113,10 @@
         line_spread,
         line_rate,
         line_term,
-        line_mount)
+        line_mount,
+        unemployment_insurance,
+        amount_unemployment_insurance,
+        beneficiary_name)
         values (
         #{loanDataId},
         #{branchOfficeId},
@@ -146,7 +152,10 @@
         #{lineSpread},
         #{lineRate},
         #{lineTerm},
-        #{lineMount})
+        #{lineMount},
+        #{unemploymentInsurance},
+        #{amountUnemploymentInsurance},
+        #{beneficiaryName}    )
     </insert>
 
     <update id="updateLoanData" parameterType="loanData">
@@ -184,7 +193,10 @@
         line_spread = #{lineSpread},
         line_rate = #{lineRate},
         line_term = #{lineTerm},
-        line_mount = #{lineMount}
+        line_mount = #{lineMount},
+        unemployment_insurance = #{unemploymentInsurance},
+        amount_unemployment_insurance = #{amountUnemploymentInsurance},
+        beneficiary_name = #{beneficiaryName}
         where loan_data_id = #{loanDataId}
     </update>
 
@@ -212,7 +224,10 @@
           branch_office_id = #{branchOfficeId},
           credit_life_insurance = #{creditLifeInsurance},
           guarantors = #{guarantors}::json,
-          co_debtors = #{coDebtors}::json
+          co_debtors = #{coDebtors}::json,
+          unemployment_insurance = #{unemploymentInsurance},
+          amount_unemployment_insurance = #{amountUnemploymentInsurance},
+          beneficiary_name = #{beneficiaryName}
         where loan_data_id = #{loanDataId}
     </update>
 

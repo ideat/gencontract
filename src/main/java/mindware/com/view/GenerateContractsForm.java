@@ -183,7 +183,12 @@ public class GenerateContractsForm extends CustomComponent implements View {
 
         btnDownloadContract.addClickListener(clickEvent -> {
             if (!pathGenerate.equals("") ) {
-                downloadContract(pathGenerate, numberLoan.toString()+".docx");
+                if(VaadinSession.getCurrent().getAttribute("rol").toString().equals("user")) {
+                    pathGenerate = pathGenerate.replaceAll("docx","pdf");
+                    downloadContract(pathGenerate, numberLoan.toString() + ".pdf");
+                }else{
+                    downloadContract(pathGenerate, numberLoan.toString() + ".docx");
+                }
             } else {
                 Notification.show("ERROR",
                         "No se genero un contrato, genere uno y pruebe nuevamente",
@@ -373,6 +378,7 @@ public class GenerateContractsForm extends CustomComponent implements View {
         OfficeManager officeManager = LocalOfficeManager.builder()
                 .install()
                 .officeHome(properties.getProperty("jodconverter.local.office-home"))
+                .taskExecutionTimeout(5*100*1000l)
                 .build();
         File inputFile = new File(docPath);
         File outputFile = new File(pdfPath);
@@ -1177,7 +1183,11 @@ public class GenerateContractsForm extends CustomComponent implements View {
             button.setIcon(VaadinIcons.DOWNLOAD);
             button.setStyleName(ValoTheme.BUTTON_FRIENDLY);
             button.addClickListener(clickEvent -> {
+
                 if (verifyExistFileContract(pathGenerate)) {
+                    if(VaadinSession.getCurrent().getAttribute("rol").toString().equals("user")) {
+                        pathGenerate = pathGenerate.replace("docx", "pdf");
+                    }
                     final FileResource res = new FileResource(new File(pathGenerate));
                     res.setCacheTime(0);
                     FileDownloader fd = new FileDownloader(res) {
